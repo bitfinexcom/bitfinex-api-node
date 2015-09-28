@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/joshuarossi/bitfinex-api-node/issues"
   },
-  "homepage": "https://github.com/joshuarossi/bitfinex-api-node"
+  "homepage": "https://github.com/joshuarossi/bitfinex-api-node",
+  "devDependencies": {
+    "ws": "^0.8.0"
+  }
 }
