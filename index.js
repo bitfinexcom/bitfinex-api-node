@@ -4,10 +4,12 @@
 
 module.exports = {
     websocket: function() {
-        return null;
+        websocket = {};
+        return websocket;
     },
 
     rest: function() {
-        return null;
+        rest = {};
+        return rest;
     }
 };
