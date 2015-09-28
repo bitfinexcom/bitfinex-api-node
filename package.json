@@ -1,0 +1,23 @@
+{
+  "name": "bitfinex-api-node",
+  "version": "0.0.1",
+  "description": "Node reference library for Bitfinex API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joshuarossi/bitfinex-api-node.git"
+  },
+  "keywords": [
+    "bitfinex",
+    "bitcoin"
+  ],
+  "author": "Josh Rossi <josh@bitfinex.com> (https://www.bitfinex.com)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/joshuarossi/bitfinex-api-node/issues"
+  },
+  "homepage": "https://github.com/joshuarossi/bitfinex-api-node"
+}
