@@ -35,6 +35,11 @@ module.exports = {
         ws.api_key = '';
         ws.api_secret = '';
         ws.debug = true;
+        ws.tradeHook = function(msg){};
+        ws.tickerHook = function(msg){};
+        ws.walletHook = function(msg){};
+        ws.orderHook = function(msg){};
+        ws.positionHook = function(msg){};
         ws.messages = [];
         ws.orders = {};
         ws.positions = {};
@@ -90,7 +95,12 @@ module.exports = {
             }
         };
         ws.subBook = function () {
-            console.log('should sub book here');
+            if (arguments.length == 0) {
+                ws.send(JSON.stringify({Event: "subscribe", Channel: "book", Pair: "BTCUSD"}))
+            }
+            else {
+                ws.send(JSON.stringify({Event: "subscribe", Channel: "book", Pair: pair}))
+            }
         };
         ws.auth = function (api_key, api_secret) {
             if (api_key && api_secret) {
