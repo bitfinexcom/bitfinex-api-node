@@ -71,6 +71,12 @@ module.exports = {
         ws.subBook = function () {
             console.log('should sub book here');
         };
+        ws.auth = function (api_key, api_secret) {
+            var crypto = require('crypto');
+            var payload = 'AUTH' + (new Date().getTime());
+            var signature = crypto.createHmac("sha384", api_secret).update(payload).digest('hex');
+            ws.send(JSON.stringify({ Event: "auth", ApiKey: api_key, AuthSig: signature, AuthPayload: payload }));
+        };
         return ws
     },
 
