@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/joshuarossi/bitfinex-api-node.git"
+    "url": "https://github.com/bitfinexcom/bitfinex-api-node.git"
   },
   "keywords": [
     "bitfinex",
@@ -17,9 +17,9 @@
   "author": "Josh Rossi <josh@bitfinex.com> (https://www.bitfinex.com)",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/joshuarossi/bitfinex-api-node/issues"
+    "url": "https://github.com/bitfinexcom/bitfinex-api-node/issues"
   },
-  "homepage": "https://github.com/joshuarossi/bitfinex-api-node",
+  "homepage": "https://github.com/bitfinexcom/bitfinex-api-node",
   "devDependencies": {
     "ws": "^0.8.0"
   }

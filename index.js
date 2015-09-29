@@ -1,6 +1,7 @@
 /**
  * Created by joshuarossi on 9/28/15.
  */
+WebSocket = require('ws');
 module.exports = {
     websocket: function() {
         var key = '';
