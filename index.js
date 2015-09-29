@@ -33,7 +33,10 @@ module.exports = {
                 }
                 else if (ws.mapping[msg[0]].indexOf('trades') != -1){
                     var trade_list = ws.mapping[msg[0]];
-                    if (msg[1].length > 5){msg[1].forEach(function(trade){ws.trades[trade_list].unshift(trade)})}
+                    if (msg[1].length > 5){msg[1].forEach(function(trade){
+                        trade.unshift(msg[0]);
+                        ws.trades[trade_list].unshift(trade)
+                    })}
                     else {ws.trades[trade_list].unshift(msg);}
                 }
             }
