@@ -15,27 +15,27 @@ module.exports = {
         ws.onclose = function (){console.log('ws closed...')};
         ws.onmessage = function(msg) {
             msg = JSON.parse(msg.data);
+            ws.messages.unshift(msg);
             if (msg.Event == 'subscribed'){
                 console.log('subscribed to ' + msg.Pair + ' ' + msg.Channel);
-                ws.mapping[msg.ChanId] = msg.Pair;
+                ws.mapping[msg.ChanId] = msg.Pair + '_' + msg.Channel;
                 if (msg.Channel == 'ticker'){
-                    ws.tickers[msg.Pair] = [];
+                    ws.tickers[msg.Pair + '_' + msg.Channel] = [];
                 }
                 if (msg.Channel == 'trades'){
-                    ws.trades[msg.Pair] = [];
+                    ws.trades[msg.Pair + '_' + msg.Channel] = [];
                 }
-                ws.messages.unshift(msg);
             }
             else if (ws.mapping.hasOwnProperty(msg[0])){
-                if (msg.Channel == 'ticker'){
-                    ws.tickers[ws.mapping[msg[0]]].unshift(msg);
+                if (ws.mapping[msg[0]].indexOf('ticker') != -1){
+                    var ticker_list = ws.mapping[msg[0]];
+                    ws.tickers[ticker_list].unshift(msg);
                 }
-                if (msg.Channel == 'trades'){
-                    ws.trades[ws.mapping[msg[0]]].unshift(msg);
+                else if (ws.mapping[msg[0]].indexOf('trades') != -1){
+                    var trade_list = ws.mapping[msg[0]];
+                    if (msg[1].length > 5){msg[1].forEach(function(trade){ws.trades[trade_list].unshift(trade)})}
+                    else {ws.trades[trade_list].unshift(msg);}
                 }
-            }
-            else {
-                ws.messages.unshift(msg.data);
             }
         };
         ws.subTicker = function(pair){
