@@ -61,7 +61,7 @@ module.exports = {
                 ws.send(JSON.stringify({Event: "subscribe", Channel: "ticker", Pair: pair}))
             }
         };
-        ws.subTrades = function () {
+        ws.subTrades = function (pair) {
             if (arguments.length == 0) {
                 ws.send(JSON.stringify({Event: "subscribe", Channel: "trades", Pair: "BTCUSD"}))
             }
