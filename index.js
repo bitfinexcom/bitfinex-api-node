@@ -10,6 +10,7 @@ module.exports = {
         ws.debug = true;
         ws.messages = [];
         ws.orders = {};
+        ws.positions = {};
         ws.wallets = {};
         ws.tickers = {};
         ws.books = {};
