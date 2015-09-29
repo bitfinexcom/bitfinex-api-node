@@ -1,6 +1,33 @@
 /**
  * Created by joshuarossi on 9/28/15.
  */
+
+function handleSub(msg, ws){
+    console.log('subscribed to ' + msg.Pair + ' ' + msg.Channel);
+    ws.mapping[msg.ChanId] = msg.Pair + '_' + msg.Channel;
+    if (msg.Channel == 'ticker') {
+        ws.tickers[msg.Pair + '_' + msg.Channel] = [];
+    }
+    if (msg.Channel == 'trades') {
+        ws.trades[msg.Pair + '_' + msg.Channel] = [];
+    }
+}
+function handleTrade(msg, ws){
+    var trade_list = ws.mapping[msg[0]];
+    if (msg[1].length > 5) {
+        msg[1].reverse().forEach(function (trade) {
+                trade.unshift(msg[0]);
+                ws.trades[trade_list].unshift(trade);
+            }
+        )
+    }
+    else ws.trades[trade_list].unshift(msg);
+}
+function handleTicker(msg, ws) {
+    var ticker_list = ws.mapping[msg[0]];
+    ws.tickers[ticker_list].unshift(msg);
+}
+
 module.exports = {
     websocket: function () {
         var WebSocket = require('ws');
@@ -32,33 +59,17 @@ module.exports = {
             }
             //Subscribe messages
             if (msg.Event == 'subscribed') {
-                console.log('subscribed to ' + msg.Pair + ' ' + msg.Channel);
-                ws.mapping[msg.ChanId] = msg.Pair + '_' + msg.Channel;
-                if (msg.Channel == 'ticker') {
-                    ws.tickers[msg.Pair + '_' + msg.Channel] = [];
-                }
-                if (msg.Channel == 'trades') {
-                    ws.trades[msg.Pair + '_' + msg.Channel] = [];
-                }
+                handleSub(msg, ws);
             }
             //messages whose channel id's have a mapping
             else if (ws.mapping.hasOwnProperty(msg[0])) {
                 //ticker messages
                 if (ws.mapping[msg[0]].indexOf('ticker') != -1) {
-                    var ticker_list = ws.mapping[msg[0]];
-                    ws.tickers[ticker_list].unshift(msg);
+                    handleTicker(msg, ws);
                 }
                 //trade messages
                 else if (ws.mapping[msg[0]].indexOf('trades') != -1) {
-                    var trade_list = ws.mapping[msg[0]];
-                    if (msg[1].length > 5) {
-                        msg[1].reverse().forEach(function (trade) {
-                                trade.unshift(msg[0]);
-                                ws.trades[trade_list].unshift(trade);
-                            }
-                        )
-                    }
-                    else ws.trades[trade_list].unshift(msg);
+                    handleTrade(msg, ws);
                 }
             }
         };
