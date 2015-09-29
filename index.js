@@ -5,6 +5,7 @@ module.exports = {
     websocket: function () {
         var WebSocket = require('ws');
         var ws = new WebSocket("wss://api2.bitfinex.com:3000/ws");
+        ws.debug = true;
         ws.messages = [];
         ws.tickers = {};
         ws.books = {};
@@ -21,7 +22,7 @@ module.exports = {
         };
         ws.onmessage = function (msg) {
             msg = JSON.parse(msg.data);
-            ws.messages.unshift(msg);
+            if (ws.debug){ws.messages.unshift(msg);}
             if (msg.Event == 'subscribed') {
                 console.log('subscribed to ' + msg.Pair + ' ' + msg.Channel);
                 ws.mapping[msg.ChanId] = msg.Pair + '_' + msg.Channel;
