@@ -55,9 +55,7 @@ module.exports = {
                             }
                         )
                     }
-                    else {
-                        ws.trades[trade_list].unshift(msg);
-                    }
+                    else ws.trades[trade_list].unshift(msg);
                 }
             }
         };
