@@ -1,15 +1,16 @@
 /**
  * Created by joshuarossi on 9/28/15.
  */
-
 module.exports = {
     websocket: function() {
-        websocket = {};
-        return websocket;
+        var key = '';
+        var secret = '';
+        ws = new WebSocket("wss://api2.bitfinex.com:3001/ws");
+        return ws;
     },
 
     rest: function() {
-        rest = {};
+        var rest = {};
         return rest;
     }
 };
