@@ -2,7 +2,8 @@
  * Created by joshuarossi on 9/28/15.
  */
 
-function handleSub(msg, ws){
+function handleSub(msg, ws) {
+    orig_msg = msg;
     console.log('subscribed to ' + msg.Pair + ' ' + msg.Channel);
     ws.mapping[msg.ChanId] = msg.Pair + '_' + msg.Channel;
     if (msg.Channel == 'ticker') {
@@ -11,8 +12,12 @@ function handleSub(msg, ws){
     if (msg.Channel == 'trades') {
         ws.trades[msg.Pair + '_' + msg.Channel] = [];
     }
+    if (ws.subHook){
+        ws.subHook(orig_msg)
+    }
 }
-function handleTrade(msg, ws){
+function handleTrade(msg, ws) {
+    var orig_msg = msg;
     var trade_list = ws.mapping[msg[0]];
     if (msg[1].length > 5) {
         msg[1].reverse().forEach(function (trade) {
@@ -22,12 +27,50 @@ function handleTrade(msg, ws){
         )
     }
     else ws.trades[trade_list].unshift(msg);
+    if (ws.tradeHook){
+        ws.tradeHook(orig_msg);
+    }
 }
 function handleTicker(msg, ws) {
+    var orig_msg = msg;
     var ticker_list = ws.mapping[msg[0]];
     ws.tickers[ticker_list].unshift(msg);
+    if (ws.tickerHook){
+        ws.tickerHook(orig_msg)
+    }
 }
-
+function handleBook(msg, ws){
+    var orig_msg = msg;
+    var destination = ws.mapping[msg.shift()];
+    //book snapshot
+    if (msg[0].length == 50){
+        if (ws.books == {}){
+            ws.books[destination] = {};
+        }
+        ws.books[destination] = {'bids': {}, 'asks': {}};
+        var book = msg[0];
+        var asks = book.filter(function(each){if (each[2] < 0) {return each}}).sort(function(a ,b) {return a[0] - b[0]});
+        var bids = book.filter(function(each){if (each[2] > 0) {return each}}).sort(function(a ,b) {return b[0] - a[0]});
+        bids.forEach(function(each){
+            ws.books[destination]['bids'][each[0]] = [each[2], each[1]]
+        });
+        asks.forEach(function(each){
+            ws.books[destination]['asks'][each[0]] = [Math.abs(each[2]), each[1]]
+        });
+    }
+    //book update
+    else if (msg.length == 3){
+        if (msg[2] < 0) {
+            ws.books[destination].asks[msg[0]] = [Math.abs(msg[2]), msg[1]]
+        }
+        if (msg[2] > 0) {
+            ws.books[destination].bids[msg[0]] = [msg[2], msg[1]]
+        }
+    }
+    if (ws.bookHook){
+        ws.bookHook(orig_msg)
+    }
+}
 module.exports = {
     websocket: function () {
         var WebSocket = require('ws');
@@ -35,18 +78,29 @@ module.exports = {
         ws.api_key = '';
         ws.api_secret = '';
         ws.debug = true;
-        ws.tradeHook = function(msg){};
-        ws.tickerHook = function(msg){};
-        ws.walletHook = function(msg){};
-        ws.orderHook = function(msg){};
-        ws.positionHook = function(msg){};
+        //User customizable hooks
+        ws.subHook = null;
+        ws.tradeHook = null;
+        ws.tickerHook = null;
+        ws.walletHook = null;
+        ws.orderHook = null;
+        ws.positionHook = null;
+        ws.bookHook = null;
+        //all messages (log)
         ws.messages = [];
+        //all your orders
         ws.orders = {};
+        //all your positions
         ws.positions = {};
+        //all wallet balances
         ws.wallets = {};
+        //list of tickers (newest first)
         ws.tickers = {};
+        //all order books to which you are subscribed
         ws.books = {};
+        //list of trades (newest first)
         ws.trades = {};
+        //mapping of channel id's to names (in format PAIR_type)
         ws.mapping = {};
         ws.onerror = function (error) {
             console.log(error)
@@ -75,6 +129,10 @@ module.exports = {
                 //trade messages
                 else if (ws.mapping[msg[0]].indexOf('trades') != -1) {
                     handleTrade(msg, ws);
+                }
+                //book messages
+                else if (ws.mapping[msg[0]].indexOf('book') != -1){
+                    handleBook(msg, ws);
                 }
             }
         };
