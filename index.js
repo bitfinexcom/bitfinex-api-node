@@ -187,16 +187,6 @@ module.exports = {
 
     rest: function () {
         var _this = this;
-//	Collections used to manage Bitfinex updating data
-        this.Trades = new Mongo.Collection('trades');
-        this.Bids = new Mongo.Collection('bids');
-        this.Asks = new Mongo.Collection('asks');
-        this.Tickers = new Mongo.Collection('tickers');
-        this.Stats = new Mongo.Collection('stats');
-        this.LendbookBids = new Mongo.Collection('lendbook_bids');
-        this.LendbookAsks = new Mongo.Collection('lendbook_asks');
-//	Collection to manage account status
-        this.AccountStatus = new Mongo.Collection('account_status');
 //	Authentication credentials
         this.url = "https://api.bitfinex.com/v1";
         this.api_key = '';
@@ -221,6 +211,7 @@ module.exports = {
         };
 //	Helper function to make authenticated requests
 //	TODO: add in optional callback to all functions
+        var request = require('request');
         this.makeAuthenticatedRequest = function (endpoint, params, cb) {
             var request_url = _this.url + endpoint;
             var nonce = new Date().getTime().toString();
@@ -241,10 +232,10 @@ module.exports = {
             var options = {};
             options.headers = headers;
             if (params.endpoint == '/order/cancel/all') {
-                result = HTTP.get(request_url, options);
+                result = request.get(request_url, options, this.genericCallback);
             }
             else {
-                result = HTTP.post(request_url, options);
+                result = request.post(request_url, options, this.genericCallback);
             }
             return result;
         };
@@ -253,7 +244,6 @@ module.exports = {
             if (!symbol) {
                 symbol = 'BTCUSD';
             }
-            ;
             var response = HTTP.get(_this.url + '/pubticker/' + symbol);
             return response.data;
         };
@@ -261,7 +251,6 @@ module.exports = {
             if (!symbol) {
                 symbol = 'BTCUSD';
             }
-            ;
             var response = HTTP.get(_this.url + '/stats/' + symbol);
             var a = response.data;
             a.timestamp = new Date();
@@ -271,7 +260,6 @@ module.exports = {
             if (!currency) {
                 currency = 'USD';
             }
-            ;
             var options = {};
             options.params = {};
             if (limit_bids) {
@@ -287,7 +275,6 @@ module.exports = {
             if (!symbol) {
                 symbol = 'BTCUSD';
             }
-            ;
             var options = {};
             options.params = {};
             if (limit_bids) {
@@ -309,7 +296,6 @@ module.exports = {
             if (!symbol) {
                 symbol = 'BTCUSD';
             }
-            ;
             var options = {};
             options.params = {};
             if (timestamp) {
@@ -325,7 +311,6 @@ module.exports = {
             if (!currency) {
                 currency = 'USD';
             }
-            ;
             var options = {};
             options.params = {};
             if (timestamp) {
