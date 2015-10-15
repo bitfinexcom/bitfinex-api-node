@@ -195,26 +195,52 @@ module.exports = {
         };
         ws.subTicker = function (pair) {
             if (arguments.length == 0) {
-                ws.send(JSON.stringify({Event: "subscribe", Channel: "ticker", Pair: "BTCUSD"}))
+                ws.send(JSON.stringify({
+                    "event": "subscribe",
+                    "channel": "ticker",
+                    "pair": "BTCUSD"
+                }))
             }
             else {
-                ws.send(JSON.stringify({Event: "subscribe", Channel: "ticker", Pair: pair}))
+                ws.send(JSON.stringify({
+                    "event": "subscribe",
+                    "channel": "ticker",
+                    "pair": pair
+                }))
             }
         };
         ws.subTrades = function (pair) {
             if (arguments.length == 0) {
-                ws.send(JSON.stringify({Event: "subscribe", Channel: "trades", Pair: "BTCUSD"}))
+                ws.send(JSON.stringify({
+                    "event": "subscribe",
+                    "channel": "trades",
+                    "pair": "BTCUSD"
+                }))
             }
             else {
-                ws.send(JSON.stringify({Event: "subscribe", Channel: "trades", Pair: pair}))
+                ws.send(JSON.stringify({
+                    "event": "subscribe",
+                    "channel": "trades",
+                    "pair": pair
+                }))
             }
         };
-        ws.subBook = function () {
+        ws.subBook = function (pair) {
             if (arguments.length == 0) {
-                ws.send(JSON.stringify({Event: "subscribe", Channel: "book", Pair: "BTCUSD"}))
+                ws.send(JSON.stringify({
+                    "event": "subscribe",
+                    "channel": "book",
+                    "pair": "BTCUSD",
+                    "prec": "P0"
+                }))
             }
             else {
-                ws.send(JSON.stringify({Event: "subscribe", Channel: "book", Pair: pair}))
+                ws.send(JSON.stringify({
+                    "event": "subscribe",
+                    "channel": "book",
+                    "pair": pair,
+                    "prec": "P0"
+                }))
             }
         };
         ws.auth = function (api_key, api_secret) {
@@ -222,10 +248,16 @@ module.exports = {
                 ws.api_secret = api_secret;
                 ws.api_key = api_key;
             }
+            else {console.log("need api key and secret")}
             var crypto = require('crypto');
             var payload = 'AUTH' + (new Date().getTime());
             var signature = crypto.createHmac("sha384", api_secret).update(payload).digest('hex');
-            ws.send(JSON.stringify({Event: "auth", ApiKey: api_key, AuthSig: signature, AuthPayload: payload}));
+            ws.send(JSON.stringify({
+                event: "auth",
+                apiKey: api_key,
+                authSig: signature,
+                authPayload: payload
+            }));
         };
         return ws
     },
