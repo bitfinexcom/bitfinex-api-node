@@ -1,0 +1,13 @@
+#open-source-libraries {
+  margin-top: 1em;
+  font-size: 20px;
+  padding-bottom: 0;
+}
+
+p > strong {
+  @extend %header-font;
+  font-size: 14px;
+  text-transform: uppercase;
+  // margin-top: 2em;
+  // margin-bottom: 0.8em;
+}
