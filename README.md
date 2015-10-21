@@ -1,30 +1,16 @@
-Bitfinex API Node Reference Library
-=========
+Contributing
+========
 
-A Node.js reference implementation of the Bitfinex API
+Find the docs at http://docs.bitfinex.com
 
-## Installation
-```
-  npm install bitfinex-api-node
-```
-## Usage
-```
-  var bitfinex-api-node = require('bitfinex-api-node')
-      bitfinex-websocket = bitfinex-api-node.websocket,
-      bitfinex-rest = bitfinex-api-node.rest;
+We welcome any suggestions for how we can improve our documentation. In order to suggest a change:
 
-  console.log('bitfinex-api-node', bitfinex-api-node, 'bitfinex-websocket', bitfinex-websocket, 'bitfinex-rest', bitfinex-rest);
-```
-## Tests
-```
-  npm test
-```
-## Contributing
-```
-In lieu of a formal style guide, take care to maintain the existing coding style.
-Add unit tests for any new or changed functionality. Lint and test your code.
-```
-## Release History
-```
-* 0.0.1 Initial release
-```
+* Fork the repo.
+* Open an issue describing what changes you would like to make.
+* To add an example language, add your language to the "language_tabs" in index.md, then go through and add each example below the existing javascript example.
+* To edit some of the existing examples, edit the source/includes/[_websocket.md | _rest.md | _introduction.md].
+* Once you have edited the source files, you should preview them locally.
+* Once you are content with your edits, submit a Pull Request using clear commit messages and referencing the issue that you opened.
+* We will review the Pull Requests, and if accepted, we will merge the changes in and then publish the new docs and mark the issue as resolved.
+
+We are using Slate, More information is available here https://github.com/tripit/slate
