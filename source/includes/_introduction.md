@@ -1,6 +1,7 @@
 # Introduction
 
-This is the documentation for the Bitfinex Node reference implementation.
+This is the documentation for the Bitfinex Node reference implementation. 
+You can find the code at https://github.com/bitfinexcom/bitfinex-api-node/tree/master
 
 ## API Access
 In order to access the parts of the API which require authentication, you must generate an API key and an API secret

@@ -4,7 +4,7 @@ includes:
   - rest
   - websocket
 
-title: Bitfinex API Reference
+title: Bitfinex Node.js Reference Implementation
 
 language_tabs:
   - javascript
