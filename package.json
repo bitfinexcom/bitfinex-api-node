@@ -12,7 +12,8 @@
   },
   "keywords": [
     "bitfinex",
-    "bitcoin"
+    "bitcoin",
+    "BTC"
   ],
   "author": "Josh Rossi <josh@bitfinex.com> (https://www.bitfinex.com)",
   "license": "ISC",
