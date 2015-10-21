@@ -19,8 +19,11 @@ A Node.js reference implementation of the Bitfinex API
 ```
   npm test
 ```
-
-test
+## Contributing
+```
+In lieu of a formal style guide, take care to maintain the existing coding style.
+Add unit tests for any new or changed functionality. Lint and test your code.
+```
 ## Release History
 ```
 * 0.0.1 Initial release
