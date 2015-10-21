@@ -1,7 +1,7 @@
 Contributing
 ========
 
-Find the docs at http://docs.bitfinex.com
+Find the docs at http://bitfinexcom.github.io/bitfinex-api-node/
 
 We welcome any suggestions for how we can improve our documentation. In order to suggest a change:
 
