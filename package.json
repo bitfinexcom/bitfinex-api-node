@@ -22,9 +22,11 @@
   },
   "homepage": "https://github.com/bitfinexcom/bitfinex-api-node",
   "devDependencies": {
+    "request": "^2.65.0",
     "ws": "^0.8.0"
   },
   "dependencies": {
+    "request": "^2.65.0",
     "ws": "^0.8.0"
   }
 }
