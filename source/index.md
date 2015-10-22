@@ -7,7 +7,7 @@ includes:
 title: Bitfinex Node.js Reference Implementation
 
 language_tabs:
-  - javascript
+  - javascript: Node.js
 
 toc_footers:
   - <a href='https://bitfinex.com'><strong>Back to Bitfinex</strong></a>
