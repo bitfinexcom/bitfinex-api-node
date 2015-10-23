@@ -19,7 +19,7 @@ var ws = function (api_key, api_secret) {
         ws.messages.unshift(msg);
         //Subscribe messages
         if (msg.event == 'subscribed') {
-            console.log('subscribed to ' + msg.pair + ' ' + msg.channel);
+            //console.log('subscribed to ' + msg.pair + ' ' + msg.channel);
             ws.mapping[msg.chanId] = msg.pair + '_' + msg.channel;
         }
     };
