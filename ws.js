@@ -6,13 +6,13 @@ var ws = function (api_key, api_secret) {
     //mapping of channel id's to names (in format PAIR_type)
     ws.mapping = {};
     ws.onerror = function (error) {
-        console.log(error)
+        ws.messages.unshift(error)
     };
     ws.onopen = function () {
-        console.log('ws opened...')
+        ws.messages.unshift('ws opened...');
     };
     ws.onclose = function () {
-        console.log('ws closed...')
+        ws.messages.unshift('ws closed...');
     };
     ws.onmessage = function (msg) {
         msg = JSON.parse(msg.data);
