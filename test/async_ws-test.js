@@ -26,6 +26,9 @@ describe('Websocket', function () {
         expect(bfx_ws.messages.filter(function(v){return v.event == 'subscribed'}).length).is.eql(3)
     });
     it('should map all the channels', function(){
-        expect(Object.values(bfx_ws.mapping))
+        var values = Object.getOwnPropertyNames(bfx_ws.mapping).map(function(key) {
+            return bfx_ws.mapping[key];
+        });
+        expect(values).to.include.members(['BTCUSD_ticker', 'BTCUSD_trades', 'BTCUSD_book']);
     })
 });
