@@ -81,6 +81,32 @@ var ws = function (api_key, api_secret) {
             }))
         }
     };
+    ws.unSubTradesPair = function (pair) {
+        if (arguments.length == 0) {
+            ws.send(JSON.stringify({
+                "event": "unsubscribe",
+                "channel": "trades",
+                "pair": "BTCUSD"
+            }));
+            Object.keys(ws.mapping).forEach(function (key) {
+                if (ws.mapping[key] == "BTCUSD_trades") {
+                    delete ws.mapping[key];
+                }
+            })
+        }
+        else {
+            ws.send(JSON.stringify({
+                "event": "unsubscribe",
+                "channel": "trades",
+                "pair": pair
+            }));
+            Object.keys(ws.mapping).forEach(function (key) {
+                if (ws.mapping[key] == pair + "_" + "trades") {
+                    delete ws.mapping[key];
+                }
+            })
+        }
+    };
     ws.subBook = function (pair) {
         if (arguments.length == 0) {
             ws.send(JSON.stringify({
@@ -97,6 +123,32 @@ var ws = function (api_key, api_secret) {
                 "pair": pair,
                 "prec": "P0"
             }))
+        }
+    };
+    ws.unSubBookPair = function (pair) {
+        if (arguments.length == 0) {
+            ws.send(JSON.stringify({
+                "event": "unsubscribe",
+                "channel": "book",
+                "pair": "BTCUSD"
+            }));
+            Object.keys(ws.mapping).forEach(function (key) {
+                if (ws.mapping[key] == "BTCUSD_book") {
+                    delete ws.mapping[key];
+                }
+            })
+        }
+        else {
+            ws.send(JSON.stringify({
+                "event": "unsubscribe",
+                "channel": "book",
+                "pair": pair
+            }));
+            Object.keys(ws.mapping).forEach(function (key) {
+                if (ws.mapping[key] == pair + "_" + "book") {
+                    delete ws.mapping[key];
+                }
+            })
         }
     };
     ws.auth = function (api_key, api_secret) {
