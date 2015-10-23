@@ -23,7 +23,6 @@ describe('Websocket', function () {
                 var sub_msg = a.bitfinex.ws.messages.filter(function(v){
                     return v.event == "subscribed"
                 })[0];
-                console.log(sub_msg);
                 expect(sub_msg).to.have.keys(["event", "channel", "chanId", "pair"]);
                 expect(sub_msg.channel).to.equal('ticker');
                 expect(sub_msg.event).to.equal('subscribed');
@@ -38,11 +37,12 @@ describe('Websocket', function () {
             setTimeout(1000);
             a = this;
             this.bitfinex.ws.once('message', function () {
+                console.log(a.bitfinex.ws.messages);
                 var unsub_msg = a.bitfinex.ws.messages.filter(function(v){
-                    return v.event == "unsubscribed"
+                    return v.event == "unsubscribe"
                 })[0];
                 console.log(unsub_msg);
-                expect(unsub_msg).event.to.eql('unsubscribed');
+                expect(unsub_msg).event.to.eql('unsubscribe');
                 expect(unsub_msg).channel.to.eql('ticker');
                 a.bitfinex.ws.messages.length = 0;
                 //noinspection BadExpressionStatementJS
