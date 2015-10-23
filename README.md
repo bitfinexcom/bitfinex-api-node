@@ -1,7 +1,7 @@
 Bitfinex API Node Reference Library
 =========
 
-<img src=https://travis-ci.org/joshuarossi/bitfinex-api-node.svg>
+[![Build Status](https://travis-ci.org/bitfinexcom/bitfinex-api-node.svg?branch=master)](https://travis-ci.org/bitfinexcom/bitfinex-api-node)
 
 A Node.js reference implementation of the Bitfinex API. See the full docs at <http://bitfinexcom.github.io/bitfinex-api-node/>
 
