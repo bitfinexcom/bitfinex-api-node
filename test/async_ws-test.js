@@ -30,5 +30,6 @@ describe('Websocket', function () {
             return bfx_ws.mapping[key];
         });
         expect(values).to.include.members(['BTCUSD_ticker', 'BTCUSD_trades', 'BTCUSD_book']);
-    })
+    });
+    it('should have the correct number of fields')
 });
