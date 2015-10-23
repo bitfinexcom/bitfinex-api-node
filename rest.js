@@ -97,6 +97,10 @@ rest.prototype.make_public_request = function (path, cb) {
 };
 
 rest.prototype.ticker = function (symbol, cb) {
+    if (arguments.length == 0){
+        symbol = "BTCUSD";
+        cb = function(error, data){console.log(data)}
+    }
     return this.make_public_request('pubticker/' + symbol, cb);
 };
 

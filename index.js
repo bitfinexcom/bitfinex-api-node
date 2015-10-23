@@ -4,8 +4,8 @@ var rest = require('./rest.js'),
 var BFX = function(api_key, api_secret){
     this.api_key = api_key;
     this.api_secret = api_secret;
-    this.rest = new rest;
-    this.ws = new ws;
+    this.rest = new rest();
+    this.ws = new ws(this.api_key, this.api_secret);
 };
 
 module.exports = BFX;
