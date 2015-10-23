@@ -39,6 +39,32 @@ var ws = function (api_key, api_secret) {
             }))
         }
     };
+    ws.unSubTickerPair = function (pair) {
+        if (arguments.length == 0) {
+            ws.send(JSON.stringify({
+                "event": "unsubscribe",
+                "channel": "ticker",
+                "pair": "BTCUSD"
+            }));
+            Object.keys(ws.mapping).forEach(function (key) {
+                if (ws.mapping[key] == "BTCUSD_ticker") {
+                    delete ws.mapping[key];
+                }
+            })
+        }
+        else {
+            ws.send(JSON.stringify({
+                "event": "unsubscribe",
+                "channel": "ticker",
+                "pair": pair
+            }));
+            Object.keys(ws.mapping).forEach(function (key) {
+                if (ws.mapping[key] == pair + "_" + "ticker") {
+                    delete ws.mapping[key];
+                }
+            })
+        }
+    };
     ws.subTrades = function (pair) {
         if (arguments.length == 0) {
             ws.send(JSON.stringify({
@@ -78,7 +104,9 @@ var ws = function (api_key, api_secret) {
             ws.api_secret = api_secret;
             ws.api_key = api_key;
         }
-        else {console.log("need api key and secret")}
+        else {
+            console.log("need api key and secret")
+        }
         var crypto = require('crypto');
         var payload = 'AUTH' + (new Date().getTime());
         var signature = crypto.createHmac("sha384", api_secret).update(payload).digest('hex');
