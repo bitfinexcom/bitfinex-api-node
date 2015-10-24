@@ -11,4 +11,4 @@ end
 CLOBBER.include('add_coverage_report')
 CLOBBER.include('build')
 
-task :default => [:build]
+task :default => [:add_coverage_report]
