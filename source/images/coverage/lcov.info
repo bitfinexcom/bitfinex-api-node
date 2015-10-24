@@ -360,7 +360,7 @@ FNDA:1,(anonymous_1)
 FNDA:0,(anonymous_2)
 FNDA:1,(anonymous_3)
 FNDA:0,(anonymous_4)
-FNDA:136,(anonymous_5)
+FNDA:94,(anonymous_5)
 FNDA:2,(anonymous_6)
 FNDA:2,(anonymous_7)
 FNDA:6,(anonymous_8)
@@ -386,9 +386,9 @@ DA:12,1
 DA:14,1
 DA:15,0
 DA:17,1
-DA:18,136
-DA:19,136
-DA:21,136
+DA:18,94
+DA:19,94
+DA:21,94
 DA:23,6
 DA:26,1
 DA:27,2
@@ -446,7 +446,7 @@ DA:174,1
 LF:69
 LH:59
 BRDA:21,1,0,6
-BRDA:21,1,1,130
+BRDA:21,1,1,88
 BRDA:27,2,0,1
 BRDA:27,2,1,1
 BRDA:43,3,0,1
