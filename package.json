@@ -1,6 +1,6 @@
 {
   "name": "bitfinex-api-node",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Node reference library for Bitfinex API",
   "main": "index.js",
   "scripts": {
