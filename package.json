@@ -6,7 +6,7 @@
   "scripts": {
     "test": "NODE_ENV=test istanbul cover _mocha -- -R spec -b --recursive",
     "posttest": "npm run deploy",
-    "deploy": "./deploy.sh"
+    "deploy": "deploy.sh"
   },
   "repository": {
     "type": "git",
