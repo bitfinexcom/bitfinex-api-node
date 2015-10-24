@@ -7,7 +7,8 @@
     "test": "NODE_ENV=test istanbul cover _mocha -- -R spec -b --recursive",
     "deploy": "NODE_ENV=test istanbul cover _mocha -- -R spec -b --recursive",
     "posttest": "npm run deploy",
-    "postdeploy": "deploy.sh&"
+    "postdeploy": "deploy.sh",
+    "prepublish": "npm run deploy"
   },
   "repository": {
     "type": "git",
