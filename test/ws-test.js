@@ -106,4 +106,17 @@ describe('Websocket', function () {
                 done()
             }, 2000)
         });
+    it('should disconnect', function () {
+        bfx_ws.close();
+        var close_message = underscore.find(bfx_ws.messages, function (v) {
+            return v = 'ws closed...'
+        });
+        expect(close_message).to.exist;
+    });
+    it('should handle errors properly', function () {
+        var error = function(){bfx_ws.send(JSON.stringify({
+            "event": "ping"
+        }))};
+        expect(error).to.throw(Error)
+    })
 });
