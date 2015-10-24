@@ -1,6 +1,7 @@
 var expect = require('chai').expect,
     BFX = require('../index'),
-    _ = require('lodash');
+    _ = require('lodash'),
+    test_keys = require('./test_api_keys.json');
 
 bfx = new BFX();
 var bfx_ws = bfx.ws;
@@ -92,6 +93,9 @@ describe('Websocket', function () {
             return _.isFinite(v)
         })).ok;
         expect(trades_update.length).is.eql(5);
+    });
+    it("should authenticarte", function(){
+        console.log(test_keys)
     });
     this.mapping = bfx_ws.mapping;
     it('unsubscribing',
