@@ -5,10 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "NODE_ENV=test istanbul cover _mocha -- -R spec -b --recursive",
-    "deploy": "NODE_ENV=test istanbul cover _mocha -- -R spec -b --recursive",
-    "posttest": "npm run deploy",
-    "postdeploy": "deploy.sh",
-    "prepublish": "npm run deploy"
+    "prepublish": "npm run deploy",
+    "deploy": "deploy.sh"
   },
   "repository": {
     "type": "git",
