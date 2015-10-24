@@ -112,8 +112,6 @@ describe('Websocket', function () {
         expect(auth_message).to.exist
     });
     it('should give error if already authenticated', function () {
-
-        console.log(_.filter(bfx_ws.messages, 'event'));
         var auth_error = _.findWhere(bfx_ws.messages, {
             event: 'error', msg: 'already authenticated', code: 10100
         });
