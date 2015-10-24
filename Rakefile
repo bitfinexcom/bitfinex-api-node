@@ -8,7 +8,6 @@ task :add_coverage_report do
   sh "git push"
 end
 
-CLOBBER.include('add_coverage_report')
 CLOBBER.include('build')
 
 task :default => [:add_coverage_report]
