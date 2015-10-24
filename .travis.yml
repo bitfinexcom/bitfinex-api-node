@@ -1,6 +1,8 @@
 language: node_js
 node_js:
   - "stable"
-  - "4.1"
   - "4.0"
   - "iojs"
+
+after_script:
+  - git checkout Documentation && git checkout master -- source/images/coverage && git commit -a -m "updated coverage" && git push
