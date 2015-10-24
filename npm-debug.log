@@ -17,9 +17,7 @@
 5 verbose stack M source/images/coverage/lcov-report/bitfinex-api-node/ws.js.html
 5 verbose stack M source/images/coverage/lcov-report/index.html
 5 verbose stack M source/images/coverage/lcov.info
-5 verbose stack M test/test_api_keys.json
 5 verbose stack M test/ws-test.js
-5 verbose stack M ws.js
 5 verbose stack     at /usr/local/lib/node_modules/npm/lib/version.js:171:21
 5 verbose stack     at ChildProcess.exithandler (child_process.js:194:7)
 5 verbose stack     at emitTwo (events.js:87:13)
@@ -43,9 +41,7 @@
 11 error M source/images/coverage/lcov-report/bitfinex-api-node/ws.js.html
 11 error M source/images/coverage/lcov-report/index.html
 11 error M source/images/coverage/lcov.info
-11 error M test/test_api_keys.json
 11 error M test/ws-test.js
-11 error M ws.js
 12 error If you need help, you may report this error at:
 12 error     <https://github.com/npm/npm/issues>
 13 verbose exit [ 1, true ]

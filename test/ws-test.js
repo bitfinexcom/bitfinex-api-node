@@ -124,12 +124,12 @@ describe('Websocket', function () {
     it('should receive a trade history snapshot');
     it('unsubscribing',
         function (done) {
-            bfx_ws.unSubTickerPair();
-            bfx_ws.unSubTradesPair();
-            bfx_ws.unSubBookPair();
             bfx_ws.unSubTickerPair("LTCUSD");
             bfx_ws.unSubTradesPair("LTCUSD");
             bfx_ws.unSubBookPair("LTCUSD");
+            bfx_ws.unSubTickerPair();
+            bfx_ws.unSubTradesPair();
+            bfx_ws.unSubBookPair();
             setTimeout(function () {
                 done()
             }, 2000)
