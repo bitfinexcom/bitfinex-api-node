@@ -4,7 +4,8 @@
   "description": "Node reference library for Bitfinex API",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=test istanbul cover _mocha -- -R spec -b --recursive"
+    "test": "NODE_ENV=test istanbul cover _mocha -- -R spec -b --recursive",
+    "posttest" : "sh git commit -a -m 'test passed'&&git push"
   },
   "repository": {
     "type": "git",
