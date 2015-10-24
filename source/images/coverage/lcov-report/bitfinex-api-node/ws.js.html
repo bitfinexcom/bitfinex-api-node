@@ -20,24 +20,24 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">88.41% </span>
+        <span class="strong">100% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>61/69</span>
+        <span class='fraction'>75/75</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">83.33% </span>
+        <span class="strong">97.37% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>25/30</span>
+        <span class='fraction'>37/38</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">94.44% </span>
+        <span class="strong">100% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>17/18</span>
+        <span class='fraction'>18/18</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">88.41% </span>
+        <span class="strong">100% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>61/69</span>
+        <span class='fraction'>75/75</span>
       </div>
     </div>
   </div>
@@ -216,7 +216,17 @@
 171
 172
 173
-174</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+174
+175
+176
+177
+178
+179
+180
+181
+182</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -233,10 +243,10 @@
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">117×</span>
-<span class="cline-any cline-yes">117×</span>
+<span class="cline-any cline-yes">91×</span>
+<span class="cline-any cline-yes">91×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">117×</span>
+<span class="cline-any cline-yes">91×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -370,17 +380,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -392,6 +408,8 @@
 <span class="cline-any cline-yes">1×</span></td><td class="text"><pre class="prettyprint lang-js">var ws = function (api_key, api_secret) {
     var WebSocket = require('ws');
     var ws = new WebSocket("wss://api2.bitfinex.com:3000/ws");
+    ws.api_key = api_key;
+    ws.api_secret = api_secret;
     //all messages (log)
     ws.messages = [];
     //mapping of channel id's to names (in format PAIR_type)
@@ -542,20 +560,26 @@
             })
         }
     };
-    ws.auth = <span class="fstat-no" title="function not covered" >function (api_key, api_secret) {</span>
-<span class="cstat-no" title="statement not covered" >        if (api_key &amp;&amp; api_secret) {</span>
-<span class="cstat-no" title="statement not covered" >            ws.api_secret = api_secret;</span>
-<span class="cstat-no" title="statement not covered" >            ws.api_key = api_key;</span>
+    ws.auth = function (api_key, api_secret) {
+        if (ws.api_key &amp;&amp; ws.api_secret){
+            //console.log("inherited credentials " + ws.api_key + " " + ws.api_secret);
+            this.api_key = ws.api_key;
+            this.api_secret = ws.api_secret;
         }
-        else {
-<span class="cstat-no" title="statement not covered" >            console.log("need api key and secret")</span>
+        if (api_key &amp;&amp; api_secret) {
+            //console.log("new credentials arguments " + api_key + " " + api_secret);
+            this.api_secret = api_secret;
+            this.api_key = api_key;
         }
-<span class="cstat-no" title="statement not covered" >        var crypto = require('crypto');</span>
-<span class="cstat-no" title="statement not covered" >        var payload = 'AUTH' + (new Date().getTime());</span>
-<span class="cstat-no" title="statement not covered" >        var signature = crypto.createHmac("sha384", api_secret).update(payload).digest('hex');</span>
-<span class="cstat-no" title="statement not covered" >        ws.send(JSON.stringify({</span>
+        if (!this.api_key &amp;&amp; !this.api_secret) {
+                throw new Error('need api_key and api_secret')
+        }
+        var crypto = require('crypto');
+        var payload = 'AUTH' + (new Date().getTime());
+        var signature = crypto.createHmac("sha384", this.api_secret).update(payload).digest('hex');
+        ws.send(JSON.stringify({
             event: "auth",
-            apiKey: api_key,
+            apiKey: this.api_key,
             authSig: signature,
             authPayload: payload
         }));
@@ -568,7 +592,7 @@ module.exports = ws;</pre></td></tr>
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sat Oct 24 2015 13:36:56 GMT-0500 (EST)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sat Oct 24 2015 16:43:19 GMT-0500 (EST)
 </div>
 </div>
 <script src="../prettify.js"></script>

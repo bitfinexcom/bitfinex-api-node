@@ -1,6 +1,8 @@
 var ws = function (api_key, api_secret) {
     var WebSocket = require('ws');
     var ws = new WebSocket("wss://api2.bitfinex.com:3000/ws");
+    ws.api_key = api_key;
+    ws.api_secret = api_secret;
     //all messages (log)
     ws.messages = [];
     //mapping of channel id's to names (in format PAIR_type)
@@ -152,19 +154,25 @@ var ws = function (api_key, api_secret) {
         }
     };
     ws.auth = function (api_key, api_secret) {
-        if (api_key && api_secret) {
-            ws.api_secret = api_secret;
-            ws.api_key = api_key;
+        if (ws.api_key && ws.api_secret){
+            //console.log("inherited credentials " + ws.api_key + " " + ws.api_secret);
+            this.api_key = ws.api_key;
+            this.api_secret = ws.api_secret;
         }
-        else {
-            console.log("need api key and secret")
+        if (api_key && api_secret) {
+            //console.log("new credentials arguments " + api_key + " " + api_secret);
+            this.api_secret = api_secret;
+            this.api_key = api_key;
+        }
+        if (!this.api_key && !this.api_secret) {
+                throw new Error('need api_key and api_secret')
         }
         var crypto = require('crypto');
         var payload = 'AUTH' + (new Date().getTime());
-        var signature = crypto.createHmac("sha384", api_secret).update(payload).digest('hex');
+        var signature = crypto.createHmac("sha384", this.api_secret).update(payload).digest('hex');
         ws.send(JSON.stringify({
             event: "auth",
-            apiKey: api_key,
+            apiKey: this.api_key,
             authSig: signature,
             authPayload: payload
         }));

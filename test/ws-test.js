@@ -3,13 +3,15 @@ var expect = require('chai').expect,
     _ = require('lodash'),
     test_keys = require('./test_api_keys.json');
 
-bfx = new BFX();
+bfx = new BFX(test_keys.standard.api_key, test_keys.standard.api_secret);
 var bfx_ws = bfx.ws;
 describe('Websocket', function () {
     this.timeout(30000);
     it('subscribing',
         function (done) {
             bfx_ws.once('open', function () {
+                bfx_ws.auth(' ', ' ');
+                bfx_ws.auth(test_keys.standard.api_key, test_keys.standard.api_secret);
                 bfx_ws.subTicker();
                 bfx_ws.subTrades();
                 bfx_ws.subBook();
@@ -19,6 +21,7 @@ describe('Websocket', function () {
                 bfx_ws.send(JSON.stringify({
                     "event": "ping"
                 }));
+                bfx_ws.auth();
                 setTimeout(function () {
                     done()
                 }, 15000)
@@ -94,10 +97,31 @@ describe('Websocket', function () {
         })).ok;
         expect(trades_update.length).is.eql(5);
     });
-    it("should authenticarte", function(){
-        console.log(test_keys)
+    it("should request an api_key and api_secret if none is present", function () {
+        bfx_ws.api_key = null;
+        bfx_ws.api_secret = null;
+        expect(bfx_ws.auth).to.throw('need api_key and api_secret');
     });
-    this.mapping = bfx_ws.mapping;
+    it("should receive a rejection if the api_key and secret are not valid", function () {
+        expect(_.findWhere(bfx_ws.messages, {event: 'auth', status: 'FAILED', chanId: 0, code: 10100})).to.exist;
+    });
+    it("should authenticate", function () {
+        var auth_message = _.findWhere(bfx_ws.messages, {
+            event: 'auth', status: 'OK', chanId: 0, userId: 163319
+        });
+        expect(auth_message).to.exist
+    });
+    it('should give error if already authenticated', function () {
+
+        console.log(_.filter(bfx_ws.messages, 'event'));
+        var auth_error = _.findWhere(bfx_ws.messages, {
+            event: 'error', msg: 'already authenticated', code: 10100
+        });
+        expect(auth_error).to.exist
+    });
+    it('should receive an order snapshot');
+    it('should receive a wallet balance snapshot');
+    it('should receive a trade history snapshot');
     it('unsubscribing',
         function (done) {
             bfx_ws.unSubTickerPair();
@@ -117,15 +141,17 @@ describe('Websocket', function () {
         });
         expect(close_message).to.exist;
     });
-    it('should log messages onclose and onerror', function(done){
+    it('should log messages onclose and onerror', function (done) {
         bfx_ws.onclose('test');
         bfx_ws.onerror('test');
         done();
     });
     it('should handle errors properly', function () {
-        var error = function(){bfx_ws.send(JSON.stringify({
-            "event": "ping"
-        }))};
+        var error = function () {
+            bfx_ws.send(JSON.stringify({
+                "event": "ping"
+            }))
+        };
         expect(error).to.throw(Error)
     })
 });
