@@ -1,5 +1,6 @@
 var expect = require('chai').expect,
-    BFX = require('../index');
+    BFX = require('../index'),
+    underscore = require('underscore');
 
 bfx = new BFX();
 var bfx_ws = bfx.ws;
@@ -32,6 +33,12 @@ describe('Websocket', function () {
         expect(values).to.include.members(['BTCUSD_ticker', 'BTCUSD_trades', 'BTCUSD_book']);
     });
     it('the order snapshot should have the correct number of fields in the correct hierarchy', function(){
-
+        var chan = underscore.invert(bfx_ws.mapping)["BTCUSD_book"];
+        var book_snapshot = underscore.find(bfx_ws.messages.reverse(), function(v){return v[0] == chan});
+        expect(book_snapshot[0]).is.a.number;
+        expect(book_snapshot[1]).is.an.array;
+        expect(book_snapshot[1][0]).is.an.array;
+        expect(book_snapshot[1][0].length).is.eql(3);
+        expect(underscore.every(book_snapshot[1][0], function(v){return underscore.isFinite(v)})).ok
     })
 });
