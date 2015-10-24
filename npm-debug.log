@@ -1,0 +1,21 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/local/Cellar/node/4.2.1/bin/node',
+1 verbose cli   '/usr/local/bin/npm',
+1 verbose cli   'test' ]
+2 info using npm@2.14.7
+3 info using node@v4.2.1
+4 verbose stack Error: ENOENT: no such file or directory, open '/Users/joshuarossi/bitfinex-api-node/package.json'
+4 verbose stack     at Error (native)
+5 verbose cwd /Users/joshuarossi/bitfinex-api-node
+6 error Darwin 15.0.0
+7 error argv "/usr/local/Cellar/node/4.2.1/bin/node" "/usr/local/bin/npm" "test"
+8 error node v4.2.1
+9 error npm  v2.14.7
+10 error path /Users/joshuarossi/bitfinex-api-node/package.json
+11 error code ENOENT
+12 error errno -2
+13 error syscall open
+14 error enoent ENOENT: no such file or directory, open '/Users/joshuarossi/bitfinex-api-node/package.json'
+14 error enoent This is most likely not a problem with npm itself
+14 error enoent and is related to npm not being able to find a file.
+15 verbose exit [ -2, true ]
