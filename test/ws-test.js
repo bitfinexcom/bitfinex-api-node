@@ -1,6 +1,6 @@
 var expect = require('chai').expect,
     BFX = require('../index'),
-    underscore = require('underscore');
+    _ = require('lodash');
 
 bfx = new BFX();
 var bfx_ws = bfx.ws;
@@ -24,7 +24,7 @@ describe('Websocket', function () {
             });
         });
     it('should receive a pong', function () {
-        underscore.find(bfx_ws.messages, function (v) {
+        _.find(bfx_ws.messages, function (v) {
             return v.event == 'pong'
         });
     });
@@ -46,50 +46,50 @@ describe('Websocket', function () {
         }).length).is.eql(6)
     });
     it('the order snapshot should have the correct number of fields in the correct hierarchy', function () {
-        var chan = underscore.invert(bfx_ws.mapping)["BTCUSD_book"];
-        var book_snapshot = underscore.find(bfx_ws.messages.reverse(), function (v) {
+        var chan = _.invert(bfx_ws.mapping)["BTCUSD_book"];
+        var book_snapshot = _.find(bfx_ws.messages.reverse(), function (v) {
             return v[0] == chan
         });
         expect(book_snapshot[0]).is.a.number;
         expect(book_snapshot[1]).is.an.array;
         expect(book_snapshot[1][0]).is.an.array;
         expect(book_snapshot[1][0].length).is.eql(3);
-        expect(underscore.every(book_snapshot[1][0], function (v) {
-            return underscore.isFinite(v)
+        expect(_.every(book_snapshot[1][0], function (v) {
+            return _.isFinite(v)
         })).ok
     });
     it('the types, structure and amount of order updates should be correct', function () {
-        var chan = underscore.invert(bfx_ws.mapping)["BTCUSD_book"];
-        var book_update = underscore.find(bfx_ws.messages.reverse(), function (v) {
+        var chan = _.invert(bfx_ws.mapping)["BTCUSD_book"];
+        var book_update = _.find(bfx_ws.messages.reverse(), function (v) {
             return v[0] == chan
         });
-        expect(underscore.every(book_update, function (v) {
-            return underscore.isFinite(v)
+        expect(_.every(book_update, function (v) {
+            return _.isFinite(v)
         })).ok;
         expect(book_update.length).is.eql(4);
     });
 
     it('the trades snapshot should have the correct number of fields in the correct hierarchy', function () {
-        var chan = underscore.invert(bfx_ws.mapping)["BTCUSD_trades"];
-        var trades_snapshot = underscore.find(bfx_ws.messages.reverse(), function (v) {
+        var chan = _.invert(bfx_ws.mapping)["BTCUSD_trades"];
+        var trades_snapshot = _.find(bfx_ws.messages.reverse(), function (v) {
             return v[0] == chan
         });
         expect(trades_snapshot[0]).is.a.number;
         expect(trades_snapshot[1]).is.an.array;
         expect(trades_snapshot[1][0]).is.an.array;
         expect(trades_snapshot[1][0].length).is.eql(4);
-        expect(underscore.every(trades_snapshot[1][0], function (v) {
-            return underscore.isFinite(v)
+        expect(_.every(trades_snapshot[1][0], function (v) {
+            return _.isFinite(v)
         })).ok
     });
     it.skip('the types, structure and amount of trade updates should be correct', function () {
-        var chan = underscore.invert(bfx_ws.mapping)["BTCUSD_trades"];
-        var trades_update = underscore.find(bfx_ws.messages, function (v) {
+        var chan = _.invert(bfx_ws.mapping)["BTCUSD_trades"];
+        var trades_update = _.find(bfx_ws.messages, function (v) {
             return v[0] == chan
         });
         console.log(trades_update);
-        expect(underscore.every(trades_update, function (v) {
-            return underscore.isFinite(v)
+        expect(_.every(trades_update, function (v) {
+            return _.isFinite(v)
         })).ok;
         expect(trades_update.length).is.eql(5);
     });
@@ -108,7 +108,7 @@ describe('Websocket', function () {
         });
     it('should disconnect', function () {
         bfx_ws.close();
-        var close_message = underscore.find(bfx_ws.messages, function (v) {
+        var close_message = _.find(bfx_ws.messages, function (v) {
             return v = 'ws closed...'
         });
         expect(close_message).to.exist;
