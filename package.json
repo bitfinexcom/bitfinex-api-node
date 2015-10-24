@@ -1,10 +1,10 @@
 {
   "name": "bitfinex-api-node",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Node reference library for Bitfinex API",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter spec"
+    "test": "NODE_ENV=test istanbul cover _mocha -- -R spec -b --recursive"
   },
   "repository": {
     "type": "git",
@@ -16,24 +16,18 @@
     "BTC"
   ],
   "author": "Josh Rossi <josh@bitfinex.com> (https://www.bitfinex.com)",
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/brentertz/scapegoat/blob/master/LICENSE-MIT"
-    }
-  ],
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/bitfinexcom/bitfinex-api-node/issues"
   },
-  "homepage": "https://github.com/bitfinexcom/bitfinex-api-node",
+  "homepage": "http://bitfinexcom.github.io/bitfinex-api-node/",
   "devDependencies": {
     "chai": "*",
+    "istanbul": "^0.4.0",
     "mocha": "*",
     "request": "^2.65.0",
+    "underscore": "^1.8.3",
     "ws": "^0.8.0"
   },
-  "dependencies": {
-    "request": "^2.65.0",
-    "ws": "^0.8.0"
-  }
+  "dependencies": {}
 }

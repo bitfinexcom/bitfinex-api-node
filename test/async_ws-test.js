@@ -31,5 +31,7 @@ describe('Websocket', function () {
         });
         expect(values).to.include.members(['BTCUSD_ticker', 'BTCUSD_trades', 'BTCUSD_book']);
     });
-    it('should have the correct number of fields')
+    it('the order snapshot should have the correct number of fields in the correct hierarchy', function(){
+
+    })
 });
