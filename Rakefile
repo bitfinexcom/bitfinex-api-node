@@ -10,4 +10,4 @@ end
 
 CLOBBER.include('build')
 
-task :default => [:add_coverage_report]
+task :publish => [:add_coverage_report]
