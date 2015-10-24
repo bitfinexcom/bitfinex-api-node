@@ -26,7 +26,7 @@
     "chai": "*",
     "istanbul": "^0.4.0",
     "lodash": "^3.10.1",
-    "mocha": "*",
+    "mocha": "*"
   },
   "dependencies": {
     "ws": "^0.8.0",
