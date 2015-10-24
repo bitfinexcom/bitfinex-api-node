@@ -4,7 +4,7 @@ require 'rake/clean'
 desc "grabs coverage report that was generated on the master branch"
 task :add_coverage_report do
   puts "I AM ADDING THE COVERAGE REPORT"
-  sh "git checkout master -- source/images/coverage/"
+  sh "git checkout master -- source/images/coverage/*"
   sh "git add --all"
   if /nothing to commit/ =~ `git status`
     puts "No changes to commit."
