@@ -113,6 +113,11 @@ describe('Websocket', function () {
         });
         expect(close_message).to.exist;
     });
+    it('should log messages onclose and onerror', function(done){
+        bfx_ws.onclose('test');
+        bfx_ws.onerror('test');
+        done();
+    });
     it('should handle errors properly', function () {
         var error = function(){bfx_ws.send(JSON.stringify({
             "event": "ping"
