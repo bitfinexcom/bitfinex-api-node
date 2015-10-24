@@ -1,6 +1,6 @@
 var expect = require('chai').expect,
     BFX = require('../index'),
-    keys = require('./test_api_keys.json');
+    keys = require('./keys.json');
 
 describe("Public Endpoints", function(){
     before(function() {
