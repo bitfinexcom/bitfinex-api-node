@@ -12,11 +12,17 @@ describe('Websocket', function () {
                 bfx_ws.subTicker();
                 bfx_ws.subTrades();
                 bfx_ws.subBook();
+                bfx_ws.send(JSON.stringify({
+                    "event":"ping"
+                }));
                 setTimeout(function () {
                     done()
                 }, 5000)
             });
         });
+    it('should receive a pong', function(){
+        underscore.find(bfx_ws.messages, function(v){return v.event == 'pong'})
+    });
     it('should map all the channels', function () {
         var values = Object.getOwnPropertyNames(bfx_ws.mapping).map(function (key) {
             return bfx_ws.mapping[key];
