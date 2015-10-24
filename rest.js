@@ -108,6 +108,10 @@ rest.prototype.today = function (symbol, cb) {
     return this.make_public_request('today/' + symbol, cb);
 };
 
+rest.prototype.stats = function (symbol, cb) {
+    return this.make_public_request('stats/' + symbol, cb);
+};
+
 rest.prototype.candles = function (symbol, cb) {
     return this.make_public_request('candles/' + symbol, cb);
 };
