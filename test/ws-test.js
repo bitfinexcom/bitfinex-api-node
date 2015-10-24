@@ -1,7 +1,7 @@
 var expect = require('chai').expect,
     BFX = require('../index'),
     _ = require('lodash'),
-    test_keys = require('./test_api_keys.json');
+    test_keys = require('./keys.json');
 
 bfx = new BFX(test_keys.standard.api_key, test_keys.standard.api_secret);
 var bfx_ws = bfx.ws;

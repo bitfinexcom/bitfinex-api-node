@@ -1,0 +1,17 @@
+{
+  "readonly": {
+    "key_id": 18257,
+    "api_key": "m5IPFtyZBphe0PwbVxwWo6onupqV8K8vSqLmzAS2rqB",
+    "api_secret": "vQG46W7Yv99jSwGgeJCn130XQm2qrGYJsOIT3Se8rhN"
+  },
+  "withdrawalenabled": {
+    "key_id": 18259,
+    "api_key": "YaVLf2es6PRVNrJQ9ySjMTjczyZnJASFTsO0WgSs3t4",
+    "api_secret": "8ki2uK3lf96W8sYI2uy071JJ2biZxXjDtve1zBIR07m"
+  },
+  "standard": {
+    "key_id": 18261,
+    "api_key": "7kGrX7bMkwKB16fzwHqKYMySuDAhah0OgUqTv0GvCmW",
+    "api_secret": "bfopPuyyNO56fSK9MB3wICgzM0MybrpsODZHseNL0yo"
+  }
+}
