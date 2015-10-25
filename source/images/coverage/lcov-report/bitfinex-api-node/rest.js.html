@@ -20,9 +20,9 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">36.17% </span>
+        <span class="strong">38.3% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>68/188</span>
+        <span class='fraction'>72/188</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">17.5% </span>
@@ -30,14 +30,14 @@
         <span class='fraction'>7/40</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">19.51% </span>
+        <span class="strong">29.27% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>8/41</span>
+        <span class='fraction'>12/41</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">36.36% </span>
+        <span class="strong">38.5% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>68/187</span>
+        <span class='fraction'>72/187</span>
       </div>
     </div>
   </div>
@@ -447,8 +447,7 @@
 402
 403
 404
-405
-406</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+405</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -520,29 +519,29 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">5×</span>
-<span class="cline-any cline-yes">5×</span>
-<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">9×</span>
+<span class="cline-any cline-yes">9×</span>
+<span class="cline-any cline-yes">9×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5×</span>
-<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">9×</span>
+<span class="cline-any cline-yes">9×</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5×</span>
-<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">9×</span>
+<span class="cline-any cline-yes">9×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">9×</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">9×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -596,21 +595,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
@@ -1001,21 +999,20 @@ rest.prototype.orderbook = function (symbol, options, cb) {
     }
     return this.make_public_request(uri, cb);
 };
-&nbsp;
-rest.prototype.trades = <span class="fstat-no" title="function not covered" >function (symbol, cb) {</span>
-<span class="cstat-no" title="statement not covered" >    return this.make_public_request('trades/' + symbol, cb);</span>
+rest.prototype.trades = function (symbol, cb) {
+    return this.make_public_request('trades/' + symbol, cb);
 };
 &nbsp;
-rest.prototype.lends = <span class="fstat-no" title="function not covered" >function (currency, cb) {</span>
-<span class="cstat-no" title="statement not covered" >    return this.make_public_request('lends/' + currency, cb);</span>
+rest.prototype.lends = function (currency, cb) {
+    return this.make_public_request('lends/' + currency, cb);
 };
 &nbsp;
-rest.prototype.get_symbols = <span class="fstat-no" title="function not covered" >function (cb) {</span>
-<span class="cstat-no" title="statement not covered" >    return this.make_public_request('symbols', cb);</span>
+rest.prototype.get_symbols = function (cb) {
+    return this.make_public_request('symbols', cb);
 };
 &nbsp;
-rest.prototype.symbols_details = <span class="fstat-no" title="function not covered" >function (cb) {</span>
-<span class="cstat-no" title="statement not covered" >    return this.make_public_request('symbols_details', cb);</span>
+rest.prototype.symbols_details = function (cb) {
+    return this.make_public_request('symbols_details', cb);
 };
 &nbsp;
 rest.prototype.new_order = <span class="fstat-no" title="function not covered" >function (symbol, amount, price, exchange, side, type, is_hidden, cb) {</span>
@@ -1264,7 +1261,7 @@ module.exports = rest;</pre></td></tr>
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sat Oct 24 2015 20:15:15 GMT-0500 (EST)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sun Oct 25 2015 01:41:30 GMT-0500 (EST)
 </div>
 </div>
 <script src="../prettify.js"></script>
