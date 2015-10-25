@@ -5,7 +5,7 @@ var expect = require('chai').expect,
     keys = require('./keys.json');
 
 
-describe.skip("Public Endpoints", function () {
+describe("Public Endpoints", function () {
     var bfx = new BFX();
     var bfx_rest = bfx.rest;
     this.timeout(5000);
