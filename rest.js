@@ -364,7 +364,11 @@ rest.prototype.wallet_balances = function (cb) {
 };
 
 rest.prototype.taken_swaps = function (cb) {
-    return this.make_request('taken_swaps', {}, cb);
+    return this.make_request('taken_funds', {}, cb);
+};
+
+rest.prototype.total_taken_swaps = function (cb) {
+    return this.make_request('total_taken_funds', {}, cb);
 };
 
 rest.prototype.close_swap = function (swap_id, cb) {

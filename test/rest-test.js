@@ -323,11 +323,40 @@ describe("Authenticated Endpoints: standard key", function () {
             };
             bfx_rest.active_credits(cb);
         });
-        it("should get active funding used in a margin position");
-        it("should get total taken funds");
+        it("should get active funding used in a margin position", function (done) {
+            var cb = function (err, data) {
+                expect(data).to.be.an.array;
+                expect(data).to.be.empty;
+                return done();
+            };
+            bfx_rest.taken_swaps(cb);
+        });
+        it("should get total taken funds", function (done) {
+            var cb = function (err, data) {
+                expect(data).to.be.an.array;
+                expect(data).to.be.empty;
+                return done();
+            };
+            bfx_rest.total_taken_swaps(cb);
+        });
     });
-    it("should get wallet balances");
-    it("should get margin information");
+    it("should get wallet balances", function (done) {
+        var cb = function (err, data) {
+            console.log(data);
+            expect(data).to.be.an.array;
+            expect(data).to.be.empty;
+            return done();
+        };
+        bfx_rest.wallet_balances(cb);
+    });
+    it("should get margin information", function (done) {
+        var cb = function (err, data) {
+            console.log(data[0]);
+            expect(data[0]).to.be.an.array;
+            return done();
+        };
+        bfx_rest.margin_infos(cb);
+    });
     it("should transfer between wallets");
     it("should submit a withdrawal");
 });
