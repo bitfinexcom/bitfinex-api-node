@@ -66,7 +66,7 @@ describe("Public Endpoints", function () {
             done()
         })
     });
-    //TODO API returns 1000 instead of 50
+    //TODO API returns 1000 instead of 50`
     it.skip("should get recent trades", function (done) {
         bfx_rest.trades("BTCUSD", function (error, data) {
             expect(data).is.an.array;
