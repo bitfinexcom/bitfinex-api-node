@@ -10,6 +10,9 @@ describe("Errors", function(){
     this.timeout(5000);
     it("should error out if a bad endpoint is given", function(){
         expect(bfx_rest.make_public_request).to.throw(Error)
+    });
+    it("should fail on authenticated requests if no api_key and api_secret", function(){
+        expect(bfx_rest.account_infos).to.throw(Error)
     })
 });
 describe("Public Endpoints", function () {
