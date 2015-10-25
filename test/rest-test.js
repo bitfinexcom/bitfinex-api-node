@@ -4,13 +4,18 @@ var expect = require('chai').expect,
     ws_test = require('./ws-test'),
     keys = require('./keys.json');
 
-
+describe("Errors", function(){
+    var bfx = new BFX();
+    var bfx_rest = bfx.rest;
+    this.timeout(5000);
+    it("should error out if a bad endpoint is given", function(){
+        expect(bfx_rest.make_public_request).to.throw(Error)
+    })
+});
 describe("Public Endpoints", function () {
     var bfx = new BFX();
     var bfx_rest = bfx.rest;
     this.timeout(5000);
-    before(function () {
-    });
     it("should get a ticker", function (done) {
         bfx_rest.ticker('BTCUSD', function (error, data) {
             expect(data).to.exist;
