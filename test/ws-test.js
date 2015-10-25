@@ -117,9 +117,34 @@ describe('Websocket', function () {
         });
         expect(auth_error).to.exist
     });
-    it('should receive an order snapshot');
-    it('should receive a wallet balance snapshot');
-    it('should receive a trade history snapshot');
+    it('should receive an order snapshot', function () {
+        var os = _.filter(bfx_ws.messages, function (v) {
+            v[0] = 0;
+            v[1] = "os";
+        });
+        expect(os).to.exist;
+    });
+    it('should receive a wallet balance snapshot', function () {
+        var os = _.filter(bfx_ws.messages, function (v) {
+            v[0] = 0;
+            v[1] = "ws";
+        });
+        expect(os).to.exist;
+    });
+    it('should receive a trade history snapshot', function () {
+        var os = _.filter(bfx_ws.messages, function (v) {
+            v[0] = 0;
+            v[1] = "ts";
+        });
+        expect(os).to.exist;
+    });
+    it('should receive a position snapshot', function () {
+        var os = _.filter(bfx_ws.messages, function (v) {
+            v[0] = 0;
+            v[1] = "ps";
+        });
+        expect(os).to.exist;
+    });
     it('unsubscribing',
         function (done) {
             bfx_ws.unSubTickerPair("LTCUSD");

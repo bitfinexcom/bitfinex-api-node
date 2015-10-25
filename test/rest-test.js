@@ -342,7 +342,6 @@ describe("Authenticated Endpoints: standard key", function () {
     });
     it("should get wallet balances", function (done) {
         var cb = function (err, data) {
-            console.log(data);
             expect(data).to.be.an.array;
             expect(data).to.be.empty;
             return done();
@@ -351,13 +350,32 @@ describe("Authenticated Endpoints: standard key", function () {
     });
     it("should get margin information", function (done) {
         var cb = function (err, data) {
-            console.log(data[0]);
             expect(data[0]).to.be.an.array;
+            expect(_.keys(data[0])).to.eql(
+                [
+                    'margin_balance',
+                    'tradable_balance',
+                    'unrealized_pl',
+                    'unrealized_swap',
+                    'net_value',
+                    'required_margin',
+                    'leverage',
+                    'margin_requirement',
+                    'margin_limits',
+                    'message']);
             return done();
         };
         bfx_rest.margin_infos(cb);
     });
-    it("should transfer between wallets");
+    it("should transfer between wallets", function (done) {
+        var errCB = function (err, data) {
+            console.log(err);
+            expect(err instanceof Error).ok;
+            expect(err.toString()).to.eql("Error: 403");
+            return done();
+        };
+        bfx_rest.transfer(0.01, "BTC", "exchange", "trading", errCB);
+    });
     it("should submit a withdrawal");
 });
 describe("Authenticated Endpoints: read-only key", function () {
