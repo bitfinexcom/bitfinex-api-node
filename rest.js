@@ -112,11 +112,11 @@ rest.prototype.stats = function (symbol, cb) {
     return this.make_public_request('stats/' + symbol, cb);
 };
 
-rest.prototype.candles = function (symbol, cb) {
-    return this.make_public_request('candles/' + symbol, cb);
-};
+//rest.prototype.candles = function (symbol, cb) {
+//    return this.make_public_request('candles/' + symbol, cb);
+//};
 
-rest.prototype.lendbook = function (currency, cb) {
+rest.prototype.fundingbook = function (currency, cb) {
     return this.make_public_request('lendbook/' + currency, cb);
 };
 

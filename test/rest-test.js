@@ -1,12 +1,14 @@
 var expect = require('chai').expect,
     BFX = require('../index'),
     _ = require('lodash'),
+    ws_test = require('./ws-test'),
     keys = require('./keys.json');
 
 
 var bfx = new BFX();
 var bfx_rest = bfx.rest;
 describe("Public Endpoints", function () {
+    this.timeout(5000);
     before(function () {
     });
     it("should get a ticker", function (done) {
@@ -23,8 +25,8 @@ describe("Public Endpoints", function () {
             done()
         })
     });
-    it("should get the today endpoint", function(done){
-        bfx_rest.today("BTCUSD", function(error, data){
+    it("should get the today endpoint", function (done) {
+        bfx_rest.today("BTCUSD", function (error, data) {
             expect(data).to.exist;
             done();
         })
@@ -39,11 +41,24 @@ describe("Public Endpoints", function () {
         })
     });
     it("should get the fundingbook", function (done) {
-        expect(data).to.exist;
-        expect(_.has(data, []));
-        done()
+        bfx_rest.fundingbook("USD", function (error, data) {
+            expect(data).to.exist;
+            expect(_.has(data, ['bids', 'asks']));
+            console.log(_.keys(data.bids[0]));
+            expect(_.keys(data.bids[0])).is.eql(['rate', 'amount', 'period', 'timestamp', 'frr']);
+            expect(_.keys(data.asks[0])).is.eql(['rate', 'amount', 'period', 'timestamp', 'frr']);
+            done();
+        })
     });
-    it("should get the orderbook");
+    it("should get the orderbook", function (done) {
+        bfx_rest.orderbook("BTCUSD", function (error, data) {
+            expect(data).to.exist;
+            expect(_.keys(data)).is.eql(['bids', 'asks']);
+            expect(_.keys(data.bids[0])).is.eql(['price', 'amount', 'timestamp']);
+            expect(_.keys(data.asks[0])).is.eql(['price', 'amount', 'timestamp']);
+            done()
+        })
+    });
     it("should get recent trades");
     it("should get recent lends");
     it("should get symbols");
