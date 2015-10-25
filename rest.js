@@ -146,7 +146,6 @@ rest.prototype.orderbook = function (symbol, options, cb) {
     }
     return this.make_public_request(uri, cb);
 };
-
 rest.prototype.trades = function (symbol, cb) {
     return this.make_public_request('trades/' + symbol, cb);
 };
