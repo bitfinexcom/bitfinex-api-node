@@ -5,7 +5,7 @@ var expect = require('chai').expect,
 
 bfx = new BFX(test_keys.standard.api_key, test_keys.standard.api_secret);
 var bfx_ws = bfx.ws;
-describe('Websocket', function () {
+describe.skip('Websocket', function () {
     this.timeout(30000);
     it('subscribing',
         function (done) {

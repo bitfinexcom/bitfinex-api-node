@@ -59,7 +59,7 @@ rest.prototype.make_request = function (sub_path, params, cb) {
         } catch (error1) {
             error = error1;
             return cb(null, {
-                messsage: body.toString()
+                message: body.toString()
             });
         }
         if (result.message != null) {
@@ -86,7 +86,7 @@ rest.prototype.make_public_request = function (path, cb) {
         } catch (error1) {
             error = error1;
             return cb(null, {
-                messsage: body.toString()
+                message: body.toString()
             });
         }
         if (result.message != null) {
@@ -182,15 +182,10 @@ rest.prototype.new_order = function (symbol, amount, price, exchange, side, type
     return this.make_request('order/new', params, cb);
 };
 
-rest.prototype.multiple_new_orders = function (symbol, amount, price, exchange, side, type, cb) {
+rest.prototype.multiple_new_orders = function (orders, cb) {
     var params;
     params = {
-        symbol: symbol,
-        amount: amount,
-        price: price,
-        exchange: exchange,
-        side: side,
-        type: type
+        orders: orders
     };
     return this.make_request('order/new/multi', params, cb);
 };
@@ -247,6 +242,35 @@ rest.prototype.active_positions = function (cb) {
     return this.make_request('positions', {}, cb);
 };
 
+rest.prototype.claim_position = function (position_id, cb) {
+    var params;
+    params = {
+        position_id: parseInt(position_id)
+    };
+    return this.make_request('position/claim', params, cb);
+};
+
+rest.prototype.balance_history = function (currency, options, cb) {
+    var err, error1, option, params, value;
+    params = {
+        currency: currency
+    };
+    if (typeof options === 'function') {
+        cb = options;
+    } else {
+        try {
+            for (option in options) {
+                value = options[option];
+                params[option] = value;
+            }
+        } catch (error1) {
+            err = error1;
+            return cb(err);
+        }
+    }
+    return this.make_request('history', params, cb);
+};
+
 rest.prototype.movements = function (currency, options, cb) {
     var err, error1, option, params, value;
     params = {
@@ -299,15 +323,14 @@ rest.prototype.new_deposit = function (currency, method, wallet_name, cb) {
     return this.make_request('deposit/new', params, cb);
 };
 
-rest.prototype.new_offer = function (currency, amount, rate, period, direction, insurance_option, cb) {
+rest.prototype.new_offer = function (currency, amount, rate, period, direction, cb) {
     var params;
     params = {
         currency: currency,
         amount: amount,
         rate: rate,
         period: period,
-        direction: direction,
-        insurance_option: insurance_option
+        direction: direction
     };
     return this.make_request('offer/new', params, cb);
 };
@@ -320,10 +343,10 @@ rest.prototype.cancel_offer = function (offer_id, cb) {
     return this.make_request('offer/cancel', params, cb);
 };
 
-rest.prototype.offer_status = function (order_id, cb) {
+rest.prototype.offer_status = function (offer_id, cb) {
     var params;
     params = {
-        order_id: order_id
+        offer_id: offer_id
     };
     return this.make_request('offer/status', params, cb);
 };
