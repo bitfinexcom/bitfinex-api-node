@@ -233,7 +233,6 @@ describe("Authenticated Endpoints: standard key", function () {
         //TODO throws 404 error, is that intentional?
         it.skip("should get an orders status", function (done) {
             var errCB = function (err, value) {
-                console.log(err, value);
                 expect(err instanceof Error).ok;
                 expect(err.toString()).is.eql('Error: Order could not be cancelled.');
                 return done();
@@ -374,14 +373,20 @@ describe("Authenticated Endpoints: standard key", function () {
     });
     it("should transfer between wallets", function (done) {
         var errCB = function (err, data) {
-            console.log(err);
             expect(err instanceof Error).ok;
             expect(err.toString()).to.eql("Error: 403");
             return done();
         };
         bfx_rest.transfer(0.01, "BTC", "exchange", "trading", errCB);
     });
-    it("should submit a withdrawal");
+    it("should submit a withdrawal", function (done) {
+        var errCB = function (err, data) {
+            expect(err instanceof Error).ok;
+            expect(err.toString()).to.eql("Error: 403");
+            return done();
+        };
+        bfx_rest.withdraw('bitcoin', "exchange", 0.01, "abc", errCB);
+    });
 });
 describe("Authenticated Endpoints: read-only key", function () {
     before(function () {
