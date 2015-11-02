@@ -9,6 +9,7 @@
 3 info using node@v4.2.1
 4 info git [ 'status', '--porcelain' ]
 5 verbose stack Error: Git working directory not clean.
+5 verbose stack D npm-debug.log
 5 verbose stack M source/images/coverage/coverage.json
 5 verbose stack M source/images/coverage/lcov-report/bitfinex-api-node/index.html
 5 verbose stack M source/images/coverage/lcov-report/bitfinex-api-node/index.js.html
@@ -31,6 +32,7 @@
 9 error node v4.2.1
 10 error npm  v2.14.7
 11 error Git working directory not clean.
+11 error D npm-debug.log
 11 error M source/images/coverage/coverage.json
 11 error M source/images/coverage/lcov-report/bitfinex-api-node/index.html
 11 error M source/images/coverage/lcov-report/bitfinex-api-node/index.js.html
