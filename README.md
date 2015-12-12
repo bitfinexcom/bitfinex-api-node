@@ -6,7 +6,7 @@ Bitfinex API Node Reference Library
 A Node.js reference implementation of the Bitfinex API. See the full docs at <http://bitfinexcom.github.io/bitfinex-api-node/>
 
 ## Installation
-```
+```bash
   npm install bitfinex-api-node
 ```
 
