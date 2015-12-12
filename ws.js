@@ -58,10 +58,7 @@ BitfinexWS.prototype.onMessage = function (msg, flags) {
         if (msg.event === 'subscribed') {
             debug('Subscription report received');
             // Inform the user the new event name that will be triggered
-            var eventName = msg.pair + '_' + msg.channel; // BTCUSD_trades
-            debug('Event name: %s', eventName);
             var data = {
-              eventName: eventName,
               channel: msg.channel,
               chanId: msg.chanId,
               pair: msg.pair
@@ -72,7 +69,6 @@ BitfinexWS.prototype.onMessage = function (msg, flags) {
             /**
              * @event BitfinexWS#subscribed
              * @type {object}
-             * @property {sting} eventName - Name of the event will be fired
              * @property {string} channel - Channel type
              * @property {string} pair - Currency pair.
              * @property {number} chanId - Channel ID sended by Bitfinex
@@ -185,7 +181,7 @@ BitfinexWS.prototype._processUserEvent = function (msg) {
 
 BitfinexWS.prototype._processTickerEvent = function (msg, event) {
     if (msg[0] === 'hb') { // HeatBeart
-        debug('Received HeatBeart in \'%s\'', event.eventName);
+        debug('Received HeatBeart in %s ticker channel', event.pair);
     } else if (msg.length > 9) { // Update
         var update = {
             bid:              msg[0],
@@ -199,10 +195,11 @@ BitfinexWS.prototype._processTickerEvent = function (msg, event) {
             high:             msg[8],
             low:              msg[9],
         };
-        debug('Emitting \'%s\', %j', event.eventName, update);
+        debug('Emitting ticker, %s, %j', event.pair, update);
         /**
-         * @event BitfinexWS#PAIRNAME_ticker
-         * @type {object}
+         * @event BitfinexWS#ticker
+         * @type {string} Pair name
+         * @type {object} Ticker data
          * @property {number} bid
          * @property {number} bidSize
          * @property {number} ask
@@ -214,7 +211,7 @@ BitfinexWS.prototype._processTickerEvent = function (msg, event) {
          * @property {number} high
          * @property {number} low
          */
-        this.emit(event.eventName, update);
+        this.emit('ticker', event.pair, update);
     }
 };
 
@@ -228,11 +225,11 @@ BitfinexWS.prototype._processTradeEvent = function (msg, event) {
                 price:      update[2],
                 amount:     update[3]
             };
-            this.emit(event.eventName, update);
-            debug('Emitting \'%s\', %j', event.eventName, update);
+            debug('Emitting trade, %s, %j', event.pair, update);
+            this.emit('trade', event.pair, update);
         }.bind(this));
     } else if (msg[0] === 'hb') { // HeatBeart
-        debug('Received HeatBeart in \'%s\'', event.eventName);
+        debug('Received HeatBeart in %s trade channel', event.pair);
     } else if (msg.length > 3) { // Update
         var update = {
             seq:        msg[0],
@@ -240,17 +237,18 @@ BitfinexWS.prototype._processTradeEvent = function (msg, event) {
             price:      msg[2],
             amount:     msg[3]
         };
-        debug('Emitting \'%s\', %j', event.eventName, update);
+        debug('Emitting trade, %s, %j', event.pair, update);
         /**
-         * @event BitfinexWS#PAIRNAME_trades
-         * @type {object}
+         * @event BitfinexWS#trade
+         * @type {string} Pair name
+         * @type {object} Ticker data
          * @property {string} seq
          * @property {number} timestamp
          * @property {number} price
          * @property {number} amount
          * @see http://docs.bitfinex.com/#trades75
          */
-        this.emit(event.eventName, update);
+        this.emit('trade', event.pair, update);
     }
 };
 
@@ -263,27 +261,28 @@ BitfinexWS.prototype._processBookEvent = function (msg, event) {
                 count:  update[1],
                 amount: update[2]
             };
-            debug('Emitting %s, %j', event.eventName, msg);
-            this.emit(event.eventName, update);
+            debug('Emitting orderbook, %s, %j', event.pair, update);
+            this.emit('orderbook', event.pair, update);
         }.bind(this));
     } else if (msg[0] === 'hb') { // HeatBeart
-        debug('Received HeatBeart in %s', event.eventName);
+        debug('Received HeatBeart in %s book channel', event.pair);
     } else if (msg.length > 2) { // Update
-        debug('Emitting %s, %j', event.eventName, msg);
         var update = {
             price:  msg[0],
             count:  msg[1],
             amount: msg[2]
         };
+        debug('Emitting orderbook, %s, %j', event.pair, update);
         /**
-         * @event BitfinexWS#PAIRNAME_book
-         * @type {object}
+         * @event BitfinexWS#orderbook
+         * @type {string} Pair name
+         * @type {object} Order Book data
          * @property {string} price
          * @property {number} count
          * @property {number} amount
          * @see http://docs.bitfinex.com/#order-books
          */
-        this.emit(event.eventName, update);
+        this.emit('orderbook', event.pair, update);
     }
 };
 

@@ -33,7 +33,6 @@ describe('WebSocket', function () {
   
   it('should receive a subscribed success messages', function (done) {
     this.bitfinexWS.on('subscribed', function (data) {
-      expect(data).to.have.property('eventName', 'BTCUSD_trades');
       expect(data).to.have.property('channel', 'trades');
       expect(data).to.have.property('pair', 'BTCUSD');
       done();
@@ -52,48 +51,6 @@ describe('WebSocket', function () {
     }.bind(this));
   });
   
-  it('should map trade channel', function (done) {
-    this.bitfinexWS.once('subscribed', function () {
-      var channels = Object.getOwnPropertyNames(this.bitfinexWS.channelMap)
-        .map(function (channelId) {
-          return this.bitfinexWS.channelMap[channelId].eventName;
-        }.bind(this));
-      expect(channels).to.include('BTCUSD_trades');
-      done();
-    }.bind(this));
-    this.bitfinexWS.on('open', function () {
-      this.bitfinexWS.subscribeTrades('BTCUSD');
-    }.bind(this));
-  });
-  
-  it('should map ticker channel', function (done) {
-    this.bitfinexWS.once('subscribed', function () {
-      var channels = Object.getOwnPropertyNames(this.bitfinexWS.channelMap)
-        .map(function (channelId) {
-          return this.bitfinexWS.channelMap[channelId].eventName;
-        }.bind(this));
-      expect(channels).to.include('BTCUSD_ticker');
-      done();
-    }.bind(this));
-    this.bitfinexWS.on('open', function () {
-      this.bitfinexWS.subscribeTicker('BTCUSD');
-    }.bind(this));
-  });
-  
-  it('should map book channel', function (done) {
-    this.bitfinexWS.once('subscribed', function () {
-      var channels = Object.getOwnPropertyNames(this.bitfinexWS.channelMap)
-        .map(function (channelId) {
-          return this.bitfinexWS.channelMap[channelId].eventName;
-        }.bind(this));
-      expect(channels).to.include('BTCUSD_book');
-      done();
-    }.bind(this));
-    this.bitfinexWS.on('open', function () {
-      this.bitfinexWS.subscribeOrderBook('BTCUSD');
-    }.bind(this));
-  });
-  
   it('should receive info message', function (done) {
     this.bitfinexWS.on('info', function (data) {
       expect(data).is.eql({
@@ -106,11 +63,12 @@ describe('WebSocket', function () {
   
   
   it('#orderBook data should have the corresponding fields', function(done) {
-    this.bitfinexWS.once('BTCUSD_book', function (data) {
-      expect(data.price).to.be.a('number');
-      expect(data.count).to.be.a('number');
-      expect(data.amount).to.be.a('number');
-      done();
+    this.bitfinexWS.once('orderbook', function (pair, data) {
+        expect(pair).to.equal('BTCUSD');
+        expect(data.price).to.be.a('number');
+        expect(data.count).to.be.a('number');
+        expect(data.amount).to.be.a('number');
+        done();
     }.bind(this));
     this.bitfinexWS.on('open', function () {
       this.bitfinexWS.subscribeOrderBook('BTCUSD');
@@ -118,7 +76,8 @@ describe('WebSocket', function () {
   });
   
   it('#trade data should have the corresponding fields', function(done) {
-    this.bitfinexWS.once('BTCUSD_trades', function (data) {
+    this.bitfinexWS.once('trade', function (pair, data) {
+      expect(pair).to.equal('BTCUSD');
       expect(data.seq).to.be.a('string');
       expect(data.timestamp).to.be.a('number');
       expect(data.price).to.be.a('number');
@@ -131,7 +90,8 @@ describe('WebSocket', function () {
   });
   
   it('#ticker data should have the corresponding fields', function(done) {
-    this.bitfinexWS.once('BTCUSD_ticker', function (data) {
+    this.bitfinexWS.once('ticker', function (pair, data) {
+      expect(pair).to.equal('BTCUSD');
       expect(data.bid).to.be.a('number');
       expect(data.bidSize).to.be.a('number');
       expect(data.ask).to.be.a('number');
