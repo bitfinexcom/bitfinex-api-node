@@ -11,18 +11,19 @@ A Node.js reference implementation of the Bitfinex API. See the full docs at <ht
 ```
 
 ## Usage
-```
-  var bitfinex-api-node = require('bitfinex-api-node')
-      bitfinex-websocket = bitfinex-api-node.websocket,
-      bitfinex-rest = bitfinex-api-node.rest;
+```js
+var bitfinex-api-node = require('bitfinex-api-node')
+  bitfinex-websocket = bitfinex-api-node.websocket,
+  bitfinex-rest = bitfinex-api-node.rest;
 
-  console.log('bitfinex-api-node', bitfinex-api-node, 'bitfinex-websocket', bitfinex-websocket, 'bitfinex-rest', bitfinex-rest);
+console.log('bitfinex-api-node', bitfinex-api-node, 'bitfinex-websocket',
+    bitfinex-websocket, 'bitfinex-rest', bitfinex-rest);
 ```
 
 ## Tests
 
-```
-  npm test
+```bash
+npm test
 ```
 
 ## Contributing
