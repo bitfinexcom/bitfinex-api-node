@@ -8,15 +8,15 @@ bws.on('open', function () {
     bws.subscribeTicker('LTCBTC');
 });
 
-bws.on('BTCUSD_trades', function (trade) {
+bws.on('trade', function (pair, trade) {
     console.log('Trade:', trade);
 });
 
-bws.on('BTCUSD_book', function (book) {
+bws.on('orderbook', function (pair, book) {
     console.log('Order book:', book);
 });
 
-bws.on('LTCBTC_ticker', function (ticker) {
+bws.on('ticker', function (pair, ticker) {
     console.log('Ticker:', ticker);
 });
 
