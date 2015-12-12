@@ -28,9 +28,9 @@
         * ["oc"](#BitfinexWS+event_oc)
         * ["te"](#BitfinexWS+event_te)
         * ["tu"](#BitfinexWS+event_tu)
-        * ["PAIRNAME_ticker"](#BitfinexWS+event_PAIRNAME_ticker)
-        * ["PAIRNAME_trades"](#BitfinexWS+event_PAIRNAME_trades)
-        * ["PAIRNAME_book"](#BitfinexWS+event_PAIRNAME_book)
+        * ["ticker"](#BitfinexWS+event_ticker)
+        * ["trade"](#BitfinexWS+event_trade)
+        * ["orderbook"](#BitfinexWS+event_orderbook)
     * _static_
         * [.WebSocketURI](#BitfinexWS.WebSocketURI) : <code>String</code>
 
@@ -124,7 +124,6 @@ WebSocket connection is closed.
 
 | Name | Type | Description |
 | --- | --- | --- |
-| eventName | <code>sting</code> | Name of the event will be fired |
 | channel | <code>string</code> | Channel type |
 | pair | <code>string</code> | Currency pair. |
 | chanId | <code>number</code> | Channel ID sended by Bitfinex |
@@ -192,8 +191,8 @@ trade executed
 trade execution update
 
 **Kind**: event emitted by <code>[BitfinexWS](#BitfinexWS)</code>  
-<a name="BitfinexWS+event_PAIRNAME_ticker"></a>
-### "PAIRNAME_ticker"
+<a name="BitfinexWS+event_ticker"></a>
+### "ticker"
 **Kind**: event emitted by <code>[BitfinexWS](#BitfinexWS)</code>  
 **Properties**
 
@@ -210,8 +209,8 @@ trade execution update
 | high | <code>number</code> | 
 | low | <code>number</code> | 
 
-<a name="BitfinexWS+event_PAIRNAME_trades"></a>
-### "PAIRNAME_trades"
+<a name="BitfinexWS+event_trade"></a>
+### "trade"
 **Kind**: event emitted by <code>[BitfinexWS](#BitfinexWS)</code>  
 **See**: http://docs.bitfinex.com/#trades75  
 **Properties**
@@ -223,8 +222,8 @@ trade execution update
 | price | <code>number</code> | 
 | amount | <code>number</code> | 
 
-<a name="BitfinexWS+event_PAIRNAME_book"></a>
-### "PAIRNAME_book"
+<a name="BitfinexWS+event_orderbook"></a>
+### "orderbook"
 **Kind**: event emitted by <code>[BitfinexWS](#BitfinexWS)</code>  
 **See**: http://docs.bitfinex.com/#order-books  
 **Properties**

@@ -198,8 +198,8 @@ BitfinexWS.prototype._processTickerEvent = function (msg, event) {
         debug('Emitting ticker, %s, %j', event.pair, update);
         /**
          * @event BitfinexWS#ticker
-         * @type {string} Pair name
-         * @type {object} Ticker data
+         * @type {string}
+         * @type {object}
          * @property {number} bid
          * @property {number} bidSize
          * @property {number} ask
@@ -240,8 +240,8 @@ BitfinexWS.prototype._processTradeEvent = function (msg, event) {
         debug('Emitting trade, %s, %j', event.pair, update);
         /**
          * @event BitfinexWS#trade
-         * @type {string} Pair name
-         * @type {object} Ticker data
+         * @type {string}
+         * @type {object}
          * @property {string} seq
          * @property {number} timestamp
          * @property {number} price
@@ -275,8 +275,8 @@ BitfinexWS.prototype._processBookEvent = function (msg, event) {
         debug('Emitting orderbook, %s, %j', event.pair, update);
         /**
          * @event BitfinexWS#orderbook
-         * @type {string} Pair name
-         * @type {object} Order Book data
+         * @type {string}
+         * @type {object}
          * @property {string} price
          * @property {number} count
          * @property {number} amount
