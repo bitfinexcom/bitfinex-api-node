@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "NODE_ENV=test istanbul cover _mocha -- -R spec -b --recursive",
-    "push": "deploy.sh"
+    "docs": "node_modules/jsdoc-to-markdown/bin/cli.js ws.js > DOCS.md"
   },
   "repository": {
     "type": "git",
@@ -23,13 +23,14 @@
   },
   "homepage": "http://bitfinexcom.github.io/bitfinex-api-node/",
   "devDependencies": {
-    "chai": "*",
-    "istanbul": "^0.4.0",
+    "chai": "^3.4.1",
+    "istanbul": "^0.4.1",
+    "jsdoc-to-markdown": "^1.3.1",
     "lodash": "^3.10.1",
-    "mocha": "*"
+    "mocha": "^2.3.4"
   },
   "dependencies": {
-    "ws": "^0.8.0",
-    "request": "^2.65.0"
+    "request": "^2.67.0",
+    "ws": "^0.8.1"
   }
 }

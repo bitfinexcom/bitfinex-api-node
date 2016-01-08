@@ -2,3 +2,4 @@ node_modules
 .idea
 /test/test_api_keys.json
 /build
+npm-debug.log
