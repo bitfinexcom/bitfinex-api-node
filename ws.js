@@ -230,12 +230,12 @@ BitfinexWS.prototype._processTradeEvent = function (msg, event) {
         }.bind(this));
     } else if (msg[0] === 'hb') { // HeatBeart
         debug('Received HeatBeart in %s trade channel', event.pair);
-    } else if (msg.length > 3) { // Update
+    } else if (msg[0] === 'te') { // Trade executed
         var update = {
-            seq:        msg[0],
-            timestamp:  msg[1],
-            price:      msg[2],
-            amount:     msg[3]
+            seq:        msg[1],
+            timestamp:  msg[2],
+            price:      msg[3],
+            amount:     msg[4]
         };
         debug('Emitting trade, %s, %j', event.pair, update);
         /**
