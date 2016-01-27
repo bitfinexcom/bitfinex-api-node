@@ -78,7 +78,7 @@ describe('WebSocket', function () {
         it('#trade data should have the defined fields', function (done) {
             this.bitfinexWS.once('trade', function (pair, data) {
                 expect(pair).to.equal('BTCUSD');
-                expect(data.seq).to.be.a('string');
+                expect(data.seq).to.be.a('number');
                 expect(data.timestamp).to.be.a('number');
                 expect(data.price).to.be.a('number');
                 expect(data.amount).to.be.a('number');
