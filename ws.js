@@ -249,6 +249,27 @@ BitfinexWS.prototype._processTradeEvent = function (msg, event) {
          * @see http://docs.bitfinex.com/#trades75
          */
         this.emit('trade', event.pair, update);
+    } else if (msg[0] === 'tu') { // Trade executed
+        var update = {
+            seq:        msg[1],
+            id:         msg[2],
+            timestamp:  msg[3],
+            price:      msg[4],
+            amount:     msg[5]
+        };
+        debug('Emitting trade, %s, %j', event.pair, update);
+        /**
+         * @event BitfinexWS#trade
+         * @type {string}
+         * @type {object}
+         * @property {string} seq
+         * @property {number} id
+         * @property {number} timestamp
+         * @property {number} price
+         * @property {number} amount
+         * @see http://docs.bitfinex.com/#trades75
+         */
+        this.emit('trade', event.pair, update);
     }
 };
 

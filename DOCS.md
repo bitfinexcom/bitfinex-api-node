@@ -30,6 +30,7 @@
         * ["tu"](#BitfinexWS+event_tu)
         * ["ticker"](#BitfinexWS+event_ticker)
         * ["trade"](#BitfinexWS+event_trade)
+        * ["trade"](#BitfinexWS+event_trade)
         * ["orderbook"](#BitfinexWS+event_orderbook)
     * _static_
         * [.WebSocketURI](#BitfinexWS.WebSocketURI) : <code>String</code>
@@ -218,6 +219,20 @@ trade execution update
 | Name | Type |
 | --- | --- |
 | seq | <code>string</code> | 
+| timestamp | <code>number</code> | 
+| price | <code>number</code> | 
+| amount | <code>number</code> | 
+
+<a name="BitfinexWS+event_trade"></a>
+### "trade"
+**Kind**: event emitted by <code>[BitfinexWS](#BitfinexWS)</code>  
+**See**: http://docs.bitfinex.com/#trades75  
+**Properties**
+
+| Name | Type |
+| --- | --- |
+| seq | <code>string</code> | 
+| id | <code>number</code> | 
 | timestamp | <code>number</code> | 
 | price | <code>number</code> | 
 | amount | <code>number</code> | 
