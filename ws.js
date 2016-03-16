@@ -122,7 +122,7 @@ BitfinexWS.prototype._processUserEvent = function (msg) {
             data[0].forEach(function (ele) {
                 debug('Emitting \'%s\' %j', event, ele);
                 this.emit(event, ele);
-            });
+            }.bind(this));
         } else if (data.length) {
             debug('Emitting \'%s\', %j', event, data);    
             /**
