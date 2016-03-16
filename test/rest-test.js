@@ -110,7 +110,7 @@ describe("Public Endpoints", function () {
     });
     it("should get symbols", function (done) {
         bfx_rest.get_symbols(function (error, data) {
-            expect(data).to.eql(["btcusd", "ltcusd", "ltcbtc"]);
+            expect(data).to.eql(["btcusd", "ltcusd", "ltcbtc", "ethusd", "ethbtc"]);
             done();
         })
     });
@@ -144,7 +144,26 @@ describe("Public Endpoints", function () {
                     maximum_order_size: '5000.0',
                     minimum_order_size: '0.1',
                     expiration: 'NA'
-                }]);
+                },
+                {
+                    "pair":"ethusd",
+                    "price_precision":5,
+                    "initial_margin":"60.0",
+                    "minimum_margin":"30.0",
+                    "maximum_order_size":"5000.0",
+                    "minimum_order_size":"0.1",
+                    "expiration":"NA"
+                },
+                {
+                    "pair":"ethbtc",
+                    "price_precision":5,
+                    "initial_margin":"60.0",
+                    "minimum_margin":"30.0",
+                    "maximum_order_size":"5000.0",
+                    "minimum_order_size":"0.1",
+                    "expiration":"NA"
+                }
+                ]);
             done()
         })
     });
