@@ -3,3 +3,4 @@ node_modules
 /test/test_api_keys.json
 /build
 npm-debug.log
+source/images/coveragelcov-report/
