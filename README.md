@@ -1,9 +1,13 @@
-Bitfinex API Node Reference Library
+# Bitfinex Trading API for Node.JS. Bitcoin, Ethereum and Litecoin trading
 =========
 
 [![Build Status](https://travis-ci.org/bitfinexcom/bitfinex-api-node.svg?branch=master)](https://travis-ci.org/bitfinexcom/bitfinex-api-node)
 
-A Node.js reference implementation of the Bitfinex API. See the full docs at <http://bitfinexcom.github.io/bitfinex-api-node/>
+A Node.JS reference implementation of the Bitfinex API. See the full docs at <http://bitfinexcom.github.io/bitfinex-api-node/>
+
+* Official implementation
+* REST API
+* WebSockets API 
 
 ## Installation
 ```bash
