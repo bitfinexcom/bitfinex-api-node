@@ -1,4 +1,4 @@
-# Bitfinex Trading API for Node.JS. Bitcoin, Ethereum and Litecoin trading
+# Bitfinex Trading API for Node.JS. Bitcoin, Ether and Litecoin trading
 =========
 
 [![Build Status](https://travis-ci.org/bitfinexcom/bitfinex-api-node.svg?branch=master)](https://travis-ci.org/bitfinexcom/bitfinex-api-node)
