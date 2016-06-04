@@ -157,8 +157,8 @@ describe("Public Endpoints", function () {
                 {
                     "pair":"ethusd",
                     "price_precision":5,
-                    "initial_margin":"60.0",
-                    "minimum_margin":"30.0",
+                    "initial_margin":"30.0",
+                    "minimum_margin":"15.0",
                     "maximum_order_size":"5000.0",
                     "minimum_order_size":"0.1",
                     "expiration":"NA"
@@ -166,8 +166,8 @@ describe("Public Endpoints", function () {
                 {
                     "pair":"ethbtc",
                     "price_precision":5,
-                    "initial_margin":"60.0",
-                    "minimum_margin":"30.0",
+                    "initial_margin":"30.0",
+                    "minimum_margin":"15.0",
                     "maximum_order_size":"5000.0",
                     "minimum_order_size":"0.1",
                     "expiration":"NA"
