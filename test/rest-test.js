@@ -61,6 +61,15 @@ describe("Public Endpoints", function () {
             done()
         });
     });
+    it("should get the fundingbook asks, zero bids, 100 asks", function (done) {
+        bfx_rest.fundingbook("USD", {limit_bids: 0, limit_asks:100}, function (error, data) {
+            expect(data).to.exist;
+            expect(_.has(data, ['bids', 'asks']));
+            expect(data.bids.length).is.eql(0);
+            expect(data.asks.length).is.eql(100);
+            done()
+        });
+    });
     it("should get the orderbook", function (done) {
         bfx_rest.orderbook("BTCUSD", function (error, data) {
             expect(data).to.exist;
