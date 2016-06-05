@@ -61,6 +61,15 @@ describe("Public Endpoints", function () {
             done()
         });
     });
+    it("should get the fundingbook asks, zero bids, 100 asks", function (done) {
+        bfx_rest.fundingbook("USD", {limit_bids: 0, limit_asks:100}, function (error, data) {
+            expect(data).to.exist;
+            expect(_.has(data, ['bids', 'asks']));
+            expect(data.bids.length).is.eql(0);
+            expect(data.asks.length).is.eql(100);
+            done()
+        });
+    });
     it("should get the orderbook", function (done) {
         bfx_rest.orderbook("BTCUSD", function (error, data) {
             expect(data).to.exist;
@@ -148,8 +157,8 @@ describe("Public Endpoints", function () {
                 {
                     "pair":"ethusd",
                     "price_precision":5,
-                    "initial_margin":"60.0",
-                    "minimum_margin":"30.0",
+                    "initial_margin":"30.0",
+                    "minimum_margin":"15.0",
                     "maximum_order_size":"5000.0",
                     "minimum_order_size":"0.1",
                     "expiration":"NA"
@@ -157,8 +166,8 @@ describe("Public Endpoints", function () {
                 {
                     "pair":"ethbtc",
                     "price_precision":5,
-                    "initial_margin":"60.0",
-                    "minimum_margin":"30.0",
+                    "initial_margin":"30.0",
+                    "minimum_margin":"15.0",
                     "maximum_order_size":"5000.0",
                     "minimum_order_size":"0.1",
                     "expiration":"NA"

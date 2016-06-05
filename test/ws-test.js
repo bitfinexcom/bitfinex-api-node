@@ -55,7 +55,7 @@ describe('WebSocket', function () {
             this.bitfinexWS.on('info', function (data) {
                 expect(data).is.eql({
                     event: 'info', 
-                    version: 1
+                    version: 1.1
                 });
                 done();
             });

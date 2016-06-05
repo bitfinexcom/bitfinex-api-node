@@ -116,8 +116,31 @@ rest.prototype.stats = function (symbol, cb) {
 //    return this.make_public_request('candles/' + symbol, cb);
 //};
 
-rest.prototype.fundingbook = function (currency, cb) {
-    return this.make_public_request('lendbook/' + currency, cb);
+rest.prototype.fundingbook = function (currency, options, cb) {
+    var err, error1, index, option, query_string, uri, value;
+    index = 0;
+    uri = 'lendbook/' + currency;
+    if (typeof options === 'function') {
+        cb = options;
+    } else {
+        try {
+            for (option in options) {
+                value = options[option];
+                if (index++ > 0) {
+                    query_string += '&' + option + '=' + value;
+                } else {
+                    query_string = '/?' + option + '=' + value;
+                }
+            }
+            if (index > 0) {
+                uri += query_string;
+            }
+        } catch (error1) {
+            err = error1;
+            return cb(err);
+        }
+    }
+    return this.make_public_request(uri, cb);
 };
 
 rest.prototype.orderbook = function (symbol, options, cb) {
