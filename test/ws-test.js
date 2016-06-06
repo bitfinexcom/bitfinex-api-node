@@ -126,7 +126,6 @@ describe('WebSocket', function () {
         
         it('should emit an auth event when authorized', function (done) {
             this.bitfinexWS.on('auth', function (data) {
-                console.log(data);
                 expect(data.status).to.equal('OK');
                 done();
             });
