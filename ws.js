@@ -95,7 +95,6 @@ BitfinexWS.prototype.onMessage = function (msg, flags) {
         // First element of Array is the channelId, the rest is the info.
         var channelId = msg.shift(); // Pop the first element
         var event = this.channelMap[channelId];
-        debug('Event: %j', event)
         if (event) {
             debug('Message in \'%s\' channel', event.channel);
             if (event.channel === 'book') {
