@@ -65,7 +65,7 @@ BitfinexWS.prototype.onMessage = function (msg, flags) {
             };
             // Save to event map
             this.channelMap[msg.chanId] = data;
-            debug('Emitting \'subscribed\' %j', data);
+            debug('Emitting \'subscribed\' %j', data);  
             /**
              * @event BitfinexWS#subscribed
              * @type {object}
@@ -92,7 +92,7 @@ BitfinexWS.prototype.onMessage = function (msg, flags) {
         }
     } else {
         debug('Received data from a channel');
-        // Firs telement of Array is the channelId, the rest is the info.
+        // First element of Array is the channelId, the rest is the info.
         var channelId = msg.shift(); // Pop the first element
         var event = this.channelMap[channelId];
         if (event) {
