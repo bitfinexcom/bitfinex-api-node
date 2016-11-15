@@ -16,7 +16,7 @@ const util = require('util')
 class BitfinexWS2 extends EventEmitter {
   constructor(api_key, api_secret) {
     super()
-    // EventEmitter.call(this)
+      // EventEmitter.call(this)
     this.api_key = api_key
     this.api_secret = api_secret
     this.websocketURI = 'wss://api.bitfinex.com/ws/2'
@@ -30,7 +30,7 @@ class BitfinexWS2 extends EventEmitter {
   onMessage(msg, flags) {
     msg = JSON.parse(msg)
     debug('Received message: %j', msg)
-    debug('Emmited message event')
+    debug('Emited message event')
     this.emit('message', msg, flags)
 
     if (!Array.isArray(msg) && msg.event) {
@@ -40,7 +40,7 @@ class BitfinexWS2 extends EventEmitter {
         let data = {
             channel: msg.channel,
             chanId: msg.chanId,
-            pair: msg.pair
+            symbol: msg.symbol
           }
           // Save to event map
         this.channelMap[msg.chanId] = data
@@ -49,7 +49,7 @@ class BitfinexWS2 extends EventEmitter {
            * @event BitfinexWS#subscribed
            * @type {object}
            * @property {string} channel - Channel type
-           * @property {string} pair - Currency pair.
+           * @property {string} symbol - Symbol of the asset in question (either a trading pair or a funding currency)
            * @property {number} chanId - Channel ID sended by Bitfinex
            */
         this.emit('subscribed', data)
@@ -71,7 +71,7 @@ class BitfinexWS2 extends EventEmitter {
       }
     } else {
       debug('Received data from a channel')
-        // First telement of Array is the channelId, the rest is the info.
+        // First element of Array is the channelId, the rest is the info.
       let channelId = msg.shift() // Pop the first element
       let event = this.channelMap[channelId]
       if (event) {
@@ -97,12 +97,17 @@ class BitfinexWS2 extends EventEmitter {
     } else {
       let event = msg[0]
       let data = msg[1]
+        // Snapshot
       if (Array.isArray(data[0])) {
-        data[0].forEach(function(ele) {
-          debug('Emitting \'%s\' %j', event, ele)
+        data.forEach(function(ele) {
+          debug('Emitting notification \'%s\' %j', event, ele)
           this.emit(event, ele)
         }.bind(this))
-      } else if (data.length) {
+      } else if (event == 'n') { // Notification
+        event = data[1]
+        this.emit(event, data)
+        debug('Emitting \'%s\', %j', event, data)
+      } else if (data.length) { // Update
         debug('Emitting \'%s\', %j', event, data)
         this.emit(event, data)
       }
@@ -110,43 +115,43 @@ class BitfinexWS2 extends EventEmitter {
   }
 
   _processTickerEvent(msg, event) {
-    debug('Incoming args for ticker event, %j, %j', msg, event)
     if (msg[0] === 'hb') { // HeatBeart
-      debug('Received HeatBeart in %s ticker channel', event.pair)
+      debug('Received HeatBeart in %s ticker channel', event.symbol)
     } else {
-      debug('Emitting ticker, %s, %j', event.pair, msg)
-      this.emit('ticker', event.pair, msg)
+      msg = msg[0]
+      debug('Emitting ticker, %s, %j', event.symbol, msg)
+      this.emit('ticker', event.symbol, msg)
     }
   }
 
   _processBookEvent(msg, event) {
     if (Array.isArray(msg[0])) {
       msg[0].forEach(function(book_level) {
-        debug('Emitting orderbook, %s, %j', event.pair, book_level)
-        this.emit('orderbook', event.pair, book_level)
+        debug('Emitting orderbook, %s, %j', event.symbol, book_level)
+        this.emit('orderbook', event.symbol, book_level)
       }.bind(this))
     } else if (msg[0] === 'hb') { // HeatBeart
-      debug('Received HeatBeart in %s book channel', event.pair)
+      debug('Received HeatBeart in %s book channel', event.symbol)
     } else if (msg.length > 2) {
-      debug('Emitting orderbook, %s, %j', event.pair, msg)
-      this.emit('orderbook', event.pair, msg)
+      debug('Emitting orderbook, %s, %j', event.symbol, msg)
+      this.emit('orderbook', event.symbol, msg)
     }
   }
 
   _processTradeEvent(msg, event) {
     if (Array.isArray(msg[0])) {
       msg[0].forEach(function(trade) {
-        debug('Emitting trade, %s, %j', event.pair, trade)
-        this.emit('trade', event.pair, trade)
+        debug('Emitting trade, %s, %j', event.symbol, trade)
+        this.emit('trade', event.symbol, trade)
       }.bind(this))
     } else if (msg[0] === 'hb') { // HeatBeart
-      debug('Received HeatBeart in %s trade channel', event.pair)
+      debug('Received HeatBeart in %s trade channel', event.symbol)
     } else if (msg[0] === 'te') { // Trade executed
-      debug('Emitting trade, %s, %j', event.pair, msg)
-      this.emit('trade', event.pair, msg)
+      debug('Emitting trade, %s, %j', event.symbol, msg)
+      this.emit('trade', event.symbol, msg)
     } else if (msg[0] === 'tu') { // Trade executed
-      debug('Emitting trade, %s, %j', event.pair, msg)
-      this.emit('trade', event.pair, msg)
+      debug('Emitting trade, %s, %j', event.symbol, msg)
+      this.emit('trade', event.symbol, msg)
     }
   }
 
@@ -173,34 +178,33 @@ class BitfinexWS2 extends EventEmitter {
     this.ws.send(JSON.stringify(msg))
   }
 
-  subscribeOrderBook(pair, precision, length) {
-    pair = pair || 'tBTCUSD'
+  subscribeOrderBook(symbol, precision, length) {
+    symbol = symbol || 'tBTCUSD'
     precision = precision || 'P0'
     length = length || '25'
     this.send({
       event: 'subscribe',
       channel: 'book',
-      pair: pair,
+      symbol: symbol,
       prec: precision,
     })
   }
 
-  subscribeTrades(pair) {
-    pair = pair || 'BTCUSD'
+  subscribeTrades(symbol) {
+    symbol = symbol || 'BTCUSD'
     this.send({
       event: 'subscribe',
       channel: 'trades',
-      pair: pair
+      symbol: symbol
     })
   }
 
-  subscribeTicker(pair) {
-    pair = pair || 'BTCUSD'
-    console.log(pair)
+  subscribeTicker(symbol) {
+    symbol = symbol || 'tBTCUSD'
     this.send({
       event: 'subscribe',
       channel: 'ticker',
-      pair: pair
+      symbol: symbol
     })
   }
 
@@ -211,18 +215,23 @@ class BitfinexWS2 extends EventEmitter {
     })
   }
 
-  submitOrder(order){
+  submitOrder(order) {
     this.send(order)
   }
 
   cancelOrder(order_id) {
-    this.send([0, "oc", null, { id: order_id }])
+    this.send([0, "oc", null, {
+      id: order_id
+    }])
   }
 
   config(flags) {
-    this.send({ "event": "conf", flags: FLAGS })
+    this.send({
+      "event": "conf",
+      flags: FLAGS
+    })
   }
- 
+
   auth(calc) {
     calc = calc || 0
     let authNonce = (new Date()).getTime() * 1000

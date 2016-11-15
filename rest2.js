@@ -1,3 +1,5 @@
+const request = require('request')
+
 class Rest2 {
   constructor(key, secret, nonceGenerator) {
     this.url = "https://api.bitfinex.com"
@@ -69,8 +71,8 @@ class Rest2 {
     if (cb == null) {
       cb = this.generic_callback
     }
-    var url
-    path = '/' + this.version + '/' + sub_path
+    let url
+    let path = '/' + this.version + '/' + sub_path
     url = this.url + path
     return request({
       url: url,
