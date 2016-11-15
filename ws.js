@@ -330,7 +330,7 @@ BitfinexWS.prototype.send = function (msg) {
 };
 
 /**
- * Subscribe to Order book updates. Snapshot will be sent as multiple updates.
+ * Subscribe to Order book updates. Snapshot will be sended as multiple updates.
  * Event will be emited as `PAIRNAME_book`.
  * @param  {string} [pair]      BTCUSD, LTCUSD or LTCBTC. Default BTCUSD
  * @param  {string} [precision] Level of price aggregation (P0, P1, P2, P3).
