@@ -37,7 +37,7 @@ class BitfinexWS2 extends EventEmitter {
       if (msg.event === 'subscribed') {
         debug('Subscription report received')
           // Inform the user the new event name that will be triggered
-        var data = {
+        let data = {
             channel: msg.channel,
             chanId: msg.chanId,
             pair: msg.pair
@@ -72,8 +72,8 @@ class BitfinexWS2 extends EventEmitter {
     } else {
       debug('Received data from a channel')
         // First telement of Array is the channelId, the rest is the info.
-      var channelId = msg.shift() // Pop the first element
-      var event = this.channelMap[channelId]
+      let channelId = msg.shift() // Pop the first element
+      let event = this.channelMap[channelId]
       if (event) {
         debug('Message in \'%s\' channel', event.channel)
         if (event.channel === 'book') {
@@ -95,8 +95,8 @@ class BitfinexWS2 extends EventEmitter {
     if (msg[0] === 'hb') { // HeatBeart
       debug('Received HeatBeart in user channel')
     } else {
-      var event = msg[0]
-      var data = msg[1]
+      let event = msg[0]
+      let data = msg[1]
       if (Array.isArray(data[0])) {
         data[0].forEach(function(ele) {
           debug('Emitting \'%s\' %j', event, ele)
@@ -219,7 +219,11 @@ class BitfinexWS2 extends EventEmitter {
     this.send([0, "oc", null, { id: order_id }])
   }
 
-  auth() {
+  config(flags) {
+    this.send({ "event": "conf", flags: FLAGS })
+  }
+ 
+  auth(calc) {
     calc = calc || 0
     let authNonce = (new Date()).getTime() * 1000
     let payload = 'AUTH' + authNonce + authNonce
@@ -229,7 +233,7 @@ class BitfinexWS2 extends EventEmitter {
       apiKey: this.api_key,
       authSig: signature,
       authPayload: payload,
-      authNonce: +authNonce,
+      authNonce: +authNonce + 1,
       calc: calc
     })
   }
