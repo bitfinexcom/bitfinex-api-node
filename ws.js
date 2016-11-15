@@ -92,7 +92,7 @@ BitfinexWS.prototype.onMessage = function (msg, flags) {
         }
     } else {
         debug('Received data from a channel');
-        // Firs telement of Array is the channelId, the rest is the info.
+        // First telement of Array is the channelId, the rest is the info.
         var channelId = msg.shift(); // Pop the first element
         var event = this.channelMap[channelId];
         if (event) {
@@ -330,7 +330,7 @@ BitfinexWS.prototype.send = function (msg) {
 };
 
 /**
- * Subscribe to Order book updates. Snapshot will be sended as multiple updates.
+ * Subscribe to Order book updates. Snapshot will be sent as multiple updates.
  * Event will be emited as `PAIRNAME_book`.
  * @param  {string} [pair]      BTCUSD, LTCUSD or LTCBTC. Default BTCUSD
  * @param  {string} [precision] Level of price aggregation (P0, P1, P2, P3).

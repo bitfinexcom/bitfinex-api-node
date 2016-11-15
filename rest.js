@@ -452,4 +452,4 @@ rest.prototype.transfer = function (amount, currency, walletfrom, walletto, cb) 
     return this.make_request('transfer', params, cb);
 };
 
-module.exports = rest;
+module.exports = rest
