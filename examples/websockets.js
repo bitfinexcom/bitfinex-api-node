@@ -1,6 +1,6 @@
-var BitfinexWS = require ('bitfinex-api-node').WS;
+var BitfinexWS = require ('bitfinex-api-node');
 
-var bws = new BitfinexWS();
+var bws = new BitfinexWS().ws;
 
 bws.on('open', function () {
     bws.subscribeTrades('BTCUSD');
