@@ -10,7 +10,7 @@ qs = require('querystring');
 
 
 function rest(key, secret, nonceGenerator) {
-    this.url = "https://api.bitfinex.com";
+    this.url = "https://api.bitfinex.com/";
     this.version = 'v1';
     this.key = key;
     this.secret = secret;
@@ -21,13 +21,12 @@ function rest(key, secret, nonceGenerator) {
     };
 }
 
-rest.prototype.make_request = function (sub_path, params, cb) {
+rest.prototype.make_request = function (path, params, cb) {
     var headers, key, nonce, path, payload, signature, url, value;
     if (!this.key || !this.secret) {
         return cb(new Error("missing api key or secret"));
     }
-    path = '/' + this.version + '/' + sub_path;
-    url = this.url + path;
+    url = `${this.url}/${this.version}/${path}`
     nonce = JSON.stringify(this._nonce());
     payload = {
         request: path,
@@ -70,8 +69,7 @@ rest.prototype.make_request = function (sub_path, params, cb) {
 };
 
 rest.prototype.make_public_request = function (path, cb) {
-    var url;
-    url = this.url + '/v1/' + path;
+    let url = `${this.url}/${this.version}/${path}`
     return request({
         url: url,
         method: "GET",
