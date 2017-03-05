@@ -24,7 +24,7 @@ class Rest2 {
     if (!this.key || !this.secret) {
       return cb(new Error("missing api key or secret"))
     }
-    let url = `${this.url}/${this.version}/${sub_path}`
+    url = `${this.url}/${this.version}/${sub_path}`
     nonce = JSON.stringify(this._nonce())
     payload = {
       request: path,
@@ -70,7 +70,7 @@ class Rest2 {
     if (cb == null) {
       cb = this.generic_callback
     }
-    let url = `${this.url}/${this.version}/${sub_path}`
+    url = `${this.url}/${this.version}/${sub_path}`
     return request({
       url: url,
       method: "GET",
