@@ -1,136 +1,123 @@
 const request = require('request')
+const rp = require('request-promise')
+const crypto = require('crypto')
+const BASE_TIMEOUT = 15000
 
 class Rest2 {
-  constructor(key, secret, nonceGenerator) {
-    this.url = "https://api.bitfinex.com"
+  constructor (key, secret, nonceGenerator) {
+    this.url = 'https://api.bitfinex.com/'
     this.version = 'v2'
     this.key = key
     this.secret = secret
     this.nonce = new Date().getTime()
-    this._nonce = typeof nonceGenerator === "function" ? nonceGenerator : function() {
-      //noinspection JSPotentiallyInvalidUsageOfThis
-      return ++this.nonce
-    }
+    this.generateNonce = (typeof nonceGenerator === 'function')
+      ? nonceGenerator
+      : function () {
+        // noinspection JSPotentiallyInvalidUsageOfThis
+        return ++this.nonce
+      }
   }
-  generic_callback(err, result) {
+
+  genericCallback (err, result) {
     console.log(err, result)
   }
 
-  make_request(sub_path, params, cb) {
-    if (cb == null) {
-      cb = this.generic_callback
-    }
-    var headers, key, nonce, path, payload, signature, url, value
+  makeAuthRequest (path, payload = {}, cb = this.genericCallback) {
     if (!this.key || !this.secret) {
-      return cb(new Error("missing api key or secret"))
+      return cb(new Error('missing api key or secret'))
     }
-    let url = `${this.url}/${this.version}/${sub_path}`
-    nonce = JSON.stringify(this._nonce())
-    payload = {
-      request: path,
-      nonce: nonce
-    }
-    for (key in params) {
-      value = params[key]
-      payload[key] = value
-    }
-    payload = new Buffer(JSON.stringify(payload)).toString('base64')
-    signature = crypto.createHmac("sha384", this.secret).update(payload).digest('hex')
-    headers = {
-      'X-BFX-APIKEY': this.key,
-      'X-BFX-PAYLOAD': payload,
-      'X-BFX-SIGNATURE': signature
-    }
-    return request({
-      url: url,
-      method: "POST",
-      headers: headers,
-      timeout: 15000
-    }, function(err, response, body) {
-      var error, error1, result
-      if (err || (response.statusCode !== 200 && response.statusCode !== 400)) {
-        return cb(new Error(err != null ? err : response.statusCode))
-      }
-      try {
-        result = JSON.parse(body)
-      } catch (error1) {
-        error = error1
-        return cb(null, {
-          message: body.toString()
-        })
-      }
-      if (result.message != null) {
-        return cb(new Error(result.message))
-      }
-      return cb(null, result)
+    const url = `${this.url}/${this.version}/${path}`
+    const nonce = JSON.stringify(this.generateNonce())
+    const rawBody = JSON.stringify(payload)
+
+    const signature = crypto
+      .createHmac('sha384', this.secret)
+      .update(`/api/${url}${nonce}${rawBody}`)
+      .digest('hex')
+
+    return rp({
+      url,
+      method: 'POST',
+      headers: {
+        'bfx-nonce': nonce,
+        'bfx-apikey': this.key,
+        'bfx-signature': signature
+      },
+      json: payload
+    })
+    .then(function (response) {
+      return cb(null, JSON.parse(response))
+    })
+    .catch(function (error) {
+      return cb(new Error(error))
     })
   }
 
-  make_public_request(sub_path, cb) {
-    if (cb == null) {
-      cb = this.generic_callback
-    }
-    let url = `${this.url}/${this.version}/${sub_path}`
-    return request({
-      url: url,
-      method: "GET",
-      timeout: 15000
-    }, function(err, response, body) {
-      var error, error1, result
-      if (err || (response.statusCode !== 200 && response.statusCode !== 400)) {
-        return cb(new Error(err != null ? err : response.statusCode))
-      }
-
-      try {
-        result = JSON.parse(body)
-      } catch (error1) {
-        error = error1
-        return cb(null, {
-          message: body.toString()
-        })
-      }
-      if (result.message != null) {
-        return cb(new Error(result.message))
-      }
-      return cb(null, result)
+  makePublicRequest (name, cb = this.genericCallback) {
+    const url = `${this.url}/${this.version}/${name}`
+    return rp({
+      url,
+      method: 'GET',
+      timeout: BASE_TIMEOUT
+    })
+    .then(function (response) {
+      return cb(null, JSON.parse(response))
+    })
+    .catch(function (error) {
+      return cb(new Error(error))
     })
   }
 
-  ticker(symbol, cb) {
-    if (symbol == null || typeof symbol === 'function') {
-      symbol = "tBTCUSD"
-    }
-    if (cb == null) {
-      cb = this.generic_callback
-    }
-    return this.make_public_request('ticker/' + symbol, cb)
+  // Public endpoints
+
+  ticker (symbol = 'tBTCUSD', cb) {
+    return this.makePublicRequest(`ticker/${symbol}`, cb)
   }
 
-  stats(key, context, cb) {
-    if (key == null) {
-      key = "pos.size:1m:tBTCUSD:long"
-    }
-    if (context == null) {
-      context = 'hist'
-    }
-    if (cb == null) {
-      cb = this.generic_callback
-    }
-    return this.make_public_request('stats1/' + key + '/' + context, cb)
+  tickers (cb) {
+    return this.makePublicRequest(`tickers`, cb)
   }
 
-  candles(key, context, cb) {
-    if (key == null) {
-      key = "trades:1m:tBTCUSD"
-    }
-    if (context == null) {
-      context = 'hist'
-    }
-    if (cb == null) {
-      cb = this.generic_callback
-    }
-    return this.make_public_request('stats1/' + key + '/' + context, cb)
+  stats (key = 'pos.size:1m:tBTCUSD:long', context = 'hist', cb) {
+    return this.makePublicRequest(`stats1/${key}/${context}`, cb)
   }
+
+  // timeframes: '1m', '5m', '15m', '30m', '1h', '3h', '6h', '12h', '1D', '7D', '14D', '1M'
+  // sections: 'last', 'hist'
+  // note: query params can be added: see
+  // http://docs.bitfinex.com/v2/reference#rest-public-candles
+  candles ({ timeframe = '1m', symbol = 'tBTCUSD', section = 'hist' }, cb) {
+    return this.makePublicRequest(`stats1/trade:${timeframe}:${symbol}/${section}`, cb)
+  }
+
+  // TODO
+  // - Trades
+  // - Books
+
+  // Auth endpoints
+
+  alertList (type = 'price', cb) {
+    return this.makeAuthRequest(`/auth/r/alerts?type=${type}`, null, cb)
+  }
+
+  alertSet (type = 'price', symbol = 'tBTCUSD', price = 0) {
+    return this.makeAuthRequest(`/auth/w/alert/set`, { type, symbol, price })
+  }
+
+  alertDelete (symbol = 'tBTCUSD', price = 0) {
+    return this.makeAuthRequest(`/auth/w/alert/set`, { symbol, price })
+  }
+
+  // TODO
+  // - Wallets
+  // - Orders
+  // - Order Trades
+  // - Positions
+  // - Offers
+  // - Margin Info
+  // - Funding Info
+  // - Performance
+  // - Calc Available Balance
 
 }
 
