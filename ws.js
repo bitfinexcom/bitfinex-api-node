@@ -49,7 +49,12 @@ util.inherits(BitfinexWS, EventEmitter);
 BitfinexWS.WebSocketURI = 'wss://api.bitfinex.com/ws/';
 
 BitfinexWS.prototype.onMessage = function (msg, flags) {
-    msg = JSON.parse(msg);
+    try {
+        msg = JSON.parse(msg);
+    }
+    catch(err) {
+        debug('Err parsing message.', err);
+    }
     debug('Received message: %j', msg);
     debug('Emmited message event');
     this.emit('message', msg, flags);
