@@ -7,6 +7,7 @@
   },
   "main": "index.js",
   "scripts": {
+    "lint": "eslint .",
     "test": "NODE_ENV=test istanbul cover _mocha -- -R spec -b --recursive",
     "test-without-coverage": "NODE_ENV=test mocha -R spec -b --recursive",
     "docs": "node_modules/jsdoc-to-markdown/bin/cli.js ws.js > DOCS.md"
@@ -29,6 +30,7 @@
   "devDependencies": {
     "chai": "^3.4.1",
     "debug": "^2.2.0",
+    "eslint": "^3.19.0",
     "istanbul": "^0.4.1",
     "jsdoc-to-markdown": "^1.3.1",
     "lodash": "^3.10.1",

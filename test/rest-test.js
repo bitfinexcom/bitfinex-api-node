@@ -1,3 +1,5 @@
+/* global before describe it xdescribe */
+
 var expect = require('chai').expect,
     BFX = require('../index'),
     _ = require('lodash'),

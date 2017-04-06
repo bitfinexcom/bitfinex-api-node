@@ -1,3 +1,5 @@
+/* global describe it */
+
 var expect = require('chai').expect,
     BFX = require('../index');
 

@@ -4,7 +4,6 @@ const EventEmitter = require('events').EventEmitter
 const debug = require('debug')('bitfinex:ws')
 const crypto = require('crypto')
 const WebSocket = require('ws')
-const util = require('util')
 
 /**
  * Handles communitaction with Bitfinex WebSocket API.
@@ -227,8 +226,8 @@ class BitfinexWS2 extends EventEmitter {
 
   config(flags) {
     this.send({
+      flags,
       "event": "conf",
-      flags: FLAGS
     })
   }
 
