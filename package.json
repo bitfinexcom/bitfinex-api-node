@@ -2,6 +2,9 @@
   "name": "bitfinex-api-node",
   "version": "0.3.0",
   "description": "Node reference library for Bitfinex API",
+  "engines": {
+    "node": ">=6"
+  },
   "main": "index.js",
   "scripts": {
     "test": "NODE_ENV=test istanbul cover _mocha -- -R spec -b --recursive",
