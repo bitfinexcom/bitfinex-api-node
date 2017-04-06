@@ -1,4 +1,3 @@
-const request = require('request')
 const rp = require('request-promise')
 const crypto = require('crypto')
 const BASE_TIMEOUT = 15000
