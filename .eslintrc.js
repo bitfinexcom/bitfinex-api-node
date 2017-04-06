@@ -67,7 +67,7 @@ module.exports = {
         "dot-notation": "off",
         "eol-last": "off",
         "eqeqeq": "off",
-        "func-call-spacing": "off",
+        "func-call-spacing": "error",
         "func-name-matching": "error",
         "func-names": [
             "error",
@@ -120,6 +120,7 @@ module.exports = {
         "no-catch-shadow": "off",
         "no-compare-neg-zero": "error",
         "no-confusing-arrow": "error",
+        "no-console": "warn",
         "no-continue": "error",
         "no-div-regex": "error",
         "no-duplicate-imports": "error",
@@ -203,21 +204,21 @@ module.exports = {
         "no-useless-escape": "error",
         "no-useless-rename": "error",
         "no-useless-return": "error",
-        "no-var": "off",
+        "no-var": "error",
         "no-void": "error",
         "no-warning-comments": "off",
         "no-whitespace-before-property": "error",
         "no-with": "error",
         "nonblock-statement-body-position": "error",
         "object-curly-newline": "off",
-        "object-curly-spacing": "off",
+        "object-curly-spacing": "error",
         "object-property-newline": [
             "error",
             {
                 "allowMultiplePropertiesPerLine": true
             }
         ],
-        "object-shorthand": "off",
+        "object-shorthand": "error",
         "one-var": "off",
         "one-var-declaration-per-line": [
             "error",
@@ -229,13 +230,13 @@ module.exports = {
         ],
         "operator-linebreak": "error",
         "padded-blocks": "off",
-        "prefer-arrow-callback": "off",
-        "prefer-const": "off",
+        "prefer-arrow-callback": "error",
+        "prefer-const": "error",
         "prefer-destructuring": [
             "error",
             {
                 "array": false,
-                "object": false
+                "object": true
             }
         ],
         "prefer-numeric-literals": "error",
@@ -253,13 +254,13 @@ module.exports = {
         "require-await": "error",
         "require-jsdoc": "off",
         "rest-spread-spacing": "error",
-        "semi": "off",
+        "semi": ["error", "never"],
         "semi-spacing": "error",
         "sort-imports": "error",
         "sort-keys": "off",
         "sort-vars": "off",
         "space-before-blocks": "off",
-        "space-before-function-paren": "off",
+        "space-before-function-paren": "error",
         "space-in-parens": [
             "error",
             "never"

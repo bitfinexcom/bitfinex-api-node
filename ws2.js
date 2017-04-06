@@ -1,6 +1,6 @@
 'use strict'
 
-const EventEmitter = require('events').EventEmitter
+const {EventEmitter} = require('events')
 const debug = require('debug')('bitfinex:ws')
 const crypto = require('crypto')
 const WebSocket = require('ws')
@@ -13,7 +13,7 @@ const WebSocket = require('ws')
  * @class
  */
 class BitfinexWS2 extends EventEmitter {
-  constructor(api_key, api_secret) {
+  constructor (api_key, api_secret) {
     super()
       // EventEmitter.call(this)
     this.api_key = api_key
@@ -26,7 +26,7 @@ class BitfinexWS2 extends EventEmitter {
     this.ws.on('close', this.onClose.bind(this))
   }
 
-  onMessage(msg, flags) {
+  onMessage (msg, flags) {
     msg = JSON.parse(msg)
     debug('Received message: %j', msg)
     debug('Emited message event')
@@ -36,7 +36,7 @@ class BitfinexWS2 extends EventEmitter {
       if (msg.event === 'subscribed') {
         debug('Subscription report received')
           // Inform the user the new event name that will be triggered
-        let data = {
+        const data = {
             channel: msg.channel,
             chanId: msg.chanId,
             symbol: msg.symbol
@@ -71,8 +71,8 @@ class BitfinexWS2 extends EventEmitter {
     } else {
       debug('Received data from a channel')
         // First element of Array is the channelId, the rest is the info.
-      let channelId = msg.shift() // Pop the first element
-      let event = this.channelMap[channelId]
+      const channelId = msg.shift() // Pop the first element
+      const event = this.channelMap[channelId]
       if (event) {
         debug('Message in \'%s\' channel', event.channel)
         if (event.channel === 'book') {
@@ -90,18 +90,18 @@ class BitfinexWS2 extends EventEmitter {
     }
   }
 
-  _processUserEvent(msg) {
+  _processUserEvent (msg) {
     if (msg[0] === 'hb') { // HeatBeart
       debug('Received HeatBeart in user channel')
     } else {
       let event = msg[0]
-      let data = msg[1]
+      const data = msg[1]
         // Snapshot
       if (Array.isArray(data[0])) {
-        data.forEach(function(ele) {
+        data.forEach((ele) => {
           debug('Emitting notification \'%s\' %j', event, ele)
           this.emit(event, ele)
-        }.bind(this))
+        })
       } else if (event == 'n') { // Notification
         event = data[1]
         this.emit(event, data)
@@ -113,7 +113,7 @@ class BitfinexWS2 extends EventEmitter {
     }
   }
 
-  _processTickerEvent(msg, event) {
+  _processTickerEvent (msg, event) {
     if (msg[0] === 'hb') { // HeatBeart
       debug('Received HeatBeart in %s ticker channel', event.symbol)
     } else {
@@ -123,12 +123,12 @@ class BitfinexWS2 extends EventEmitter {
     }
   }
 
-  _processBookEvent(msg, event) {
+  _processBookEvent (msg, event) {
     if (Array.isArray(msg[0])) {
-      msg[0].forEach(function(book_level) {
+      msg[0].forEach((book_level) => {
         debug('Emitting orderbook, %s, %j', event.symbol, book_level)
         this.emit('orderbook', event.symbol, book_level)
-      }.bind(this))
+      })
     } else if (msg[0] === 'hb') { // HeatBeart
       debug('Received HeatBeart in %s book channel', event.symbol)
     } else if (msg.length > 2) {
@@ -137,12 +137,12 @@ class BitfinexWS2 extends EventEmitter {
     }
   }
 
-  _processTradeEvent(msg, event) {
+  _processTradeEvent (msg, event) {
     if (Array.isArray(msg[0])) {
-      msg[0].forEach(function(trade) {
+      msg[0].forEach((trade) => {
         debug('Emitting trade, %s, %j', event.symbol, trade)
         this.emit('trade', event.symbol, trade)
-      }.bind(this))
+      })
     } else if (msg[0] === 'hb') { // HeatBeart
       debug('Received HeatBeart in %s trade channel', event.symbol)
     } else if (msg[0] === 'te') { // Trade executed
@@ -154,95 +154,89 @@ class BitfinexWS2 extends EventEmitter {
     }
   }
 
-  close() {
+  close () {
     this.ws.close()
   }
 
-  onOpen() {
+  onOpen () {
     this.channelMap = {} // Map channels IDs to events
     debug('Connection opening, emitting open')
     this.emit('open')
   }
 
-  onError(error) {
+  onError (error) {
     this.emit('error', error)
   }
 
-  onClose() {
+  onClose () {
     this.emit('close')
   }
 
-  send(msg) {
+  send (msg) {
     debug('Sending %j', msg)
     this.ws.send(JSON.stringify(msg))
   }
 
-  subscribeOrderBook(symbol, precision, length) {
-    symbol = symbol || 'tBTCUSD'
-    precision = precision || 'P0'
-    length = length || '25'
+  subscribeOrderBook (symbol = 'tBTCUSD', precision = 'P0', length = '25') {
     this.send({
       event: 'subscribe',
       channel: 'book',
-      symbol: symbol,
+      symbol,
       prec: precision,
     })
   }
 
-  subscribeTrades(symbol) {
-    symbol = symbol || 'BTCUSD'
+  subscribeTrades (symbol = 'BTCUSD') {
     this.send({
       event: 'subscribe',
       channel: 'trades',
-      symbol: symbol
+      symbol
     })
   }
 
-  subscribeTicker(symbol) {
-    symbol = symbol || 'tBTCUSD'
+  subscribeTicker (symbol = 'tBTCUSD') {
     this.send({
       event: 'subscribe',
       channel: 'ticker',
-      symbol: symbol
+      symbol
     })
   }
 
-  unsubscribe(chanId) {
+  unsubscribe (chanId) {
     this.send({
       event: 'unsubscribe',
-      chanId: chanId
+      chanId
     })
   }
 
-  submitOrder(order) {
+  submitOrder (order) {
     this.send(order)
   }
 
-  cancelOrder(order_id) {
+  cancelOrder (order_id) {
     this.send([0, "oc", null, {
       id: order_id
     }])
   }
 
-  config(flags) {
+  config (flags) {
     this.send({
       flags,
       "event": "conf",
     })
   }
 
-  auth(calc) {
-    calc = calc || 0
-    let authNonce = (new Date()).getTime() * 1000
-    let payload = 'AUTH' + authNonce + authNonce
-    let signature = crypto.createHmac("sha384", this.api_secret).update(payload).digest('hex')
+  auth (calc = 0) {
+    const authNonce = (new Date()).getTime() * 1000
+    const payload = 'AUTH' + authNonce + authNonce
+    const signature = crypto.createHmac("sha384", this.api_secret).update(payload).digest('hex')
     this.send({
       event: "auth",
       apiKey: this.api_key,
       authSig: signature,
       authPayload: payload,
       authNonce: +authNonce + 1,
-      calc: calc
+      calc
     })
   }
 }

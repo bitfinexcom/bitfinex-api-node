@@ -1,12 +1,12 @@
 /* global describe it */
 
-var expect = require('chai').expect,
-    BFX = require('../index');
+const {expect} = require('chai')
+const BFX = require('../index')
 
-describe('Loading Module', function() {
-    describe('#BFX', function () {
-        it('should be loaded', function () {
-            expect(BFX).to.be.a.function;
-        });
-    });
-});
+describe('Loading Module', () => {
+    describe('#BFX', () => {
+        it('should be loaded', () => {
+            expect(BFX).to.be.a.function
+        })
+    })
+})

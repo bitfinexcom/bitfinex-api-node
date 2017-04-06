@@ -7,7 +7,7 @@ const WS2 = require('./ws2.js')
 
 
 class BFX {
-  constructor(api_key, api_secret, version) {
+  constructor (api_key, api_secret, version) {
     this.api_key = api_key
     this.api_secret = api_secret
     if (version == 2) {
@@ -20,4 +20,4 @@ class BFX {
   }
 }
 
-module.exports = BFX;
+module.exports = BFX

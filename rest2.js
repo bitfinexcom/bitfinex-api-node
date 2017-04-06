@@ -44,12 +44,8 @@ class Rest2 {
       },
       json: payload
     })
-    .then(function (response) {
-      return cb(null, JSON.parse(response))
-    })
-    .catch(function (error) {
-      return cb(new Error(error))
-    })
+    .then((response) => cb(null, JSON.parse(response)))
+    .catch((error) => cb(new Error(error)))
   }
 
   makePublicRequest (name, cb = this.genericCallback) {
@@ -59,12 +55,8 @@ class Rest2 {
       method: 'GET',
       timeout: BASE_TIMEOUT
     })
-    .then(function (response) {
-      return cb(null, JSON.parse(response))
-    })
-    .catch(function (error) {
-      return cb(new Error(error))
-    })
+    .then((response) => cb(null, JSON.parse(response)))
+    .catch((error) => cb(new Error(error)))
   }
 
   // Public endpoints
@@ -85,7 +77,7 @@ class Rest2 {
   // sections: 'last', 'hist'
   // note: query params can be added: see
   // http://docs.bitfinex.com/v2/reference#rest-public-candles
-  candles ({ timeframe = '1m', symbol = 'tBTCUSD', section = 'hist' }, cb) {
+  candles ({timeframe = '1m', symbol = 'tBTCUSD', section = 'hist'}, cb) {
     return this.makePublicRequest(`stats1/trade:${timeframe}:${symbol}/${section}`, cb)
   }
 
@@ -100,11 +92,11 @@ class Rest2 {
   }
 
   alertSet (type = 'price', symbol = 'tBTCUSD', price = 0) {
-    return this.makeAuthRequest(`/auth/w/alert/set`, { type, symbol, price })
+    return this.makeAuthRequest(`/auth/w/alert/set`, {type, symbol, price})
   }
 
   alertDelete (symbol = 'tBTCUSD', price = 0) {
-    return this.makeAuthRequest(`/auth/w/alert/set`, { symbol, price })
+    return this.makeAuthRequest(`/auth/w/alert/set`, {symbol, price})
   }
 
   // TODO
