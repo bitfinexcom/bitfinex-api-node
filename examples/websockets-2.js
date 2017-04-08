@@ -1,7 +1,7 @@
 // uses the latest version of the websocket API
 
 // const BFX = require ('../')
-const BFX = require ('bitfinex-api-node')
+const BFX = require('bitfinex-api-node')
 
 const API_KEY = null
 const API_SECRET = null
