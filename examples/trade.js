@@ -4,10 +4,9 @@ const bws = new BitfinexWS()
 console.log(process.cwd())
 console.log(version)
 bws.on('open', () => {
-    bws.subscribeTrades('BTCUSD')
+  bws.subscribeTrades('BTCUSD')
 })
 
-
 bws.on('trade', (pair, trade) => {
-    console.log('Trade:', trade)
+  console.log('Trade:', trade)
 })

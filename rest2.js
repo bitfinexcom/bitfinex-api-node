@@ -109,7 +109,6 @@ class Rest2 {
   // - Funding Info
   // - Performance
   // - Calc Available Balance
-
 }
 
 module.exports = Rest2

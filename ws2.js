@@ -13,11 +13,11 @@ const WebSocket = require('ws')
  * @class
  */
 class BitfinexWS2 extends EventEmitter {
-  constructor (api_key, api_secret) {
+  constructor (apiKey, apiSecret) {
     super()
       // EventEmitter.call(this)
-    this.api_key = api_key
-    this.api_secret = api_secret
+    this.apiKey = apiKey
+    this.apiSecret = apiSecret
     this.websocketURI = 'wss://api.bitfinex.com/ws/2'
     this.ws = new WebSocket(this.websocketURI)
     this.ws.on('message', this.onMessage.bind(this))
@@ -37,10 +37,10 @@ class BitfinexWS2 extends EventEmitter {
         debug('Subscription report received')
           // Inform the user the new event name that will be triggered
         const data = {
-            channel: msg.channel,
-            chanId: msg.chanId,
-            symbol: msg.symbol
-          }
+          channel: msg.channel,
+          chanId: msg.chanId,
+          symbol: msg.symbol
+        }
           // Save to event map
         this.channelMap[msg.chanId] = data
         debug('Emitting \'subscribed\' %j', data)
@@ -102,7 +102,7 @@ class BitfinexWS2 extends EventEmitter {
           debug('Emitting notification \'%s\' %j', event, ele)
           this.emit(event, ele)
         })
-      } else if (event == 'n') { // Notification
+      } else if (event === 'n') { // Notification
         event = data[1]
         this.emit(event, data)
         debug('Emitting \'%s\', %j', event, data)
@@ -125,9 +125,9 @@ class BitfinexWS2 extends EventEmitter {
 
   _processBookEvent (msg, event) {
     if (Array.isArray(msg[0])) {
-      msg[0].forEach((book_level) => {
-        debug('Emitting orderbook, %s, %j', event.symbol, book_level)
-        this.emit('orderbook', event.symbol, book_level)
+      msg[0].forEach((bookLevel) => {
+        debug('Emitting orderbook, %s, %j', event.symbol, bookLevel)
+        this.emit('orderbook', event.symbol, bookLevel)
       })
     } else if (msg[0] === 'hb') { // HeatBeart
       debug('Received HeatBeart in %s book channel', event.symbol)
@@ -182,7 +182,7 @@ class BitfinexWS2 extends EventEmitter {
       event: 'subscribe',
       channel: 'book',
       symbol,
-      prec: precision,
+      prec: precision
     })
   }
 
@@ -213,26 +213,26 @@ class BitfinexWS2 extends EventEmitter {
     this.send(order)
   }
 
-  cancelOrder (order_id) {
-    this.send([0, "oc", null, {
-      id: order_id
+  cancelOrder (orderId) {
+    this.send([0, 'oc', null, {
+      id: orderId
     }])
   }
 
   config (flags) {
     this.send({
       flags,
-      "event": "conf",
+      'event': 'conf'
     })
   }
 
   auth (calc = 0) {
     const authNonce = (new Date()).getTime() * 1000
     const payload = 'AUTH' + authNonce + authNonce
-    const signature = crypto.createHmac("sha384", this.api_secret).update(payload).digest('hex')
+    const signature = crypto.createHmac('sha384', this.apiSecret).update(payload).digest('hex')
     this.send({
-      event: "auth",
-      apiKey: this.api_key,
+      event: 'auth',
+      apiKey: this.apiKey,
       authSig: signature,
       authPayload: payload,
       authNonce: +authNonce + 1,

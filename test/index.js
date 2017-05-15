@@ -1,12 +1,12 @@
-/* global describe it */
+/* eslint-env mocha */
 
-const {expect} = require('chai')
+const assert = require('assert')
 const BFX = require('../index')
 
 describe('Loading Module', () => {
-    describe('#BFX', () => {
-        it('should be loaded', () => {
-            expect(BFX).to.be.a.function
-        })
+  describe('#BFX', () => {
+    it('should be loaded', () => {
+      assert.equal(typeof BFX, 'function')
     })
+  })
 })
