@@ -14,30 +14,30 @@ const util = require('util')
  * @class
  */
 const BitfinexWS = function (APIKey, APISecret) {
-    EventEmitter.call(this)
+  EventEmitter.call(this)
 
-    this.APIKey = APIKey
-    this.APISecret = APISecret
-    this.ws = new WebSocket(BitfinexWS.WebSocketURI)
+  this.APIKey = APIKey
+  this.APISecret = APISecret
+  this.ws = new WebSocket(BitfinexWS.WebSocketURI)
     /**
      * @event BitfinexWS#message
      * @type {object}
      */
-    this.ws.on('message', this.onMessage.bind(this))
+  this.ws.on('message', this.onMessage.bind(this))
     /**
      * WebSocket connection is open. Ready to send.
      * @event BitfinexWS#open
      */
-    this.ws.on('open', this.onOpen.bind(this))
+  this.ws.on('open', this.onOpen.bind(this))
     /**
      * @event BitfinexWS#error
      */
-    this.ws.on('error', this.onError.bind(this))
+  this.ws.on('error', this.onError.bind(this))
     /**
      * WebSocket connection is closed.
      * @event BitfinexWS#close
      */
-    this.ws.on('close', this.onClose.bind(this))
+  this.ws.on('close', this.onClose.bind(this))
 }
 
 util.inherits(BitfinexWS, EventEmitter)
@@ -49,23 +49,23 @@ util.inherits(BitfinexWS, EventEmitter)
 BitfinexWS.WebSocketURI = 'wss://api.bitfinex.com/ws/'
 
 BitfinexWS.prototype.onMessage = function (msg, flags) {
-    msg = JSON.parse(msg)
-    debug('Received message: %j', msg)
-    debug('Emmited message event')
-    this.emit('message', msg, flags)
+  msg = JSON.parse(msg)
+  debug('Received message: %j', msg)
+  debug('Emmited message event')
+  this.emit('message', msg, flags)
 
-    if (!Array.isArray(msg) && msg.event) {
-        if (msg.event === 'subscribed') {
-            debug('Subscription report received')
+  if (!Array.isArray(msg) && msg.event) {
+    if (msg.event === 'subscribed') {
+      debug('Subscription report received')
             // Inform the user the new event name that will be triggered
-            const data = {
-              channel: msg.channel,
-              chanId: msg.chanId,
-              pair: msg.pair
-            }
+      const data = {
+        channel: msg.channel,
+        chanId: msg.chanId,
+        pair: msg.pair
+      }
             // Save to event map
-            this.channelMap[msg.chanId] = data
-            debug('Emitting \'subscribed\' %j', data)  
+      this.channelMap[msg.chanId] = data
+      debug('Emitting \'subscribed\' %j', data)
             /**
              * @event BitfinexWS#subscribed
              * @type {object}
@@ -73,58 +73,58 @@ BitfinexWS.prototype.onMessage = function (msg, flags) {
              * @property {string} pair - Currency pair.
              * @property {number} chanId - Channel ID sended by Bitfinex
              */
-            this.emit('subscribed', data)
-        } else if (msg.event === 'auth' && msg.status !== 'OK') {
-            this.emit('error', msg)
-            debug('Emitting \'error\' %j', msg)
-        } else if (msg.event === 'auth') {
-            this.channelMap[msg.chanId] = {
-              channel: 'auth'
-            }
-            debug('Emitting \'%s\' %j', msg.event, msg)
+      this.emit('subscribed', data)
+    } else if (msg.event === 'auth' && msg.status !== 'OK') {
+      this.emit('error', msg)
+      debug('Emitting \'error\' %j', msg)
+    } else if (msg.event === 'auth') {
+      this.channelMap[msg.chanId] = {
+        channel: 'auth'
+      }
+      debug('Emitting \'%s\' %j', msg.event, msg)
             /**
              * @event BitfinexWS#auth
              */
-            this.emit(msg.event, msg)
-        } else {
-            debug('Emitting \'%s\' %j', msg.event, msg)
-            this.emit(msg.event, msg)
-        }
+      this.emit(msg.event, msg)
     } else {
-        debug('Received data from a channel')
+      debug('Emitting \'%s\' %j', msg.event, msg)
+      this.emit(msg.event, msg)
+    }
+  } else {
+    debug('Received data from a channel')
         // First element of Array is the channelId, the rest is the info.
-        const channelId = msg.shift() // Pop the first element
-        const event = this.channelMap[channelId]
-        if (event) {
-            debug('Message in \'%s\' channel', event.channel)
-            if (event.channel === 'book') {
-                this._processBookEvent(msg, event)
-            } else if (event.channel === 'trades') {
-                this._processTradeEvent(msg, event)
-            } else if (event.channel === 'ticker') {
-                this._processTickerEvent(msg, event)
-            } else if (event.channel === 'auth') {
-                this._processUserEvent(msg)
-            } else {
-                debug('Message in unknown channel')
-            }
-        }
+    const channelId = msg.shift() // Pop the first element
+    const event = this.channelMap[channelId]
+    if (event) {
+      debug('Message in \'%s\' channel', event.channel)
+      if (event.channel === 'book') {
+        this._processBookEvent(msg, event)
+      } else if (event.channel === 'trades') {
+        this._processTradeEvent(msg, event)
+      } else if (event.channel === 'ticker') {
+        this._processTickerEvent(msg, event)
+      } else if (event.channel === 'auth') {
+        this._processUserEvent(msg)
+      } else {
+        debug('Message in unknown channel')
+      }
+    }
   }
 }
 
 BitfinexWS.prototype._processUserEvent = function (msg) {
-    if (msg[0] === 'hb') { // HeatBeart
-        debug('Received HeatBeart in user channel')
-    } else {
-        const event = msg[0]
-        const data = msg[1]
-        if (Array.isArray(data[0])) {
-            data[0].forEach((ele) => {
-                debug('Emitting \'%s\' %j', event, ele)
-                this.emit(event, ele)
-            })
-        } else if (data.length) {
-            debug('Emitting \'%s\', %j', event, data)    
+  if (msg[0] === 'hb') { // HeatBeart
+    debug('Received HeatBeart in user channel')
+  } else {
+    const event = msg[0]
+    const data = msg[1]
+    if (Array.isArray(data[0])) {
+      data[0].forEach((ele) => {
+        debug('Emitting \'%s\' %j', event, ele)
+        this.emit(event, ele)
+      })
+    } else if (data.length) {
+      debug('Emitting \'%s\', %j', event, data)
             /**
              * position snapshot
              * @event BitfinexWS#ps
@@ -174,28 +174,28 @@ BitfinexWS.prototype._processUserEvent = function (msg) {
              * @event BitfinexWS#tu
              */
             // TODO: send Object with key: values
-            this.emit(event, data)
-        }
+      this.emit(event, data)
     }
+  }
 }
 
 BitfinexWS.prototype._processTickerEvent = function (msg, event) {
-    if (msg[0] === 'hb') { // HeatBeart
-        debug('Received HeatBeart in %s ticker channel', event.pair)
-    } else if (msg.length > 9) { // Update
-        const update = {
-            bid:              msg[0],
-            bidSize:          msg[1],
-            ask:              msg[2],
-            askSize:          msg[3],
-            dailyChange:      msg[4],
-            dailyChangePerc:  msg[5],
-            lastPrice:        msg[6],
-            volume:           msg[7],
-            high:             msg[8],
-            low:              msg[9],
-        }
-        debug('Emitting ticker, %s, %j', event.pair, update)
+  if (msg[0] === 'hb') { // HeatBeart
+    debug('Received HeatBeart in %s ticker channel', event.pair)
+  } else if (msg.length > 9) { // Update
+    const update = {
+      bid: msg[0],
+      bidSize: msg[1],
+      ask: msg[2],
+      askSize: msg[3],
+      dailyChange: msg[4],
+      dailyChangePerc: msg[5],
+      lastPrice: msg[6],
+      volume: msg[7],
+      high: msg[8],
+      low: msg[9]
+    }
+    debug('Emitting ticker, %s, %j', event.pair, update)
         /**
          * @event BitfinexWS#ticker
          * @type {string}
@@ -211,33 +211,33 @@ BitfinexWS.prototype._processTickerEvent = function (msg, event) {
          * @property {number} high
          * @property {number} low
          */
-        this.emit('ticker', event.pair, update)
-    }
+    this.emit('ticker', event.pair, update)
+  }
 }
 
 BitfinexWS.prototype._processTradeEvent = function (msg, event) {
     // Snapshot
-    if (Array.isArray(msg[0])) {
-        msg[0].forEach((update) => {
-            update = {
-                seq:        update[0],
-                timestamp:  update[1],
-                price:      update[2],
-                amount:     update[3]
-            }
-            debug('Emitting trade, %s, %j', event.pair, update)
-            this.emit('trade', event.pair, update)
-        })
-    } else if (msg[0] === 'hb') { // HeatBeart
-        debug('Received HeatBeart in %s trade channel', event.pair)
-    } else if (msg[0] === 'te') { // Trade executed
-        const update = {
-            seq:        msg[1],
-            timestamp:  msg[2],
-            price:      msg[3],
-            amount:     msg[4]
-        }
-        debug('Emitting trade, %s, %j', event.pair, update)
+  if (Array.isArray(msg[0])) {
+    msg[0].forEach((update) => {
+      update = {
+        seq: update[0],
+        timestamp: update[1],
+        price: update[2],
+        amount: update[3]
+      }
+      debug('Emitting trade, %s, %j', event.pair, update)
+      this.emit('trade', event.pair, update)
+    })
+  } else if (msg[0] === 'hb') { // HeatBeart
+    debug('Received HeatBeart in %s trade channel', event.pair)
+  } else if (msg[0] === 'te') { // Trade executed
+    const update = {
+      seq: msg[1],
+      timestamp: msg[2],
+      price: msg[3],
+      amount: msg[4]
+    }
+    debug('Emitting trade, %s, %j', event.pair, update)
         /**
          * @event BitfinexWS#trade
          * @type {string}
@@ -248,16 +248,16 @@ BitfinexWS.prototype._processTradeEvent = function (msg, event) {
          * @property {number} amount
          * @see http://docs.bitfinex.com/#trades75
          */
-        this.emit('trade', event.pair, update)
-    } else if (msg[0] === 'tu') { // Trade executed
-        const update = {
-            seq:        msg[1],
-            id:         msg[2],
-            timestamp:  msg[3],
-            price:      msg[4],
-            amount:     msg[5]
-        }
-        debug('Emitting trade, %s, %j', event.pair, update)
+    this.emit('trade', event.pair, update)
+  } else if (msg[0] === 'tu') { // Trade executed
+    const update = {
+      seq: msg[1],
+      id: msg[2],
+      timestamp: msg[3],
+      price: msg[4],
+      amount: msg[5]
+    }
+    debug('Emitting trade, %s, %j', event.pair, update)
         /**
          * @event BitfinexWS#trade
          * @type {string}
@@ -269,31 +269,31 @@ BitfinexWS.prototype._processTradeEvent = function (msg, event) {
          * @property {number} amount
          * @see http://docs.bitfinex.com/#trades75
          */
-        this.emit('trade', event.pair, update)
-    }
+    this.emit('trade', event.pair, update)
+  }
 }
 
 BitfinexWS.prototype._processBookEvent = function (msg, event) {
     // Snapshot
-    if (Array.isArray(msg[0])) {
-        msg[0].forEach((update) => {
-            update = {
-                price:  update[0],
-                count:  update[1],
-                amount: update[2]
-            }
-            debug('Emitting orderbook, %s, %j', event.pair, update)
-            this.emit('orderbook', event.pair, update)
-        })
-    } else if (msg[0] === 'hb') { // HeatBeart
-        debug('Received HeatBeart in %s book channel', event.pair)
-    } else if (msg.length > 2) { // Update
-        const update = {
-            price:  msg[0],
-            count:  msg[1],
-            amount: msg[2]
-        }
-        debug('Emitting orderbook, %s, %j', event.pair, update)
+  if (Array.isArray(msg[0])) {
+    msg[0].forEach((update) => {
+      update = {
+        price: update[0],
+        count: update[1],
+        amount: update[2]
+      }
+      debug('Emitting orderbook, %s, %j', event.pair, update)
+      this.emit('orderbook', event.pair, update)
+    })
+  } else if (msg[0] === 'hb') { // HeatBeart
+    debug('Received HeatBeart in %s book channel', event.pair)
+  } else if (msg.length > 2) { // Update
+    const update = {
+      price: msg[0],
+      count: msg[1],
+      amount: msg[2]
+    }
+    debug('Emitting orderbook, %s, %j', event.pair, update)
         /**
          * @event BitfinexWS#orderbook
          * @type {string}
@@ -303,30 +303,30 @@ BitfinexWS.prototype._processBookEvent = function (msg, event) {
          * @property {number} amount
          * @see http://docs.bitfinex.com/#order-books
          */
-        this.emit('orderbook', event.pair, update)
-    }
+    this.emit('orderbook', event.pair, update)
+  }
 }
 
 BitfinexWS.prototype.close = function () {
-    this.ws.close()
+  this.ws.close()
 }
 
 BitfinexWS.prototype.onOpen = function () {
-    this.channelMap = {} // Map channels IDs to events
-    this.emit('open')
+  this.channelMap = {} // Map channels IDs to events
+  this.emit('open')
 }
 
 BitfinexWS.prototype.onError = function (error) {
-    this.emit('error', error)
+  this.emit('error', error)
 }
 
 BitfinexWS.prototype.onClose = function () {
-    this.emit('close')
+  this.emit('close')
 }
 
 BitfinexWS.prototype.send = function (msg) {
-    debug('Sending %j', msg)
-    this.ws.send(JSON.stringify(msg))
+  debug('Sending %j', msg)
+  this.ws.send(JSON.stringify(msg))
 }
 
 /**
@@ -340,12 +340,12 @@ BitfinexWS.prototype.send = function (msg) {
  */
 BitfinexWS.prototype.subscribeOrderBook =
     function (pair = 'BTCUSD', precision = 'P0', length = '25') {
-        this.send({
-            event: 'subscribe',
-            channel: 'book',
-            pair,
-            prec: precision,
-        })
+      this.send({
+        event: 'subscribe',
+        channel: 'book',
+        pair,
+        prec: precision
+      })
     }
 
 /**
@@ -354,29 +354,29 @@ BitfinexWS.prototype.subscribeOrderBook =
  * @param  {string} [pair]      BTCUSD, LTCUSD or LTCBTC. Default BTCUSD
  * @see http://docs.bitfinex.com/#trades75
  */
-BitfinexWS.prototype.subscribeTrades = function (pair = 'BTCUSD') {    
-    this.send({
-        event: 'subscribe',
-        channel: 'trades',
-        pair
-    })
+BitfinexWS.prototype.subscribeTrades = function (pair = 'BTCUSD') {
+  this.send({
+    event: 'subscribe',
+    channel: 'trades',
+    pair
+  })
 }
 
 /**
  * Subscribe to ticker updates. The ticker is a high level overview of the state
  * of the market. It shows you the current best bid and ask, as well as the last
  * trade price.
- * 
+ *
  * Event will be emited as `PAIRNAME_ticker`.
  * @param  {string} [pair]      BTCUSD, LTCUSD or LTCBTC. Default BTCUSD
  * @see http://docs.bitfinex.com/#ticker76
  */
 BitfinexWS.prototype.subscribeTicker = function (pair = 'BTCUSD') {
-    this.send({
-        event: 'subscribe',
-        channel: 'ticker',
-        pair
-    })
+  this.send({
+    event: 'subscribe',
+    channel: 'ticker',
+    pair
+  })
 }
 
 /**
@@ -384,10 +384,10 @@ BitfinexWS.prototype.subscribeTicker = function (pair = 'BTCUSD') {
  * @param  {number} chanId ID of the channel received on `subscribed` event.
  */
 BitfinexWS.prototype.unsubscribe = function (chanId) {
-    this.send({
-        event: 'unsubscribe',
-        chanId
-    })
+  this.send({
+    event: 'unsubscribe',
+    chanId
+  })
 }
 
 /**
@@ -395,16 +395,16 @@ BitfinexWS.prototype.unsubscribe = function (chanId) {
  * @see http://docs.bitfinex.com/#wallet-updates
  */
 BitfinexWS.prototype.auth = function () {
-    const payload = 'AUTH' + (new Date().getTime())
-    const signature = crypto.createHmac('sha384', this.APISecret)
+  const payload = 'AUTH' + (new Date().getTime())
+  const signature = crypto.createHmac('sha384', this.APISecret)
     .update(payload)
     .digest('hex')
-    this.send({
-        event: 'auth',
-        apiKey: this.APIKey,
-        authSig: signature,
-        authPayload: payload
-    })
+  this.send({
+    event: 'auth',
+    apiKey: this.APIKey,
+    authSig: signature,
+    authPayload: payload
+  })
 }
 
 module.exports = BitfinexWS
