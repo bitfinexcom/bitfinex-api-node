@@ -344,7 +344,8 @@ BitfinexWS.prototype.subscribeOrderBook =
         event: 'subscribe',
         channel: 'book',
         pair,
-        prec: precision
+        prec: precision,
+        len: length
       })
     }
 

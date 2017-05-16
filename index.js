@@ -14,6 +14,7 @@ class BFX {
     if (version == 2) { // XXX make strict on next major version bump / breaking change
       this.rest = new REST2(this.apiKey, this.apiSecret)
       this.ws = new WS2(this.apiKey, this.apiSecret)
+      this.ws.open()
     } else {
       this.rest = new REST(this.apiKey, this.apiSecret)
       this.ws = new WS(this.apiKey, this.apiSecret)

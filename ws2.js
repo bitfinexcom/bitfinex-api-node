@@ -13,12 +13,14 @@ const WebSocket = require('ws')
  * @class
  */
 class BitfinexWS2 extends EventEmitter {
-  constructor (apiKey, apiSecret) {
+  constructor (apiKey, apiSecret, opts = {}) {
     super()
-      // EventEmitter.call(this)
     this.apiKey = apiKey
     this.apiSecret = apiSecret
-    this.websocketURI = 'wss://api.bitfinex.com/ws/2'
+    this.websocketURI = opts.websocketURI || 'wss://api.bitfinex.com/ws/2'
+  }
+
+  open () {
     this.ws = new WebSocket(this.websocketURI)
     this.ws.on('message', this.onMessage.bind(this))
     this.ws.on('open', this.onOpen.bind(this))
@@ -182,6 +184,7 @@ class BitfinexWS2 extends EventEmitter {
       event: 'subscribe',
       channel: 'book',
       symbol,
+      len: length,
       prec: precision
     })
   }
