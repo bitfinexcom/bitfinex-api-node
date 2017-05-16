@@ -29,11 +29,11 @@ class BitfinexWS2 extends EventEmitter {
   }
 
   onMessage (msg, flags) {
+    console.log(msg)
     msg = JSON.parse(msg)
     debug('Received message: %j', msg)
     debug('Emited message event')
     this.emit('message', msg, flags)
-
     if (!Array.isArray(msg) && msg.event) {
       if (msg.event === 'subscribed') {
         debug('Subscription report received')
@@ -71,89 +71,95 @@ class BitfinexWS2 extends EventEmitter {
         this.emit(msg.event, msg)
       }
     } else {
-      debug('Received data from a channel')
-        // First element of Array is the channelId, the rest is the info.
-      const channelId = msg.shift() // Pop the first element
-      const event = this.channelMap[channelId]
-      if (event) {
-        debug('Message in \'%s\' channel', event.channel)
-        if (event.channel === 'book') {
-          this._processBookEvent(msg, event)
-        } else if (event.channel === 'trades') {
-          this._processTradeEvent(msg, event)
-        } else if (event.channel === 'ticker') {
-          this._processTickerEvent(msg, event)
-        } else if (event.channel === 'auth') {
-          this._processUserEvent(msg)
-        } else {
-          debug('Message in unknown channel')
-        }
-      }
+      this.handleChannel(msg)
+    }
+  }
+
+  handleChannel (msg) {
+    debug('Received data from a channel')
+    // First element of Array is the channelId, the rest is the info.
+    const channelId = msg.shift() // Pop the first element
+    const event = this.channelMap[channelId]
+
+    if (!event) return
+
+    debug('Message in \'%s\' channel', event.channel)
+    if (event.channel === 'book') {
+      this._processBookEvent(msg, event)
+    } else if (event.channel === 'trades') {
+      this._processTradeEvent(msg, event)
+    } else if (event.channel === 'ticker') {
+      this._processTickerEvent(msg, event)
+    } else if (event.channel === 'auth') {
+      this._processUserEvent(msg)
+    } else {
+      debug('Message in unknown channel')
     }
   }
 
   _processUserEvent (msg) {
     if (msg[0] === 'hb') { // HeatBeart
       debug('Received HeatBeart in user channel')
-    } else {
-      let event = msg[0]
-      const data = msg[1]
-        // Snapshot
-      if (Array.isArray(data[0])) {
-        data.forEach((ele) => {
-          debug('Emitting notification \'%s\' %j', event, ele)
-          this.emit(event, ele)
-        })
-      } else if (event === 'n') { // Notification
-        event = data[1]
-        this.emit(event, data)
-        debug('Emitting \'%s\', %j', event, data)
-      } else if (data.length) { // Update
-        debug('Emitting \'%s\', %j', event, data)
-        this.emit(event, data)
-      }
+      return
+    }
+
+    let event = msg[0]
+    const data = msg[1]
+    if (event === 'n') { // Notification
+      event = data[1]
+      this.emit(event, data)
+      debug('Emitting \'%s\', %j', event, data)
+    } else if (data.length) { // Update
+      debug('Emitting \'%s\', %j', event, data)
+      this.emit(event, data)
     }
   }
 
   _processTickerEvent (msg, event) {
     if (msg[0] === 'hb') { // HeatBeart
       debug('Received HeatBeart in %s ticker channel', event.symbol)
-    } else {
-      msg = msg[0]
-      debug('Emitting ticker, %s, %j', event.symbol, msg)
-      this.emit('ticker', event.symbol, msg)
+      return
     }
+
+    msg = msg[0]
+    debug('Emitting ticker, %s, %j', event.symbol, msg)
+    this.emit('ticker', event.symbol, msg)
   }
 
   _processBookEvent (msg, event) {
-    if (Array.isArray(msg[0])) {
-      msg[0].forEach((bookLevel) => {
-        debug('Emitting orderbook, %s, %j', event.symbol, bookLevel)
-        this.emit('orderbook', event.symbol, bookLevel)
-      })
-    } else if (msg[0] === 'hb') { // HeatBeart
+    if (msg[0] === 'hb') { // HeatBeart
       debug('Received HeatBeart in %s book channel', event.symbol)
-    } else if (msg.length > 2) {
-      debug('Emitting orderbook, %s, %j', event.symbol, msg)
-      this.emit('orderbook', event.symbol, msg)
+      return
     }
+
+    msg = msg[0]
+
+    debug('Emitting orderbook, %s, %j', event.symbol, msg)
+    this.emit('orderbook', event.symbol, msg)
   }
 
   _processTradeEvent (msg, event) {
-    if (Array.isArray(msg[0])) {
-      msg[0].forEach((trade) => {
-        debug('Emitting trade, %s, %j', event.symbol, trade)
-        this.emit('trade', event.symbol, trade)
-      })
-    } else if (msg[0] === 'hb') { // HeatBeart
+    if (msg[0] === 'hb') { // HeatBeart
       debug('Received HeatBeart in %s trade channel', event.symbol)
-    } else if (msg[0] === 'te') { // Trade executed
-      debug('Emitting trade, %s, %j', event.symbol, msg)
-      this.emit('trade', event.symbol, msg)
-    } else if (msg[0] === 'tu') { // Trade executed
-      debug('Emitting trade, %s, %j', event.symbol, msg)
-      this.emit('trade', event.symbol, msg)
+      return
     }
+
+    if (this.isSnapshot(msg)) {
+      msg = msg[0]
+    }
+
+    this.emit('trade', event.symbol, msg)
+    debug('Emitting trade, %s, %j', event.symbol, msg)
+  }
+
+  isSnapshot (msg) {
+    if (!msg[0]) return false
+
+    if (!Array.isArray(msg[0])) return false
+
+    if (Array.isArray(msg[0][0])) return true
+
+    return false
   }
 
   close () {
