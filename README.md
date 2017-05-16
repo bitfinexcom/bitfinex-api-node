@@ -7,7 +7,7 @@ A Node.JS reference implementation of the Bitfinex API. See the full docs at <ht
 
 * Official implementation
 * REST API
-* WebSockets API 
+* WebSockets API
 
 ## Installation
 ```bash
@@ -15,14 +15,62 @@ A Node.JS reference implementation of the Bitfinex API. See the full docs at <ht
 ```
 
 ## Usage
-```js
-var bitfinexApiNode = require('bitfinex-api-node')
-  bitfinexWebsocket = bitfinexApiNode.websocket,
-  bitfinexRest = bitfinexApiNode.rest;
 
-console.log('bitfinexApiNode', bitfinexApiNode, 'bitfinexWebsocket',
-    bitfinexWebsocket, 'bitfinexRest', bitfinexRest);
+Version 1.0.0 supports the new v2 Websocket and Rest API. As Network calls are slow, the data is sent as lists.
+
+In order to reconstruct key / value pairs, set `opts.transform` to `true`.
+
+```js
+const BFX = require('bitfinex-api-node')
+
+const API_KEY = 'secret'
+const API_SECRET = 'secret'
+
+const opts = {
+  version: 2,
+  transform: true
+}
+
+const bws = new BFX(API_KEY, API_SECRET, opts).ws
+
+bws.on('open', () => {
+  bws.subscribeTicker('BTCUSD')
+  bws.subscribeOrderBook('BTCUSD')
+  bws.subscribeTrades('BTCUSD')
+})
+
+bws.on('orderbook', (pair, book) => {
+  console.log('Order book:', book)
+})
+
+bws.on('trade', (pair, trade) => {
+  console.log('Trade:', trade)
+})
+
+bws.on('ticker', (pair, ticker) => {
+  console.log('Ticker:', ticker)
+})
+
+bws.on('error', console.error)
 ```
+
+## Version 1.0.0 Breaking changes:
+
+### constructor takes an options object now, instead of version number:
+
+Old:
+
+```js
+new BFX(API_KEY, API_SECRET, 2)
+```
+
+since 1.0.0:
+
+```js
+new BFX(API_KEY, API_SECRET, { version: 2 })
+```
+**Note** version must be of type `Number`.
+
 
 ## Tests
 

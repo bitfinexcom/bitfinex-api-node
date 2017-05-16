@@ -5,10 +5,12 @@ const debug = require('debug')('bitfinex:ws')
 const crypto = require('crypto')
 const WebSocket = require('ws')
 
+function passThrough (d) { return d }
 /**
  * Handles communitaction with Bitfinex WebSocket API.
  * @param {string} APIKey
  * @param {string} APISecret
+ * @param {object} Options
  * @event
  * @class
  */
@@ -18,6 +20,7 @@ class BitfinexWS2 extends EventEmitter {
     this.apiKey = apiKey
     this.apiSecret = apiSecret
     this.websocketURI = opts.websocketURI || 'wss://api.bitfinex.com/ws/2'
+    this.transformer = opts.transformer || passThrough
   }
 
   open () {
@@ -29,7 +32,6 @@ class BitfinexWS2 extends EventEmitter {
   }
 
   onMessage (msg, flags) {
-    console.log(msg)
     msg = JSON.parse(msg)
     debug('Received message: %j', msg)
     debug('Emited message event')
@@ -123,7 +125,8 @@ class BitfinexWS2 extends EventEmitter {
 
     msg = msg[0]
     debug('Emitting ticker, %s, %j', event.symbol, msg)
-    this.emit('ticker', event.symbol, msg)
+    const res = this.transformer(msg, 'ticker', event.symbol)
+    this.emit('ticker', event.symbol, res)
   }
 
   _processBookEvent (msg, event) {
@@ -148,8 +151,9 @@ class BitfinexWS2 extends EventEmitter {
       msg = msg[0]
     }
 
-    this.emit('trade', event.symbol, msg)
     debug('Emitting trade, %s, %j', event.symbol, msg)
+    const res = this.transformer(msg, 'trades', event.symbol)
+    this.emit('trade', event.symbol, res)
   }
 
   isSnapshot (msg) {

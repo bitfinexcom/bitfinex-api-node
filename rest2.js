@@ -2,19 +2,23 @@ const rp = require('request-promise')
 const crypto = require('crypto')
 const BASE_TIMEOUT = 15000
 
+function passThrough (d) { return d }
+
 class Rest2 {
-  constructor (key, secret, nonceGenerator) {
+  constructor (key, secret, opts = {}) {
     this.url = 'https://api.bitfinex.com/'
     this.version = 'v2'
     this.key = key
     this.secret = secret
     this.nonce = new Date().getTime()
-    this.generateNonce = (typeof nonceGenerator === 'function')
-      ? nonceGenerator
+    this.generateNonce = (typeof opts.nonceGenerator === 'function')
+      ? opts.nonceGenerator
       : function () {
         // noinspection JSPotentiallyInvalidUsageOfThis
         return ++this.nonce
       }
+
+    this.transformer = opts.transformer || passThrough
   }
 
   genericCallback (err, result) {
@@ -48,15 +52,29 @@ class Rest2 {
     .catch((error) => cb(new Error(error)))
   }
 
-  makePublicRequest (name, cb = this.genericCallback) {
+  makePublicRequest (name, cb = this.genericCallback.bind(this)) {
     const url = `${this.url}/${this.version}/${name}`
     return rp({
       url,
       method: 'GET',
-      timeout: BASE_TIMEOUT
+      timeout: BASE_TIMEOUT,
+      json: true
     })
-    .then((response) => cb(null, JSON.parse(response)))
+    .then((response) => {
+      this.transform(response, name, cb)
+    })
     .catch((error) => cb(new Error(error)))
+  }
+
+  transform (result, name, cb) {
+    let n = {}
+
+    if (this.transformer.normalize) {
+      n = this.transformer.normalize(name)
+    }
+
+    result = this.transformer(result, n.type, n.symbol)
+    cb(null, result)
   }
 
   // Public endpoints

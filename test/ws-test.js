@@ -6,7 +6,7 @@ const {expect} = require('chai')
 const BFX = require('../index')
 
 describe('WebSocket', function () {
-  this.timeout(3000)
+  this.timeout(5000)
 
   beforeEach(function () {
     const bitfinex = new BFX(
@@ -14,7 +14,6 @@ describe('WebSocket', function () {
       'test'
     )
     this.bitfinexWS = bitfinex.ws
-        // this.bitfinexWS.on('open', done);
   })
 
   afterEach(function (done) {
