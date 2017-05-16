@@ -4,4 +4,3 @@ node_modules
 /build
 npm-debug.log
 source/images
-.DS_Store

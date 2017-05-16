@@ -4,15 +4,16 @@
 
 const {expect} = require('chai')
 const BFX = require('../index')
+const testKeys = require('./keys.json')
 
 describe('WebSocket', function () {
   this.timeout(3000)
 
   beforeEach(function () {
     const bitfinex = new BFX(
-      'test',
-      'test'
-    )
+            testKeys.standard.api_key,
+            testKeys.standard.api_secret
+        )
     this.bitfinexWS = bitfinex.ws
         // this.bitfinexWS.on('open', done);
   })

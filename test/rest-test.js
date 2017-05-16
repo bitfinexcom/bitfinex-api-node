@@ -4,6 +4,7 @@
 const {expect} = require('chai')
 const BFX = require('../index')
 const _ = require('lodash')
+const keys = require('./keys.json')
 const ws_test = require('./ws-test')
 
 describe('Errors', function () {
@@ -325,8 +326,8 @@ describe('Public Endpoints', function () {
 // FIXME: The API key in keys.json is invalid, causing these tests to fail.
 xdescribe('Authenticated Endpoints: standard key', function () {
   this.timeout(5000)
-  const key = ''
-  const secret = ''
+  const key = keys.standard.api_key
+  const secret = keys.standard.api_secret
   const bfx = new BFX(key, secret)
   const bfx_rest = bfx.rest
   it('should get account info', (done) => {

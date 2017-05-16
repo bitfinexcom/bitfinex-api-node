@@ -1,0 +1,17 @@
+{
+  "read-only": {
+    "key_id": 0,
+    "api_key": "api_key",
+    "api_secret": "api_secret"
+  },
+  "withdrawal-enabled": {
+    "key_id": 18259,
+    "api_key": "api_key",
+    "api_secret": "api_secret"
+  },
+  "standard": {
+    "key_id": 18261,
+    "api_key": "api_key",
+    "api_secret": "api_secret"
+  }
+}
