@@ -54,6 +54,19 @@ bws.on('ticker', (pair, ticker) => {
 bws.on('error', console.error)
 ```
 
+## new BFX(API_KEY, API_SECRET, opts)
+
+Where opts can be:
+
+```
+const opts = {
+  // use v1 or v2 of the API, values: 1, 2
+  version: 2,
+  // transform lists for the v2 API. values: true, false, function
+  transform: true
+}
+```
+
 ## Version 1.0.0 Breaking changes:
 
 ### constructor takes an options object now, instead of version number:

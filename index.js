@@ -12,6 +12,10 @@ class BFX {
     this.apiKey = apiKey
     this.apiSecret = apiSecret
 
+    if (opts.autoOpen !== false) {
+      opts.autoOpen = true
+    }
+
     if (typeof opts === 'number') {
       const msg = [
         'constructor takes an object since version 1.0.0, see:',
@@ -33,12 +37,13 @@ class BFX {
     if (opts.version === 2) {
       this.rest = new REST2(this.apiKey, this.apiSecret, { transformer: transformer })
       this.ws = new WS2(this.apiKey, this.apiSecret, { transformer: transformer })
-      this.ws.open()
+      opts.autoOpen && this.ws.open()
       return
     }
 
     this.rest = new REST(this.apiKey, this.apiSecret)
     this.ws = new WS(this.apiKey, this.apiSecret)
+    opts.autoOpen && this.ws.open()
   }
 }
 

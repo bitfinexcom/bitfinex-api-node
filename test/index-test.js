@@ -42,8 +42,7 @@ describe('BFX', () => {
       1726.3 ]`
 
     it('supports http', (done) => {
-      const bfx = new BFX('dummy', 'dummy', { version: 2 })
-      bfx.ws.close()
+      const bfx = new BFX('dummy', 'dummy', { version: 2, autoOpen: false })
 
       const bhttp = bfx.rest
       bhttp.url = `http://localhost:${PORT}`
@@ -70,8 +69,7 @@ describe('BFX', () => {
     })
 
     it('supports transforming', (done) => {
-      const bfx = new BFX('dummy', 'dummy', { version: 2, transform: true })
-      bfx.ws.close()
+      const bfx = new BFX('dummy', 'dummy', { version: 2, transform: true, autoOpen: false })
 
       const bhttp = bfx.rest
       bhttp.url = `http://localhost:${PORT}`
@@ -111,8 +109,7 @@ describe('BFX', () => {
     it('ws: supports custom transforms', (done) => {
       const t = function (data) { return data.map((el) => { return el + 'f' }) }
 
-      const bws = new BFX('dummy', 'dummy', { version: 2, transform: t }).ws
-      bws.close()
+      const bws = new BFX('dummy', 'dummy', { version: 2, transform: t, autoOpen: false }).ws
 
       bws.websocketURI = `ws://localhost:${PORT}`
       bws.open()
@@ -156,9 +153,8 @@ describe('BFX', () => {
     })
 
     it('ws: it transforms with default transformer', (done) => {
-      const bws = new BFX('dummy', 'dummy', { version: 2, transform: true }).ws
+      const bws = new BFX('dummy', 'dummy', { version: 2, transform: true, autoOpen: false }).ws
 
-      bws.close()
       bws.websocketURI = `ws://localhost:${PORT}`
       bws.open()
 
@@ -201,9 +197,8 @@ describe('BFX', () => {
     })
 
     it('ws: can handle responses without transforms', (done) => {
-      const bws = new BFX('dummy', 'dummy', { version: 2 }).ws
+      const bws = new BFX('dummy', 'dummy', { version: 2, autoOpen: false }).ws
 
-      bws.close()
       bws.websocketURI = `ws://localhost:${PORT}`
       bws.open()
 
