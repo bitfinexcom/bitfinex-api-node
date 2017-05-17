@@ -43,15 +43,6 @@ describe('WebSocket', function () {
     })
   })
 
-  it('should receive a pong after a ping', function (done) {
-    this.bitfinexWS.on('pong', () => {
-      done()
-    })
-    this.bitfinexWS.on('open', () => {
-      this.bitfinexWS.send({event: 'ping'})
-    })
-  })
-
   it('should receive info message', function (done) {
     this.bitfinexWS.on('info', (data) => {
       expect(data).is.eql({
