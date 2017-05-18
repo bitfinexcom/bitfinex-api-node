@@ -1,9 +1,11 @@
 'use strict'
 
-const {EventEmitter} = require('events')
+const { EventEmitter } = require('events')
 const debug = require('debug')('bitfinex:ws')
 const crypto = require('crypto')
 const WebSocket = require('ws')
+const { isSnapshot } = require('./lib/helper.js')
+const normalizeOrderBook = require('./lib/normalizeOrderbooks.js')
 
 function passThrough (d) { return d }
 /**
@@ -45,6 +47,12 @@ class BitfinexWS2 extends EventEmitter {
           chanId: msg.chanId,
           symbol: msg.symbol
         }
+
+        // https://github.com/bitfinexcom/bitfinex-api-node/issues/37
+        if (msg.prec) {
+          data.prec = msg.prec
+        }
+
           // Save to event map
         this.channelMap[msg.chanId] = data
         debug('Emitting \'subscribed\' %j', data)
@@ -135,6 +143,7 @@ class BitfinexWS2 extends EventEmitter {
       return
     }
 
+    msg = normalizeOrderBook(msg, event.prec)
     msg = msg[0]
 
     debug('Emitting orderbook, %s, %j', event.symbol, msg)
@@ -147,23 +156,13 @@ class BitfinexWS2 extends EventEmitter {
       return
     }
 
-    if (this.isSnapshot(msg)) {
+    if (isSnapshot(msg)) {
       msg = msg[0]
     }
 
     debug('Emitting trade, %s, %j', event.symbol, msg)
     const res = this.transformer(msg, 'trades', event.symbol)
     this.emit('trade', event.symbol, res)
-  }
-
-  isSnapshot (msg) {
-    if (!msg[0]) return false
-
-    if (!Array.isArray(msg[0])) return false
-
-    if (Array.isArray(msg[0][0])) return true
-
-    return false
   }
 
   close () {
