@@ -18,23 +18,23 @@ r0Update.shift()
 p0Update.shift()
 
 describe('normalize books', () => {
-  it('lets snpashots with precisions !== R0 pass through', () => {
-    const res = normalizeBooks(stubResponseP1, 'P1')
+  it('lets snapshots with precisions !== R0 pass through', () => {
+    const res = normalizeBooks(stubResponseP1[0], 'P1')
 
-    assert.deepEqual(res[0][0], [ 1779, 1, 42.11518492 ])
+    assert.deepEqual(res[0], [ 1779, 1, 42.11518492 ])
   })
 
   it('lets updates with precisions !== R0 pass through', () => {
-    const res = normalizeBooks(p0Update, 'P1')
+    const res = normalizeBooks(p0Update[0], 'P1')
 
-    assert.deepEqual(res[0], [ 1881.7, 0, -1 ])
+    assert.deepEqual(res, [ 1881.7, 0, -1 ])
   })
 
   it('normalizes orderbooks with R0', () => {
-    const res = normalizeBooks(stubResponseR0, 'R0')
-    assert.equal(res[0][0][0], 1876.5)
-    assert.equal(res[0][0][1], 2567606289)
-    assert.equal(res[0][0][2], 1.4305)
+    const res = normalizeBooks(stubResponseR0[0], 'R0')
+    assert.equal(res[0][0], 1876.5)
+    assert.equal(res[0][1], 2567606289)
+    assert.equal(res[0][2], 1.4305)
   })
 
   it('normalizes data updates with R0', () => {

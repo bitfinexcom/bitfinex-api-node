@@ -1,10 +1,15 @@
 /* eslint-env mocha */
 
 const assert = require('assert')
+const _clone = require('lodash/clone')
+
 const transformer = require('../lib/transformer.js')
 
 const stubResponseTickerFunding = require('./fixtures/response-ticker-funding.json')
 const stubResponseTickerPairs = require('./fixtures/response-ticker-pairs.json')
+
+const stubResponseOrderbooksP1 = _clone(require('./fixtures/response-ws2-server-order-book-P1.json'))
+stubResponseOrderbooksP1.shift()
 
 describe('transformer', () => {
   it('transforms pairs', () => {
@@ -44,6 +49,31 @@ describe('transformer', () => {
         HIGH: 0,
         LOW: 0
       }
+    )
+  })
+
+  it('handles tu / te trade events', () => {
+    const input = [ 'te', [ 32471347, 1495120864000, 0.08064796, 1929.5 ] ]
+
+    assert.deepEqual(
+      transformer(input, 'trades', 'tBTCUSD'),
+      [
+        'te',
+        {
+          ID: 32471347,
+          MTS: 1495120864000,
+          AMOUNT: 0.08064796,
+          PRICE: 1929.5
+        }
+      ]
+    )
+  })
+
+  it('transforms snapshots for orderbooks', () => {
+    const res = transformer(stubResponseOrderbooksP1[0], 'orderbook', 'tBTCUSD')
+    assert.deepEqual(
+      res[0],
+      { PRICE: 1779, COUNT: 1, AMOUNT: 42.11518492 }
     )
   })
 
