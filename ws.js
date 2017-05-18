@@ -18,26 +18,6 @@ const BitfinexWS = function (APIKey, APISecret) {
 
   this.APIKey = APIKey
   this.APISecret = APISecret
-  this.ws = new WebSocket(BitfinexWS.WebSocketURI)
-    /**
-     * @event BitfinexWS#message
-     * @type {object}
-     */
-  this.ws.on('message', this.onMessage.bind(this))
-    /**
-     * WebSocket connection is open. Ready to send.
-     * @event BitfinexWS#open
-     */
-  this.ws.on('open', this.onOpen.bind(this))
-    /**
-     * @event BitfinexWS#error
-     */
-  this.ws.on('error', this.onError.bind(this))
-    /**
-     * WebSocket connection is closed.
-     * @event BitfinexWS#close
-     */
-  this.ws.on('close', this.onClose.bind(this))
 }
 
 util.inherits(BitfinexWS, EventEmitter)
@@ -47,6 +27,14 @@ util.inherits(BitfinexWS, EventEmitter)
  * @type {String}
  */
 BitfinexWS.WebSocketURI = 'wss://api.bitfinex.com/ws/'
+
+BitfinexWS.prototype.open = function open () {
+  this.ws = new WebSocket(BitfinexWS.WebSocketURI)
+  this.ws.on('message', this.onMessage.bind(this))
+  this.ws.on('open', this.onOpen.bind(this))
+  this.ws.on('error', this.onError.bind(this))
+  this.ws.on('close', this.onClose.bind(this))
+}
 
 BitfinexWS.prototype.onMessage = function (msg, flags) {
   msg = JSON.parse(msg)

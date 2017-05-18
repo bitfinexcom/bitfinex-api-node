@@ -1,3 +1,5 @@
+'use strict'
+
 // uses the latest version of the websocket API
 
 // const BFX = require ('../')
@@ -6,9 +8,9 @@ const BFX = require('bitfinex-api-node')
 const API_KEY = null
 const API_SECRET = null
 
-const API_VERSION = 2
+const opts = { version: 2 }
 
-const bws = new BFX(API_KEY, API_SECRET, API_VERSION).ws
+const bws = new BFX(API_KEY, API_SECRET, opts).ws
 
 bws.on('open', () => {
   bws.subscribeTrades('BTCUSD')
