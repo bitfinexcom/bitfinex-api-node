@@ -84,6 +84,14 @@ new BFX(API_KEY, API_SECRET, { version: 2 })
 ```
 **Note** version must be of type `Number`.
 
+### `trade` and `orderbook` snapshots are emitted as nested lists
+
+To make dealing with snapshots better predictable, snapshots are emitted as an array.
+
+### normalized orderbooks for R0
+
+Lists of raw orderbooks (`R0`) are ordered in the same order as `P0`, `P1`, `P2`, `P3`
+
 
 ## Tests
 
