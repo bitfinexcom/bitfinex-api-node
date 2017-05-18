@@ -5,6 +5,8 @@ const debug = require('debug')('bitfinex:ws')
 const crypto = require('crypto')
 const WebSocket = require('ws')
 const util = require('util')
+const { isSnapshot } = require('./lib/helper.js')
+const normalizeOrderBook = require('./lib/normalizeOrderbooks.js')
 
 /**
  * Handles communitaction with Bitfinex WebSocket API.
@@ -51,7 +53,13 @@ BitfinexWS.prototype.onMessage = function (msg, flags) {
         chanId: msg.chanId,
         pair: msg.pair
       }
-            // Save to event map
+
+      // https://github.com/bitfinexcom/bitfinex-api-node/issues/37
+      if (msg.prec) {
+        data.prec = msg.prec
+      }
+
+      // Save to event map
       this.channelMap[msg.chanId] = data
       debug('Emitting \'subscribed\' %j', data)
             /**
@@ -170,7 +178,10 @@ BitfinexWS.prototype._processUserEvent = function (msg) {
 BitfinexWS.prototype._processTickerEvent = function (msg, event) {
   if (msg[0] === 'hb') { // HeatBeart
     debug('Received HeatBeart in %s ticker channel', event.pair)
-  } else if (msg.length > 9) { // Update
+    return
+  }
+
+  if (msg.length > 9) { // Update
     const update = {
       bid: msg[0],
       bidSize: msg[1],
@@ -204,21 +215,26 @@ BitfinexWS.prototype._processTickerEvent = function (msg, event) {
 }
 
 BitfinexWS.prototype._processTradeEvent = function (msg, event) {
-    // Snapshot
-  if (Array.isArray(msg[0])) {
-    msg[0].forEach((update) => {
-      update = {
-        seq: update[0],
-        timestamp: update[1],
-        price: update[2],
-        amount: update[3]
-      }
-      debug('Emitting trade, %s, %j', event.pair, update)
-      this.emit('trade', event.pair, update)
-    })
-  } else if (msg[0] === 'hb') { // HeatBeart
+  if (msg[0] === 'hb') {
     debug('Received HeatBeart in %s trade channel', event.pair)
-  } else if (msg[0] === 'te') { // Trade executed
+  }
+
+  if (isSnapshot(msg)) {
+    const snapshot = msg[0].map((el) => {
+      return {
+        seq: el[0],
+        timestamp: el[1],
+        price: el[2],
+        amount: el[3]
+      }
+    })
+
+    debug('Emitting trade snapshot, %s, %j', event.pair, snapshot)
+    this.emit('trade', event.pair, snapshot)
+    return
+  }
+
+  if (msg[0] === 'te') { // Trade executed
     const update = {
       seq: msg[1],
       timestamp: msg[2],
@@ -262,20 +278,28 @@ BitfinexWS.prototype._processTradeEvent = function (msg, event) {
 }
 
 BitfinexWS.prototype._processBookEvent = function (msg, event) {
-    // Snapshot
-  if (Array.isArray(msg[0])) {
-    msg[0].forEach((update) => {
-      update = {
-        price: update[0],
-        count: update[1],
-        amount: update[2]
-      }
-      debug('Emitting orderbook, %s, %j', event.pair, update)
-      this.emit('orderbook', event.pair, update)
-    })
-  } else if (msg[0] === 'hb') { // HeatBeart
+  if (msg[0] === 'hb') { // HeatBeart
     debug('Received HeatBeart in %s book channel', event.pair)
-  } else if (msg.length > 2) { // Update
+    return
+  }
+
+  msg = normalizeOrderBook(msg, event.prec)
+
+  if (isSnapshot(msg)) {
+    const snapshot = msg[0].map((el) => {
+      return {
+        price: el[0],
+        count: el[1],
+        amount: el[2]
+      }
+    })
+
+    debug('Emitting orderbook snapshot, %s, %j', event.pair, snapshot)
+    this.emit('orderbook', event.pair, snapshot)
+    return
+  }
+
+  if (msg.length > 2) { // Update
     const update = {
       price: msg[0],
       count: msg[1],
