@@ -20,7 +20,7 @@ const stubTradesSnapshot = require('./fixtures/response-ws2-server-trades.json')
 describe('channel msg handling', () => {
   it('orders: sends snapshots as one array', (done) => {
     bfxWs.channelMap = {
-      31: { channel: 'book' }
+      31: { channel: 'book', prec: 'P1' }
     }
 
     bfxWs.once('orderbook', (symbol, data) => {
@@ -33,7 +33,7 @@ describe('channel msg handling', () => {
 
   it('orders: sends updates as lists', (done) => {
     bfxWs.channelMap = {
-      31: { channel: 'book' }
+      31: { channel: 'book', prec: 'P1' }
     }
 
     bfxWs.once('orderbook', (symbol, data) => {
