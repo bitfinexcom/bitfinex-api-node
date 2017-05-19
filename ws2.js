@@ -132,8 +132,9 @@ class BitfinexWS2 extends EventEmitter {
     }
 
     msg = msg[0]
-    debug('Emitting ticker, %s, %j', event.symbol, msg)
+
     const res = this.transformer(msg, 'ticker', event.symbol)
+    debug('Emitting ticker, %s, %j', event.symbol, res)
     this.emit('ticker', event.symbol, res)
   }
 
@@ -143,11 +144,12 @@ class BitfinexWS2 extends EventEmitter {
       return
     }
 
-    msg = normalizeOrderBook(msg, event.prec)
     msg = msg[0]
+    msg = normalizeOrderBook(msg, event.prec)
 
-    debug('Emitting orderbook, %s, %j', event.symbol, msg)
-    this.emit('orderbook', event.symbol, msg)
+    const res = this.transformer(msg, 'orderbook', event.symbol)
+    debug('Emitting orderbook, %s, %j', event.symbol, res)
+    this.emit('orderbook', event.symbol, res)
   }
 
   _processTradeEvent (msg, event) {
@@ -160,8 +162,8 @@ class BitfinexWS2 extends EventEmitter {
       msg = msg[0]
     }
 
-    debug('Emitting trade, %s, %j', event.symbol, msg)
     const res = this.transformer(msg, 'trades', event.symbol)
+    debug('Emitting trade, %s, %j', event.symbol, res)
     this.emit('trade', event.symbol, res)
   }
 

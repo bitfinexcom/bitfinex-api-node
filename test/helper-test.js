@@ -12,10 +12,10 @@ describe('isSnapshot - detects snapshots by data structure', () => {
   })
 
   it('returns false simple lists (data updates)', () => {
-    assert.equal(isSnapshot([[1337]]), false)
+    assert.equal(isSnapshot([1337]), false)
   })
 
   it('returns true for nested lists (snapshots)', () => {
-    assert.equal(isSnapshot([[['a'], ['b']]]), true)
+    assert.equal(isSnapshot([['a'], ['b']]), true)
   })
 })
