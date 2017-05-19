@@ -23,8 +23,8 @@ describe('ws-2-transforms', () => {
     bws.open()
 
     wss.on('connection', function connection (ws) {
+      ws.send('{"event":"info","version":2}')
       ws.on('message', function incoming (msg) {
-        ws.send('{"event":"info","version":2}')
         ws.send('{"event":"subscribed","channel":"book","chanId":300,"symbol":"tBTCUSD","prec":"P0","freq":"F0","len":"25","pair":"BTCUSD"}')
         ws.send(JSON.stringify(stubResponseOrderbookP0))
 
