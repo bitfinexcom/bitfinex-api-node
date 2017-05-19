@@ -23,19 +23,6 @@ describe('WebSocket', function () {
     })
   })
 
-  it('#orderBook data should have the defined fields', function (done) {
-    this.bitfinexWS.once('orderbook', (pair, data) => {
-      expect(pair).to.equal('BTCUSD')
-      expect(data[0].price).to.be.a('number')
-      expect(data[0].count).to.be.a('number')
-      expect(data[0].amount).to.be.a('number')
-      done()
-    })
-    this.bitfinexWS.on('open', () => {
-      this.bitfinexWS.subscribeOrderBook('BTCUSD')
-    })
-  })
-
   it('#trade data should have the defined fields', function (done) {
     this.bitfinexWS.once('trade', (pair, data) => {
       expect(pair).to.equal('BTCUSD')

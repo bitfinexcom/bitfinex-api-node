@@ -8,6 +8,8 @@ const assert = require('assert')
 const WebSocket = require('ws')
 const BFX = require('../index.js')
 
+const orderbookR0 = require('./fixtures/response-ws-1-orderbook-R0.json')
+
 describe('WebSocket v1 integration', () => {
   it('plays ping pong', (done) => {
     const wss = new WebSocket.Server({
@@ -151,6 +153,37 @@ describe('WebSocket v1 integration', () => {
     })
     bws.on('open', () => {
       bws.subscribeTrades('BTCUSD')
+    })
+  })
+
+  it('#orderBook data should have the defined fields', function (done) {
+    const wss = new WebSocket.Server({
+      perMessageDeflate: false,
+      port: PORT
+    })
+
+    const bws = new BFX('dummy', 'dummy', { version: 1, transform: true, autoOpen: false }).ws
+    bws.WebSocketURI = `ws://localhost:${PORT}`
+    bws.open()
+
+    wss.on('connection', function connection (ws) {
+      ws.on('message', function incoming (msg) {
+        ws.send('{"event":"subscribed","channel":"book","chanId":13242,"prec":"R0","freq":"F0","len":"25","pair":"BTCUSD"}')
+        ws.send(JSON.stringify(orderbookR0))
+      })
+    })
+
+    bws.once('orderbook', (pair, data) => {
+      assert.equal(pair, 'BTCUSD')
+      assert.equal(typeof data[0].price, 'number')
+      assert.equal(typeof data[0].count, 'number')
+      assert.equal(typeof data[0].amount, 'number')
+      assert.equal(data.length, 50)
+      bws.close()
+      wss.close(done)
+    })
+    bws.on('open', () => {
+      bws.subscribeOrderBook('BTCUSD')
     })
   })
 })

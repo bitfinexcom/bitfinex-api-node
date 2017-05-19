@@ -282,10 +282,20 @@ BitfinexWS.prototype._processBookEvent = function (msg, event) {
     return
   }
 
-  msg = normalizeOrderBook(msg, event.prec)
+  if (!isSnapshot(msg[0]) && msg.length > 2) {
+    msg = normalizeOrderBook(msg, event.prec)
+    const update = {
+      price: msg[0],
+      count: msg[1],
+      amount: msg[2]
+    }
+    debug('Emitting orderbook, %s, %j', event.pair, update)
+    this.emit('orderbook', event.pair, update)
+  }
 
+  msg = normalizeOrderBook(msg[0], event.prec)
   if (isSnapshot(msg)) {
-    const snapshot = msg[0].map((el) => {
+    const snapshot = msg.map((el) => {
       return {
         price: el[0],
         count: el[1],
@@ -295,26 +305,6 @@ BitfinexWS.prototype._processBookEvent = function (msg, event) {
 
     debug('Emitting orderbook snapshot, %s, %j', event.pair, snapshot)
     this.emit('orderbook', event.pair, snapshot)
-    return
-  }
-
-  if (msg.length > 2) { // Update
-    const update = {
-      price: msg[0],
-      count: msg[1],
-      amount: msg[2]
-    }
-    debug('Emitting orderbook, %s, %j', event.pair, update)
-        /**
-         * @event BitfinexWS#orderbook
-         * @type {string}
-         * @type {object}
-         * @property {string} price
-         * @property {number} count
-         * @property {number} amount
-         * @see http://docs.bitfinex.com/#order-books
-         */
-    this.emit('orderbook', event.pair, update)
   }
 }
 
