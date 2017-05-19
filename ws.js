@@ -25,13 +25,12 @@ const BitfinexWS = function (APIKey, APISecret) {
 util.inherits(BitfinexWS, EventEmitter)
 
 /**
- * @constant
  * @type {String}
  */
-BitfinexWS.WebSocketURI = 'wss://api.bitfinex.com/ws/'
+BitfinexWS.prototype.WebSocketURI = 'wss://api.bitfinex.com/ws/'
 
 BitfinexWS.prototype.open = function open () {
-  this.ws = new WebSocket(BitfinexWS.WebSocketURI)
+  this.ws = new WebSocket(this.WebSocketURI)
   this.ws.on('message', this.onMessage.bind(this))
   this.ws.on('open', this.onOpen.bind(this))
   this.ws.on('error', this.onError.bind(this))
