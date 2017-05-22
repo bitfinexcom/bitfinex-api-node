@@ -136,7 +136,9 @@ describe('Public Endpoints', function () {
         'bccbtc',
         'bcubtc',
         'bccusd',
-        'bcuusd'
+        'bcuusd',
+        'xrpusd',
+        'xrpbtc'
       ])
       done()
     })
@@ -315,6 +317,24 @@ describe('Public Endpoints', function () {
           'minimum_order_size': '0.01',
           'pair': 'bcuusd',
           'price_precision': 5
+        },
+        {
+          "expiration": "NA",
+          "initial_margin": "30.0",
+          "maximum_order_size": "200000.0",
+          "minimum_margin": "15.0",
+          "minimum_order_size": "0.1",
+          "pair": "xrpusd",
+          "price_precision": 5
+        },
+        {
+          "expiration": "NA",
+          "initial_margin": "30.0",
+          "maximum_order_size": "200000.0",
+          "minimum_margin": "15.0",
+          "minimum_order_size": "0.1",
+          "pair": "xrpbtc",
+          "price_precision": 5
         }
       ])
       done()
