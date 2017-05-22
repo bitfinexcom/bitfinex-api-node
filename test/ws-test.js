@@ -23,49 +23,6 @@ describe('WebSocket', function () {
     })
   })
 
-  it('should receive a pong after a ping', function (done) {
-    this.bitfinexWS.on('pong', () => {
-      done()
-    })
-    this.bitfinexWS.on('open', () => {
-      this.bitfinexWS.send({event: 'ping'})
-    })
-  })
-
-  it('should receive a subscribed success messages', function (done) {
-    this.bitfinexWS.on('subscribed', (data) => {
-      expect(data).to.have.property('channel', 'trades')
-      expect(data).to.have.property('pair', 'BTCUSD')
-      done()
-    })
-    this.bitfinexWS.on('open', () => {
-      this.bitfinexWS.subscribeTrades('BTCUSD')
-    })
-  })
-
-  it('should receive info message', function (done) {
-    this.bitfinexWS.on('info', (data) => {
-      expect(data).is.eql({
-        event: 'info',
-        version: 1.1
-      })
-      done()
-    })
-  })
-
-  it('#orderBook data should have the defined fields', function (done) {
-    this.bitfinexWS.once('orderbook', (pair, data) => {
-      expect(pair).to.equal('BTCUSD')
-      expect(data[0].price).to.be.a('number')
-      expect(data[0].count).to.be.a('number')
-      expect(data[0].amount).to.be.a('number')
-      done()
-    })
-    this.bitfinexWS.on('open', () => {
-      this.bitfinexWS.subscribeOrderBook('BTCUSD')
-    })
-  })
-
   it('#trade data should have the defined fields', function (done) {
     this.bitfinexWS.once('trade', (pair, data) => {
       expect(pair).to.equal('BTCUSD')
@@ -97,45 +54,6 @@ describe('WebSocket', function () {
     })
     this.bitfinexWS.on('open', () => {
       this.bitfinexWS.subscribeTicker('BTCUSD')
-    })
-  })
-
-  it('should unsubscribe by channelId', function (done) {
-    this.bitfinexWS.once('subscribed', (data) => {
-      const channelId = data.chanId
-      this.bitfinexWS.once('unsubscribed', (data) => {
-        expect(data.status).to.equal('OK')
-        expect(data.chanId).to.equal(channelId)
-        done()
-      })
-      this.bitfinexWS.unsubscribe(channelId)
-    })
-    this.bitfinexWS.on('open', () => {
-      this.bitfinexWS.subscribeTicker('BTCUSD')
-    })
-  })
-
-    // FIXME: The API key in keys.json is invalid, causing this test to fail.
-  xit('should emit an auth event when authorized', function (done) {
-    this.bitfinexWS.on('auth', (data) => {
-      expect(data.status).to.equal('OK')
-      done()
-    })
-    this.bitfinexWS.on('open', () => {
-      this.bitfinexWS.auth()
-    })
-  })
-
-  it('should emit an error when authorization fails', function (done) {
-    this.bitfinexWS.APIKey = ''
-    this.bitfinexWS.APISecret = ''
-
-    this.bitfinexWS.on('error', () => {
-      done()
-    })
-
-    this.bitfinexWS.on('open', () => {
-      this.bitfinexWS.auth()
     })
   })
 })
