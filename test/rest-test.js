@@ -4,7 +4,6 @@
 const {expect} = require('chai')
 const BFX = require('../index')
 const _ = require('lodash')
-const ws_test = require('./ws-test')
 
 describe('Errors', function () {
   const bfx = new BFX()
@@ -63,15 +62,7 @@ describe('Public Endpoints', function () {
       done()
     })
   })
-  it('should get the fundingbook asks, zero bids, 100 asks', (done) => {
-    bfx_rest.fundingbook('USD', {limit_bids: 0, limit_asks: 100}, (error, data) => {
-      expect(data).to.exist
-      expect(_.has(data, ['bids', 'asks']))
-      expect(data.bids.length).is.eql(0)
-      expect(data.asks.length).is.eql(100)
-      done()
-    })
-  })
+
   it('should get the orderbook', (done) => {
     bfx_rest.orderbook('BTCUSD', (error, data) => {
       expect(data).to.exist
