@@ -179,11 +179,17 @@ rest.prototype.symbols_details = function (cb) {
   return this.make_public_request('symbols_details', cb)
 }
 
-rest.prototype.new_order = function (symbol, amount, price, exchange, side, type, is_hidden, cb) {
+rest.prototype.new_order = function (symbol, amount, price, exchange, side, type, is_hidden, postOnly, cb) {
   if (typeof is_hidden === 'function') {
     cb = is_hidden
     is_hidden = false
   }
+
+  if (typeof postOnly === 'function') {
+    cb = postOnly
+    postOnly = false
+  }
+
   const params = {
     symbol,
     amount,
@@ -191,6 +197,10 @@ rest.prototype.new_order = function (symbol, amount, price, exchange, side, type
     exchange,
     side,
     type
+  }
+
+  if (postOnly) {
+    params['post_only'] = true
   }
   if (is_hidden) {
     params['is_hidden'] = true

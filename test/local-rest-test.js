@@ -44,4 +44,81 @@ describe('rest integration test', () => {
       })
     })
   })
+
+  it('new_order -- post_only: postonly used and true', (done) => {
+    const bhttp = new BFX('dummykey', 'dummysecret', { autoOpen: false }).rest
+    bhttp.url = `http://localhost:${PORT}`
+
+    const testResBody = ``
+    const server = http.createServer((req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json'
+      })
+      const payload = JSON.parse(
+        Buffer.from(req.headers['x-bfx-payload'], 'base64').toString('ascii')
+      )
+
+      assert.equal(payload['post_only'], true)
+
+      res.end(testResBody)
+    }).listen(PORT, () => {
+      bhttp.new_order('btcusd', '0.1', '0.1', 'bitfinex', 'buy', 'exchange limit', false, true, (err, data) => {
+        if (err) throw err
+        server.close()
+        done()
+      })
+    })
+  })
+
+  it('new_order -- post_only: postonly not used and hidden true', (done) => {
+    const bhttp = new BFX('dummykey', 'dummysecret', { autoOpen: false }).rest
+    bhttp.url = `http://localhost:${PORT}`
+
+    const testResBody = ``
+    const server = http.createServer((req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json'
+      })
+      const payload = JSON.parse(
+        Buffer.from(req.headers['x-bfx-payload'], 'base64').toString('ascii')
+      )
+
+      assert.equal(payload['is_hidden'], true)
+      assert.equal(payload['post_only'], undefined)
+
+      res.end(testResBody)
+    }).listen(PORT, () => {
+      bhttp.new_order('btcusd', '0.1', '0.1', 'bitfinex', 'buy', 'exchange limit', true, (err, data) => {
+        if (err) throw err
+        server.close()
+        done()
+      })
+    })
+  })
+
+  it('new_order -- post_only: postonly not used and hidden not used', (done) => {
+    const bhttp = new BFX('dummykey', 'dummysecret', { autoOpen: false }).rest
+    bhttp.url = `http://localhost:${PORT}`
+
+    const testResBody = ``
+    const server = http.createServer((req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json'
+      })
+      const payload = JSON.parse(
+        Buffer.from(req.headers['x-bfx-payload'], 'base64').toString('ascii')
+      )
+
+      assert.equal(payload['is_hidden'], undefined)
+      assert.equal(payload['post_only'], undefined)
+
+      res.end(testResBody)
+    }).listen(PORT, () => {
+      bhttp.new_order('btcusd', '0.1', '0.1', 'bitfinex', 'buy', 'exchange limit', (err, data) => {
+        if (err) throw err
+        server.close()
+        done()
+      })
+    })
+  })
 })
