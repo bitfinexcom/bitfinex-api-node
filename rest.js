@@ -6,7 +6,7 @@ const crypto = require('crypto')
 const request = require('request')
 
 function rest (key, secret, nonceGenerator) {
-  this.url = 'https://api.bitfinex.com/'
+  this.url = 'https://api.bitfinex.com'
   this.version = 'v1'
   this.key = key
   this.secret = secret
@@ -25,7 +25,7 @@ rest.prototype.make_request = function (path, params, cb) {
   url = `${this.url}/${this.version}/${path}`
   nonce = JSON.stringify(this._nonce())
   payload = {
-    request: path,
+    request: `/${this.version}/${path}`,
     nonce
   }
   for (key in params) {
