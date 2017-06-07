@@ -171,7 +171,7 @@ describe('Public Endpoints', function () {
           'initial_margin': '30.0',
           'minimum_margin': '15.0',
           'maximum_order_size': '5000.0',
-          'minimum_order_size': '0.1',
+          'minimum_order_size': '0.01',
           'expiration': 'NA'
         },
         {
@@ -180,7 +180,7 @@ describe('Public Endpoints', function () {
           'initial_margin': '30.0',
           'minimum_margin': '15.0',
           'maximum_order_size': '5000.0',
-          'minimum_order_size': '0.1',
+          'minimum_order_size': '0.01',
           'expiration': 'NA'
         },
         {
