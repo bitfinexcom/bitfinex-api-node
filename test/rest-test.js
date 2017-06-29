@@ -129,7 +129,9 @@ describe('Public Endpoints', function () {
         'bccusd',
         'bcuusd',
         'xrpusd',
-        'xrpbtc'
+        'xrpbtc',
+        'iotusd',
+        'iotbtc'
       ])
       done()
     })
@@ -137,197 +139,15 @@ describe('Public Endpoints', function () {
   it('should get symbol details', (done) => {
     bfx_rest.symbols_details((error, data) => {
       expect(data).to.exist
-      expect(data).to.eql([
-        {
-          pair: 'btcusd',
-          price_precision: 5,
-          initial_margin: '30.0',
-          minimum_margin: '15.0',
-          maximum_order_size: '2000.0',
-          minimum_order_size: '0.01',
-          expiration: 'NA'
-        },
-        {
-          pair: 'ltcusd',
-          price_precision: 5,
-          initial_margin: '30.0',
-          minimum_margin: '15.0',
-          maximum_order_size: '5000.0',
-          minimum_order_size: '0.1',
-          expiration: 'NA'
-        },
-        {
-          pair: 'ltcbtc',
-          price_precision: 5,
-          initial_margin: '30.0',
-          minimum_margin: '15.0',
-          maximum_order_size: '5000.0',
-          minimum_order_size: '0.1',
-          expiration: 'NA'
-        },
-        {
-          'pair': 'ethusd',
-          'price_precision': 5,
-          'initial_margin': '30.0',
-          'minimum_margin': '15.0',
-          'maximum_order_size': '5000.0',
-          'minimum_order_size': '0.01',
-          'expiration': 'NA'
-        },
-        {
-          'pair': 'ethbtc',
-          'price_precision': 5,
-          'initial_margin': '30.0',
-          'minimum_margin': '15.0',
-          'maximum_order_size': '5000.0',
-          'minimum_order_size': '0.01',
-          'expiration': 'NA'
-        },
-        {
-          'expiration': 'NA',
-          'initial_margin': '30.0',
-          'maximum_order_size': '100000.0',
-          'minimum_margin': '15.0',
-          'minimum_order_size': '0.1',
-          'pair': 'etcbtc',
-          'price_precision': 5
-        },
-        {
-          'expiration': 'NA',
-          'initial_margin': '30.0',
-          'maximum_order_size': '100000.0',
-          'minimum_margin': '15.0',
-          'minimum_order_size': '0.1',
-          'pair': 'etcusd',
-          'price_precision': 5
-        },
-        {
-          'expiration': 'NA',
-          'initial_margin': '30.0',
-          'maximum_order_size': '100000.0',
-          'minimum_margin': '15.0',
-          'minimum_order_size': '0.1',
-          'pair': 'rrtusd',
-          'price_precision': 5
-        },
-        {
-          'expiration': 'NA',
-          'initial_margin': '30.0',
-          'maximum_order_size': '100000.0',
-          'minimum_margin': '15.0',
-          'minimum_order_size': '0.1',
-          'pair': 'rrtbtc',
-          'price_precision': 5
-        },
-        {
-          'expiration': 'NA',
-          'initial_margin': '30.0',
-          'maximum_order_size': '20000.0',
-          'minimum_margin': '15.0',
-          'minimum_order_size': '0.0001',
-          'pair': 'zecusd',
-          'price_precision': 5
-        },
-        {
-          'expiration': 'NA',
-          'initial_margin': '30.0',
-          'maximum_order_size': '20000.0',
-          'minimum_margin': '15.0',
-          'minimum_order_size': '0.0001',
-          'pair': 'zecbtc',
-          'price_precision': 5
-        },
-        {
-          'expiration': 'NA',
-          'initial_margin': '30.0',
-          'maximum_order_size': '5000.0',
-          'minimum_margin': '15.0',
-          'minimum_order_size': '0.1',
-          'pair': 'xmrusd',
-          'price_precision': 5
-        },
-        {
-          'expiration': 'NA',
-          'initial_margin': '30.0',
-          'maximum_order_size': '5000.0',
-          'minimum_margin': '15.0',
-          'minimum_order_size': '0.1',
-          'pair': 'xmrbtc',
-          'price_precision': 5
-        },
-        {
-          'expiration': 'NA',
-          'initial_margin': '30.0',
-          'maximum_order_size': '5000.0',
-          'minimum_margin': '15.0',
-          'minimum_order_size': '0.01',
-          'pair': 'dshusd',
-          'price_precision': 5
-        },
-        {
-          'expiration': 'NA',
-          'initial_margin': '30.0',
-          'maximum_order_size': '5000.0',
-          'minimum_margin': '15.0',
-          'minimum_order_size': '0.01',
-          'pair': 'dshbtc',
-          'price_precision': 5
-        },
-        {
-          'expiration': 'NA',
-          'initial_margin': '30.0',
-          'maximum_order_size': '2000.0',
-          'minimum_margin': '15.0',
-          'minimum_order_size': '0.01',
-          'pair': 'bccbtc',
-          'price_precision': 5
-        },
-        {
-          'expiration': 'NA',
-          'initial_margin': '30.0',
-          'maximum_order_size': '2000.0',
-          'minimum_margin': '15.0',
-          'minimum_order_size': '0.01',
-          'pair': 'bcubtc',
-          'price_precision': 5
-        },
-        {
-          'expiration': 'NA',
-          'initial_margin': '30.0',
-          'maximum_order_size': '2000.0',
-          'minimum_margin': '15.0',
-          'minimum_order_size': '0.01',
-          'pair': 'bccusd',
-          'price_precision': 5
-        },
-        {
-          'expiration': 'NA',
-          'initial_margin': '30.0',
-          'maximum_order_size': '2000.0',
-          'minimum_margin': '15.0',
-          'minimum_order_size': '0.01',
-          'pair': 'bcuusd',
-          'price_precision': 5
-        },
-        {
-          "expiration": "NA",
-          "initial_margin": "30.0",
-          "maximum_order_size": "200000.0",
-          "minimum_margin": "15.0",
-          "minimum_order_size": "0.1",
-          "pair": "xrpusd",
-          "price_precision": 5
-        },
-        {
-          "expiration": "NA",
-          "initial_margin": "30.0",
-          "maximum_order_size": "200000.0",
-          "minimum_margin": "15.0",
-          "minimum_order_size": "0.1",
-          "pair": "xrpbtc",
-          "price_precision": 5
-        }
-      ])
+      expect(data[0]).to.eql({
+        pair: 'btcusd',
+        price_precision: 5,
+        initial_margin: '30.0',
+        minimum_margin: '15.0',
+        maximum_order_size: '2000.0',
+        minimum_order_size: '0.01',
+        expiration: 'NA'
+      })
       done()
     })
   })
