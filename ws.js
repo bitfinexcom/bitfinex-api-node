@@ -38,7 +38,15 @@ BitfinexWS.prototype.open = function open () {
 }
 
 BitfinexWS.prototype.onMessage = function (msg, flags) {
-  msg = JSON.parse(msg)
+  try {
+    msg = JSON.parse(msg)
+  } catch (e) {
+    console.error('[bfx ws2 error] received invalid json')
+    console.error('[bfx ws2 error]', msg)
+    console.trace()
+    return
+  }
+
   debug('Received message: %j', msg)
   debug('Emmited message event')
   this.emit('message', msg, flags)
