@@ -5,7 +5,6 @@ const debug = require('debug')('bitfinex:ws')
 const crypto = require('crypto')
 const WebSocket = require('ws')
 const { isSnapshot } = require('./lib/helper.js')
-const normalizeOrderBook = require('./lib/normalizeOrderbooks.js')
 
 function passThrough (d) { return d }
 /**
@@ -153,7 +152,6 @@ class BitfinexWS2 extends EventEmitter {
     }
 
     msg = msg[0]
-    msg = normalizeOrderBook(msg, event.prec)
 
     const type = event.prec === 'R0' ? 'orderbookRaw' : 'orderbook'
     const res = this.transformer(msg, type, event.symbol)
