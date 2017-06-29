@@ -155,7 +155,8 @@ class BitfinexWS2 extends EventEmitter {
     msg = msg[0]
     msg = normalizeOrderBook(msg, event.prec)
 
-    const res = this.transformer(msg, 'orderbook', event.symbol)
+    const type = event.prec === 'R0' ? 'orderbookRaw' : 'orderbook'
+    const res = this.transformer(msg, type, event.symbol)
     debug('Emitting orderbook, %s, %j', event.symbol, res)
     this.emit('orderbook', event.symbol, res)
   }
