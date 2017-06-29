@@ -176,7 +176,7 @@ describe('WebSocket v1 integration', () => {
     bws.once('orderbook', (pair, data) => {
       assert.equal(pair, 'BTCUSD')
       assert.equal(typeof data[0].price, 'number')
-      assert.equal(typeof data[0].count, 'number')
+      assert.equal(typeof data[0].orderId, 'number')
       assert.equal(typeof data[0].amount, 'number')
       assert.equal(data.length, 50)
       bws.close()

@@ -108,31 +108,7 @@ describe('Public Endpoints', function () {
   })
   it('should get symbols', (done) => {
     bfx_rest.get_symbols((error, data) => {
-      expect(data).to.eql([
-        'btcusd',
-        'ltcusd',
-        'ltcbtc',
-        'ethusd',
-        'ethbtc',
-        'etcbtc',
-        'etcusd',
-        'rrtusd',
-        'rrtbtc',
-        'zecusd',
-        'zecbtc',
-        'xmrusd',
-        'xmrbtc',
-        'dshusd',
-        'dshbtc',
-        'bccbtc',
-        'bcubtc',
-        'bccusd',
-        'bcuusd',
-        'xrpusd',
-        'xrpbtc',
-        'iotusd',
-        'iotbtc'
-      ])
+      expect(data[0]).to.eql('btcusd')
       done()
     })
   })

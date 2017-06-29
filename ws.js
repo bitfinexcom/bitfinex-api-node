@@ -6,7 +6,6 @@ const crypto = require('crypto')
 const WebSocket = require('ws')
 const util = require('util')
 const { isSnapshot } = require('./lib/helper.js')
-const normalizeOrderBook = require('./lib/normalizeOrderbooks.js')
 
 /**
  * Handles communitaction with Bitfinex WebSocket API.
@@ -94,23 +93,27 @@ BitfinexWS.prototype.onMessage = function (msg, flags) {
       this.emit(msg.event, msg)
     }
   } else {
-    debug('Received data from a channel')
-        // First element of Array is the channelId, the rest is the info.
-    const channelId = msg.shift() // Pop the first element
-    const event = this.channelMap[channelId]
-    if (event) {
-      debug('Message in \'%s\' channel', event.channel)
-      if (event.channel === 'book') {
-        this._processBookEvent(msg, event)
-      } else if (event.channel === 'trades') {
-        this._processTradeEvent(msg, event)
-      } else if (event.channel === 'ticker') {
-        this._processTickerEvent(msg, event)
-      } else if (event.channel === 'auth') {
-        this._processUserEvent(msg)
-      } else {
-        debug('Message in unknown channel')
-      }
+    this.handleChannel(msg)
+  }
+}
+
+BitfinexWS.prototype.handleChannel = function (msg) {
+  debug('Received data from a channel')
+  // First element of Array is the channelId, the rest is the info.
+  const channelId = msg.shift() // Pop the first element
+  const event = this.channelMap[channelId]
+  if (event) {
+    debug('Message in \'%s\' channel', event.channel)
+    if (event.channel === 'book') {
+      this._processBookEvent(msg, event)
+    } else if (event.channel === 'trades') {
+      this._processTradeEvent(msg, event)
+    } else if (event.channel === 'ticker') {
+      this._processTickerEvent(msg, event)
+    } else if (event.channel === 'auth') {
+      this._processUserEvent(msg)
+    } else {
+      debug('Message in unknown channel')
     }
   }
 }
@@ -128,55 +131,6 @@ BitfinexWS.prototype._processUserEvent = function (msg) {
       })
     } else if (data.length) {
       debug('Emitting \'%s\', %j', event, data)
-            /**
-             * position snapshot
-             * @event BitfinexWS#ps
-             */
-            /**
-             * new position
-             * @event BitfinexWS#pn
-             */
-            /**
-             * position update
-             * @event BitfinexWS#pu
-             */
-            /**
-             * position close
-             * @event BitfinexWS#pc
-             */
-            /**
-             * wallet snapshot
-             * @event BitfinexWS#ws
-             */
-            /**
-             * wallet snapshot
-             * @event BitfinexWS#ws
-             */
-            /**
-             * order snapshot
-             * @event BitfinexWS#os
-             */
-            /**
-             * new order
-             * @event BitfinexWS#on
-             */
-            /**
-             * order update
-             * @event BitfinexWS#ou
-             */
-            /**
-             * order cancel
-             * @event BitfinexWS#oc
-             */
-            /**
-             * trade executed
-             * @event BitfinexWS#te
-             */
-            /**
-             * trade execution update
-             * @event BitfinexWS#tu
-             */
-            // TODO: send Object with key: values
       this.emit(event, data)
     }
   }
@@ -291,19 +245,39 @@ BitfinexWS.prototype._processBookEvent = function (msg, event) {
   }
 
   if (!isSnapshot(msg[0]) && msg.length > 2) {
-    msg = normalizeOrderBook(msg, event.prec)
-    const update = {
+    let update
+    if (event.prec === 'R0') {
+      update = {
+        price: msg[1],
+        orderId: msg[0],
+        amount: msg[2]
+      }
+
+      debug('Emitting orderbook, %s, %j', event.pair, update)
+      this.emit('orderbook', event.pair, update)
+      return
+    }
+
+    update = {
       price: msg[0],
       count: msg[1],
       amount: msg[2]
     }
+
     debug('Emitting orderbook, %s, %j', event.pair, update)
     this.emit('orderbook', event.pair, update)
   }
 
-  msg = normalizeOrderBook(msg[0], event.prec)
+  msg = msg[0]
   if (isSnapshot(msg)) {
     const snapshot = msg.map((el) => {
+      if (event.prec === 'R0') {
+        return {
+          orderId: el[0],
+          price: el[1],
+          amount: el[2]
+        }
+      }
       return {
         price: el[0],
         count: el[1],
