@@ -33,10 +33,21 @@ const opts = {
 
 const bws = new BFX(API_KEY, API_SECRET, opts).ws
 
+bws.on('auth', () => {
+  // emitted after .auth()
+  // needed for private api endpoints
+
+  console.log('authenticated')
+  // bws.submitOrder ...
+})
+
 bws.on('open', () => {
   bws.subscribeTicker('BTCUSD')
   bws.subscribeOrderBook('BTCUSD')
   bws.subscribeTrades('BTCUSD')
+
+  // authenticate
+  // bws.auth()
 })
 
 bws.on('orderbook', (pair, book) => {
