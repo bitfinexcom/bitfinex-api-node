@@ -10,7 +10,7 @@ class Rest2 {
     this.version = 'v2'
     this.key = key
     this.secret = secret
-    this.nonce = new Date().getTime()
+    this.nonce = Date.now()
     this.generateNonce = (typeof opts.nonceGenerator === 'function')
       ? opts.nonceGenerator
       : function () {
@@ -33,9 +33,11 @@ class Rest2 {
     const nonce = JSON.stringify(this.generateNonce())
     const rawBody = JSON.stringify(payload)
 
-    const signature = crypto
+    let signature = `/api/${this.version}${path}${nonce}${rawBody}`
+
+    signature = crypto
       .createHmac('sha384', this.secret)
-      .update(`/api/${url}${nonce}${rawBody}`)
+      .update(signature)
       .digest('hex')
 
     return rp({
@@ -46,9 +48,10 @@ class Rest2 {
         'bfx-apikey': this.key,
         'bfx-signature': signature
       },
-      json: payload
+      body: payload,
+      json: true
     })
-    .then((response) => cb(null, JSON.parse(response)))
+    .then((response) => cb(null, response))
     .catch((error) => cb(new Error(error)))
   }
 
@@ -99,14 +102,9 @@ class Rest2 {
     return this.makePublicRequest(`stats1/trade:${timeframe}:${symbol}/${section}`, cb)
   }
 
-  // TODO
-  // - Trades
-  // - Books
-
   // Auth endpoints
-
   alertList (type = 'price', cb) {
-    return this.makeAuthRequest(`/auth/r/alerts?type=${type}`, null, cb)
+    return this.makeAuthRequest('/auth/r/alerts', { type }, cb)
   }
 
   alertSet (type = 'price', symbol = 'tBTCUSD', price = 0) {
