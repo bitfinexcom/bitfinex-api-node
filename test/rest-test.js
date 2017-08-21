@@ -115,15 +115,7 @@ describe('Public Endpoints', function () {
   it('should get symbol details', (done) => {
     bfx_rest.symbols_details((error, data) => {
       expect(data).to.exist
-      expect(data[0]).to.eql({
-        pair: 'btcusd',
-        price_precision: 5,
-        initial_margin: '30.0',
-        minimum_margin: '15.0',
-        maximum_order_size: '2000.0',
-        minimum_order_size: '0.01',
-        expiration: 'NA'
-      })
+      expect(data[0].pair).to.eql('btcusd')
       done()
     })
   })
