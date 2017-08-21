@@ -29,6 +29,15 @@ class Rest2 {
     if (!this.key || !this.secret) {
       return cb(new Error('missing api key or secret'))
     }
+
+    if (arguments.length !== 3) {
+      return cb(
+        new Error(
+          'argument length invalid: request must have a path, payload and cb'
+        )
+      )
+    }
+
     const url = `${this.url}/${this.version}/${path}`
     const nonce = JSON.stringify(this.generateNonce())
     const rawBody = JSON.stringify(payload)
