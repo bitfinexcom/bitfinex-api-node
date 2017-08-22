@@ -261,9 +261,10 @@ rest.prototype.active_positions = function (cb) {
   return this.make_request('positions', {}, cb)
 }
 
-rest.prototype.claim_position = function (position_id, cb) {
+rest.prototype.claim_position = function (position_id, amount, cb) {
   const params = {
-    position_id: parseInt(position_id)
+    position_id: parseInt(position_id),
+    amount: parseInt(amount)
   }
   return this.make_request('position/claim', params, cb)
 }
