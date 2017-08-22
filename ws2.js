@@ -109,6 +109,8 @@ class BitfinexWS2 extends EventEmitter {
       this._processTickerEvent(msg, event)
     } else if (event.channel === 'auth') {
       this._processUserEvent(msg)
+    } else if (event.channel === 'candles') {
+      this._processCandleEvent(msg)
     } else {
       debug('Message in unknown channel')
     }
@@ -130,6 +132,19 @@ class BitfinexWS2 extends EventEmitter {
       debug('Emitting \'%s\', %j', event, data)
       this.emit(event, data)
     }
+  }
+
+  _processCandleEvent (msg, event) {
+    if (msg[0] === 'hb') { // HeatBeart
+      debug('Received HeatBeart in %s ticker channel', event.symbol)
+      return
+    }
+
+    msg = msg[0]
+
+    const res = this.transformer(msg, 'candles', event.symbol)
+    debug('Emitting candles, %s, %j', event.symbol, res)
+    this.emit('candles', event.symbol, res)
   }
 
   _processTickerEvent (msg, event) {
@@ -195,6 +210,14 @@ class BitfinexWS2 extends EventEmitter {
   send (msg) {
     debug('Sending %j', msg)
     this.ws.send(JSON.stringify(msg))
+  }
+
+  subscribeCandles (symbol = 'tBTCUSD', frame = '1m') {
+    this.send({
+      event: 'subscribe',
+      channel: 'candles',
+      key: `trade:${frame}:${symbol}`
+    })
   }
 
   subscribeOrderBook (symbol = 'tBTCUSD', precision = 'P0', length = '25') {
