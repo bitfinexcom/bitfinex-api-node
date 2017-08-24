@@ -10,7 +10,7 @@ function rest (key, secret, nonceGenerator) {
   this.version = 'v1'
   this.key = key
   this.secret = secret
-  this.nonce = new Date().getTime()
+  this.nonce = new Date().getTime()*1000
   this._nonce = typeof nonceGenerator === 'function' ? nonceGenerator : function () {
         // noinspection JSPotentiallyInvalidUsageOfThis
     return ++this.nonce
