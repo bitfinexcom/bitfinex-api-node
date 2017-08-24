@@ -52,7 +52,8 @@ class BitfinexWS2 extends EventEmitter {
         const data = {
           channel: msg.channel,
           chanId: msg.chanId,
-          symbol: msg.symbol
+          symbol: msg.symbol,
+          key: msg.key
         }
 
         // https://github.com/bitfinexcom/bitfinex-api-node/issues/37
