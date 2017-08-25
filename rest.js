@@ -257,6 +257,10 @@ rest.prototype.active_orders = function (cb) {
   return this.make_request('orders', {}, cb)
 }
 
+rest.prototype.orders_history = function (cb) {
+  return this.make_request('orders/hist', {}, cb)
+}
+
 rest.prototype.active_positions = function (cb) {
   return this.make_request('positions', {}, cb)
 }
