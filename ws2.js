@@ -110,7 +110,7 @@ class BitfinexWS2 extends EventEmitter {
     } else if (event.channel === 'auth') {
       this._processUserEvent(msg)
     } else if (event.channel === 'candles') {
-      this._processCandleEvent(msg)
+      this._processCandleEvent(msg, event)
     } else {
       debug('Message in unknown channel')
     }
