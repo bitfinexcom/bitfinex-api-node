@@ -5,16 +5,18 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 const crypto = require('crypto')
 const request = require('request')
 
-function rest (key, secret, nonceGenerator) {
+function rest (key, secret, opts = {}) {
   this.url = 'https://api.bitfinex.com'
   this.version = 'v1'
   this.key = key
   this.secret = secret
-  this.nonce = new Date().getTime()
-  this._nonce = typeof nonceGenerator === 'function' ? nonceGenerator : function () {
+  this.nonce = Date.now()
+  this.generateNonce = (typeof opts.nonceGenerator === 'function')
+      ? opts.nonceGenerator
+      : function () {
         // noinspection JSPotentiallyInvalidUsageOfThis
-    return ++this.nonce
-  }
+        return ++this.nonce
+      }
 }
 
 rest.prototype.make_request = function (path, params, cb) {
@@ -23,7 +25,7 @@ rest.prototype.make_request = function (path, params, cb) {
     return cb(new Error('missing api key or secret'))
   }
   url = `${this.url}/${this.version}/${path}`
-  nonce = JSON.stringify(this._nonce())
+  nonce = JSON.stringify(this.generateNonce())
   payload = {
     request: `/${this.version}/${path}`,
     nonce
