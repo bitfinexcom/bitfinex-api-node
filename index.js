@@ -8,7 +8,7 @@ const WS2 = require('./ws2.js')
 const t = require('./lib/transformer.js')
 
 class BFX {
-  constructor (apiKey, apiSecret, opts = { version: 1, transform: false }) {
+  constructor (apiKey, apiSecret, opts = { version: 1, transform: false, nonceGenerator: false }) {
     this.apiKey = apiKey
     this.apiSecret = apiSecret
 
@@ -41,7 +41,7 @@ class BFX {
       return
     }
 
-    this.rest = new REST(this.apiKey, this.apiSecret)
+    this.rest = new REST(this.apiKey, this.apiSecret, opts)
     this.ws = new WS(this.apiKey, this.apiSecret)
     opts.autoOpen && this.ws.open()
   }
