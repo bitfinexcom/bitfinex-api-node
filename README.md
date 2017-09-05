@@ -1,5 +1,4 @@
 # Bitfinex Trading API for Node.JS. Bitcoin, Ether and Litecoin trading
-=========
 
 [![Build Status](https://travis-ci.org/bitfinexcom/bitfinex-api-node.svg?branch=master)](https://travis-ci.org/bitfinexcom/bitfinex-api-node)
 
@@ -110,9 +109,17 @@ Lists of raw orderbooks (`R0`) are ordered in the same order as `P0`, `P1`, `P2`
 npm test
 ```
 
-## Contributing
+## Contributors
 
-```
-We are following the [standard JavaScript Style Guide](https://github.com/feross/standard).
-Add unit tests for any new or changed functionality. Lint and test your code.
-```
+ - Josh Rossi &lt;maximojoshuarossi@gmail.com&gt;
+ - Yago &lt;yago.ftw@gmail.com&gt;
+ - Sean Robertson &lt;sprobertson@gmail.com&gt;
+ - Paolo Ardoino &lt;paolo.ardoino@gmail.com&gt;
+ - Aaron Terry &lt;acterry@gmail.com&gt;
+ - Zachary Belford &lt;belfordz66@gmail.com&gt;
+ - Robert Kowalski &lt;rok@kowalski.gd&gt;
+ - Simone Poggi &lt;motocarota@gmail.com&gt;
+ - Matthew Jesuele &lt;matt@makeapps.io&gt;
+ - dutu &lt;adrian.clinciu@outlook.com&gt;
+ - Tetradeca &lt;31027443+Tetradeca@users.noreply.github.com&gt;
+ - Cameron Lockey &lt;ctlockey@gmail.com&gt;
