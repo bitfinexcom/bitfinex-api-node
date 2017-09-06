@@ -123,3 +123,4 @@ npm test
  - dutu &lt;adrian.clinciu@outlook.com&gt;
  - Tetradeca &lt;31027443+Tetradeca@users.noreply.github.com&gt;
  - Cameron Lockey &lt;ctlockey@gmail.com&gt;
+ - Andrew &lt;androng@users.noreply.github.com&gt;
