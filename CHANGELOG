@@ -1,0 +1,6 @@
+1.2.0
+
+- REST API v1: Added support for `/orders/hist` endpoint
+- REST API v2: Added support for `auth/r/trades/{symbol}/hist` endpoint
+- WS API v2: Candles supports now `key` to identify subscription
+- REST API v1: Fix `claim_position` argument handling
