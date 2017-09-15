@@ -61,7 +61,14 @@ class Rest2 {
       json: true
     })
     .then((response) => cb(null, response))
-    .catch((error) => cb(new Error(error)))
+    .catch((error) => {
+      if (error.error[1] === 10114) {
+        error.message = error.message +
+        ' see https://github.com/bitfinexcom/bitfinex-api-node/blob/master/README.md#nonce-too-small for help'
+      }
+
+      cb(new Error(error))
+    })
   }
 
   makePublicRequest (name, cb = this.genericCallback.bind(this)) {
