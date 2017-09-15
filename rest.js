@@ -58,6 +58,11 @@ rest.prototype.make_request = function (path, params, cb) {
       })
     }
     if (result.message != null) {
+      if (/Nonce is too small/.test(result.message)) {
+        result.message = result.message +
+        ' See https://github.com/bitfinexcom/bitfinex-api-node/blob/master/README.md#nonce-too-small for help'
+      }
+
       return cb(new Error(result.message))
     }
     return cb(null, result)

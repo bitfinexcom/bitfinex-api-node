@@ -109,6 +109,16 @@ Lists of raw orderbooks (`R0`) are ordered in the same order as `P0`, `P1`, `P2`
 npm test
 ```
 
+## FAQ
+
+### nonce too small
+
+I make multiple parallel request and I receive an error that the nonce is too small. What does it mean?
+
+Nonces are used to guard against replay attacks. When multiple HTTP requests arrive at the API with the wrong nonce, e.g. because of an async timing issue, the API will reject the request.
+
+If you need to go parallel, you have to use multiple API keys right now.
+
 ## Contributors
 
  - Josh Rossi &lt;maximojoshuarossi@gmail.com&gt;
