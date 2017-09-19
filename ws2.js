@@ -136,16 +136,21 @@ class BitfinexWS2 extends EventEmitter {
   }
 
   _processCandleEvent (msg, event) {
+    // due to response for candle doesn't have valid symbol field in test
+    // add a shim to fix that
+    const keyItmes = event.key.split(':')
+    const symbol = event.symbol || keyItmes[keyItmes.length - 1]
+
     if (msg[0] === 'hb') { // HeatBeart
-      debug('Received HeatBeart in %s ticker channel', event.symbol)
+      debug('Received HeatBeart in %s ticker channel', symbol)
       return
     }
 
     msg = msg[0]
 
-    const res = this.transformer(msg, 'candles', event.symbol)
-    debug('Emitting candles, %s, %j', event.symbol, res)
-    this.emit('candles', event.symbol, res)
+    const res = this.transformer(msg, 'candles', symbol)
+    debug('Emitting candles, %s, %j', symbol, res)
+    this.emit('candles', symbol, res)
   }
 
   _processTickerEvent (msg, event) {
