@@ -137,15 +137,15 @@ class BitfinexWS2 extends EventEmitter {
 
   _processCandleEvent (msg, event) {
     if (msg[0] === 'hb') { // HeatBeart
-      debug('Received HeatBeart in %s ticker channel', event.symbol)
+      debug('Received HeatBeart in %s ticker channel', event.key)
       return
     }
 
     msg = msg[0]
 
-    const res = this.transformer(msg, 'candles', event.symbol)
-    debug('Emitting candles, %s, %j', event.symbol, res)
-    this.emit('candles', event.symbol, res)
+    const res = this.transformer(msg, 'candles', event.key)
+    debug('Emitting candles, %s, %j', event.key, res)
+    this.emit('candles', event.key, res)
   }
 
   _processTickerEvent (msg, event) {
