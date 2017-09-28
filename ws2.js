@@ -284,6 +284,40 @@ class BitfinexWS2 extends EventEmitter {
       calc
     })
   }
+  
+    /* Sample:
+  this.send([
+	    0,
+	    "on",
+	    null,
+	    {
+			"gid": null,
+			"cid": (new Date()).getTime(),
+			"type": "EXCHANGE LIMIT",
+			"symbol": "tIOTETH",
+			"amount": "1.0",
+			"price": "0.0005",
+			"hidden": 0
+	    }
+	])
+  */
+  submitExchangeLimitOrder(gid, symbol, amount, price){
+  
+    this.send([
+	    0,
+	    "on",
+	    null,
+	    {
+			"gid": gid,
+			"cid": (new Date()).getTime(),
+			"type": "EXCHANGE LIMIT",
+			"symbol": symbol,
+			"amount": amount,
+			"price": price,
+			"hidden": 0
+	    }
+	])
+  }
 }
 
 module.exports = BitfinexWS2
