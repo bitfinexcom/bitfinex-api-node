@@ -134,3 +134,5 @@ If you need to go parallel, you have to use multiple API keys right now.
  - Tetradeca &lt;31027443+Tetradeca@users.noreply.github.com&gt;
  - Cameron Lockey &lt;ctlockey@gmail.com&gt;
  - Andrew &lt;androng@users.noreply.github.com&gt;
+ - Rob Ellis &lt;rob@silentrob.me&gt;
+ - MaxSvargal &lt;maxsvargal@gmail.com&gt;
