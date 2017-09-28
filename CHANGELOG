@@ -1,3 +1,11 @@
+
+1.2.1
+
+- REST API v2: use /candles/ endpoint for candles data
+- WS API v2: Candles event provides key
+- Improve error message for nonce errors
+- Examples: added example for WS2 orders
+
 1.2.0
 
 - REST API v1: Added support for `/orders/hist` endpoint
