@@ -47,7 +47,7 @@ rest.prototype.make_request = function (path, params, cb) {
   }, (err, response, body) => {
     let error, result
     if (err || (response.statusCode !== 200 && response.statusCode !== 400)) {
-      return cb(new Error(err != null ? err : response.statusCode))
+      return cb(new Error(err != null ? err : response.statusCode + (response.statusMessage && ' ' +  response.statusMessage)))
     }
     try {
       result = JSON.parse(body)
@@ -78,7 +78,7 @@ rest.prototype.make_public_request = function (path, cb) {
   }, (err, response, body) => {
     let error, result
     if (err || (response.statusCode !== 200 && response.statusCode !== 400)) {
-      return cb(new Error(err != null ? err : response.statusCode))
+      return cb(new Error(err != null ? err : response.statusCode + (response.statusMessage && ' ' +  response.statusMessage)))
     }
     try {
       result = JSON.parse(body)
