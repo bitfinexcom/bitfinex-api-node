@@ -35,8 +35,8 @@ class BFX {
     }
 
     if (opts.version === 2) {
-      this.rest = new REST2(this.apiKey, this.apiSecret, { transformer: transformer })
-      this.ws = new WS2(this.apiKey, this.apiSecret, { transformer: transformer })
+      this.rest = new REST2(this.apiKey, this.apiSecret, opts)
+      this.ws = new WS2(this.apiKey, this.apiSecret, opts)
       opts.autoOpen && this.ws.open()
       return
     }
