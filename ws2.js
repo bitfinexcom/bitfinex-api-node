@@ -141,7 +141,7 @@ class BitfinexWS2 extends EventEmitter {
       msg = msg[0]
       const res = this.transformer(msg, 'candles', event.symbol)
       debug('Emitting candles, %s, %j', event.symbol, res)
-      this.emit('candles', event.key.toString().substr(10,7), res)
+      this.emit('candles', event.key.toString().substr(10, 7), res)
       return
     }
 
