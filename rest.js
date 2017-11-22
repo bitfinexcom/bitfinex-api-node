@@ -11,10 +11,7 @@ function rest (key, secret, opts = {}) {
   this.nonce = Date.now()
   this.generateNonce = (typeof opts.nonceGenerator === 'function')
       ? opts.nonceGenerator
-      : function () {
-        // noinspection JSPotentiallyInvalidUsageOfThis
-        return ++this.nonce
-      }
+      : () => ++this.nonce
 }
 
 rest.prototype.make_request = function (path, params, cb) {

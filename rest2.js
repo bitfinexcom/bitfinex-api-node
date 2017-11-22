@@ -14,10 +14,7 @@ class Rest2 {
     this.nonce = Date.now()
     this.generateNonce = (typeof opts.nonceGenerator === 'function')
       ? opts.nonceGenerator
-      : function () {
-        // noinspection JSPotentiallyInvalidUsageOfThis
-        return ++this.nonce
-      }
+      : () => ++this.nonce
 
     this.transformer = opts.transformer || dummyTransform
   }
