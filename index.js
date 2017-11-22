@@ -4,7 +4,6 @@ const REST = require('./rest.js')
 const WS = require('./ws.js')
 const REST2 = require('./rest2.js')
 const WS2 = require('./ws2.js')
-
 const t = require('./lib/transformer.js')
 
 class BFX {
@@ -25,24 +24,23 @@ class BFX {
       throw new Error(msg)
     }
 
-    let transformer = function passThrough (d) { return d }
+    let transformer // optional in transport classes
+
     if (opts.transform === true) {
       transformer = t
-    }
-
-    if (typeof opts.transform === 'function') {
+    } else if (typeof opts.transform === 'function') {
       transformer = opts.transform
     }
 
+    // TODO: Pass opts through to {REST,WS}2 constructors?
     if (opts.version === 2) {
-      this.rest = new REST2(this.apiKey, this.apiSecret, { transformer: transformer })
-      this.ws = new WS2(this.apiKey, this.apiSecret, { transformer: transformer })
-      opts.autoOpen && this.ws.open()
-      return
+      this.rest = new REST2(this.apiKey, this.apiSecret, { transformer })
+      this.ws = new WS2(this.apiKey, this.apiSecret, { transformer })
+    } else {
+      this.rest = new REST(this.apiKey, this.apiSecret, opts)
+      this.ws = new WS(this.apiKey, this.apiSecret)
     }
 
-    this.rest = new REST(this.apiKey, this.apiSecret, opts)
-    this.ws = new WS(this.apiKey, this.apiSecret)
     opts.autoOpen && this.ws.open()
   }
 }
