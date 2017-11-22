@@ -244,15 +244,15 @@ rest.prototype.replace_order = function (order_id, symbol, amount, price, exchan
     exchange,
     side,
     type
-  }
-  return this.make_request('order/cancel/replace', params, cb)
+  }, cb)
 }
 
+// TODO: Why is order_id not parsed here as above? Also applies to further
+//       instances below
 rest.prototype.order_status = function (order_id, cb) {
-  const params = {
-    order_id
-  }
-  return this.make_request('order/status', params, cb)
+  return this.make_request('order/status', {
+    order_id: parseInt(order_id)
+  }, cb)
 }
 
 rest.prototype.active_orders = function (cb) {
@@ -359,17 +359,15 @@ rest.prototype.new_offer = function (currency, amount, rate, period, direction, 
 }
 
 rest.prototype.cancel_offer = function (offer_id, cb) {
-  const params = {
-    offer_id
-  }
-  return this.make_request('offer/cancel', params, cb)
+  return this.make_request('offer/cancel', {
+    offer_id: parseInt(offer_id)
+  }, cb)
 }
 
 rest.prototype.offer_status = function (offer_id, cb) {
-  const params = {
-    offer_id
-  }
-  return this.make_request('offer/status', params, cb)
+  return this.make_request('offer/status', {
+    offer_id: parseInt(offer_id)
+  }, cb)
 }
 
 rest.prototype.active_offers = function (cb) {
@@ -394,7 +392,7 @@ rest.prototype.total_taken_swaps = function (cb) {
 
 rest.prototype.close_swap = function (swap_id, cb) {
   return this.make_request('swap/close', {
-    swap_id
+    swap_id: parseInt(swap_id)
   }, cb)
 }
 
