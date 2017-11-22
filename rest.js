@@ -41,7 +41,7 @@ rest.prototype.make_request = function (path, params, cb) {
     }
   }, (err, response, body) => {
     if (err || (response.statusCode !== 200 && response.statusCode !== 400)) {
-      return cb(new Error(err !== null ? err : response.statusCode))
+      return cb(new Error(err != null ? err : response.statusCode))
     }
 
     let result
@@ -54,16 +54,15 @@ rest.prototype.make_request = function (path, params, cb) {
       })
     }
 
-    // Success
-    if (result.message === null) {
-      return cb(null, result)
+    if (result.message != null) {
+      if (result.message.indexOf('Nonce is too small') !== -1) {
+        result.message += ' See https://github.com/bitfinexcom/bitfinex-api-node/blob/master/README.md#nonce-too-small for help'
+      }
+
+      return cb(new Error(result.message))
     }
 
-    if (result.message.indexOf('Nonce is too small') !== -1) {
-      result.message += ' See https://github.com/bitfinexcom/bitfinex-api-node/blob/master/README.md#nonce-too-small for help'
-    }
-
-    return cb(new Error(result.message))
+    return cb(null, result)
   })
 }
 
@@ -88,7 +87,7 @@ rest.prototype.make_public_request = function (path, cb) {
     }
 
     // TODO: HTTP error code check?
-    if (result.message !== null) {
+    if (result.message != null) {
       return cb(new Error(result.message))
     }
 
