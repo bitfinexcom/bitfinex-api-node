@@ -22,6 +22,7 @@ class BitfinexWS2 extends EventEmitter {
     this.apiSecret = apiSecret
     this.websocketURI = opts.websocketURI || 'wss://api.bitfinex.com/ws/2'
     this.transformer = opts.transformer || passThrough
+    this.valueArr = []
   }
 
   open () {
@@ -84,6 +85,11 @@ class BitfinexWS2 extends EventEmitter {
            * @event BitfinexWS#auth
            */
         this.emit(msg.event, msg)
+      } else if (msg.event === 'error') {
+        /**
+         * @event error
+         */
+        this.emit('error', msg)
       } else {
         debug('Emitting \'%s\' %j', msg.event, msg)
         this.emit(msg.event, msg)
@@ -137,7 +143,11 @@ class BitfinexWS2 extends EventEmitter {
 
   _processCandleEvent (msg, event) {
     if (msg[0] === 'hb') { // HeatBeart
-      debug('Received HeatBeart in %s ticker channel', event.key)
+      // debug('Received HeatBeart in %s ticker channel', event.key)
+      msg = msg[0]
+      const res = this.transformer(msg, 'candles', event.symbol)
+      debug('Emitting candles, %s, %j', event.symbol, res)
+      this.emit('candles', event.key.toString().substr(10, 7), res)
       return
     }
 
@@ -171,8 +181,17 @@ class BitfinexWS2 extends EventEmitter {
 
     const type = event.prec === 'R0' ? 'orderbookRaw' : 'orderbook'
     const res = this.transformer(msg, type, event.symbol)
-    debug('Emitting orderbook, %s, %j', event.symbol, res)
-    this.emit('orderbook', event.symbol, res)
+    if (res['PRICE'] !== undefined) { this.valueArr.push(res) }
+    this.valueArr.sort((a, b) => {
+      let x = a['PRICE']; let y = b['PRICE']
+      return ((x < y) ? -1 : ((x > y) ? 1 : 0))
+    })
+    console.log(this.valueArr)
+    debug('Emitting orderbook, %s, %j', event.symbol, this.valueArr[0])
+    /**
+     * @event orderbook
+     */
+    this.emit('orderbook', event.symbol, this.valueArr[0])
   }
 
   _processTradeEvent (msg, event) {
