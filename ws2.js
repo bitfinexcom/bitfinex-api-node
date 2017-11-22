@@ -34,12 +34,14 @@ class BitfinexWS2 extends EventEmitter {
     this.ws.on('close', this.onClose.bind(this))
   }
 
-  onMessage (msg, flags) {
+  onMessage (msgJSON, flags) {
+    let msg
+
     try {
-      msg = JSON.parse(msg)
+      msg = JSON.parse(msgJSON)
     } catch (e) {
       console.error('[bfx ws2 error] received invalid json')
-      console.error('[bfx ws2 error]', msg)
+      console.error('[bfx ws2 error]', msgJSON)
       console.trace()
       return
     }
@@ -48,56 +50,26 @@ class BitfinexWS2 extends EventEmitter {
     this.emit('message', msg, flags)
     debug('Emited message event')
 
-    if (!Array.isArray(msg) && msg.event) {
-      if (msg.event === 'subscribed') {
-        debug('Subscription report received')
-
-        // Inform the user the new event name that will be triggered
-        const data = {
-          channel: msg.channel,
-          chanId: msg.chanId,
-          symbol: msg.symbol,
-          key: msg.key
-        }
-
-        // https://github.com/bitfinexcom/bitfinex-api-node/issues/37
-        if (msg.prec) {
-          data.prec = msg.prec
-        }
-
-        // Save to event map
-        this.channelMap[msg.chanId] = data
-        debug('Emitting \'subscribed\' %j', data)
-
-        /**
-         * @event BitfinexWS#subscribed
-         * @type {object}
-         * @property {string} channel - Channel type
-         * @property {string} symbol - Symbol of the asset in question (either a trading pair or a funding currency)
-         * @property {number} chanId - Channel ID sended by Bitfinex
-         */
-        this.emit('subscribed', data)
-      } else if (msg.event === 'auth' && msg.status !== 'OK') {
-        this.emit('error', msg)
-        debug('Emitting \'error\' %j', msg)
-      } else if (msg.event === 'auth') {
-        this.channelMap[msg.chanId] = {
-          channel: 'auth'
-        }
-
-        debug('Emitting \'%s\' %j', msg.event, msg)
-
-        /**
-         * @event BitfinexWS#auth
-         */
-        this.emit(msg.event, msg)
-      } else {
-        debug('Emitting \'%s\' %j', msg.event, msg)
-        this.emit(msg.event, msg)
-      }
-    } else {
-      this.handleChannel(msg)
+    // Drop out early if channel data
+    if (Array.isArray(msg) || !msg.event) {
+      return this.handleChannel(msg)
     }
+
+    if (msg.event === 'subscribed') {
+      debug('Subscription report received')
+      this.channelMap[msg.chanId] = msg
+
+    // Overwrite as error if auth failed
+    } else if (msg.event === 'auth') {
+      if (msg.status !== 'OK') {
+        msg.event = 'error'
+      } else {
+        this.channelMap[msg.chanId] = { channel: 'auth' }
+      }
+    }
+
+    debug('Emitting \'%s\' %j', msg.event, msg)
+    this.emit(msg.event, msg)
   }
 
   handleChannel (msg) {
@@ -135,14 +107,14 @@ class BitfinexWS2 extends EventEmitter {
     let event = msg[0]
     const data = msg[1]
 
-    if (event === 'n') { // Notification
+    if (!data.length) return
+
+    if (event === 'n') { // Notification, event is nested
       event = data[1]
-      this.emit(event, data)
-      debug('Emitting \'%s\', %j', event, data)
-    } else if (data.length) { // Update
-      debug('Emitting \'%s\', %j', event, data)
-      this.emit(event, data)
     }
+
+    debug('Emitting \'%s\', %j', event, data)
+    this.emit(event, data)
   }
 
   _processCandleEvent (msg, event) {
@@ -151,8 +123,7 @@ class BitfinexWS2 extends EventEmitter {
       return
     }
 
-    msg = msg[0]
-    const res = this.transformer(msg, 'candles', event.key)
+    const res = this.transformer(msg[0], 'candles', event.key)
 
     debug('Emitting candles, %s, %j', event.key, res)
     this.emit('candles', event.key, res)
@@ -164,8 +135,7 @@ class BitfinexWS2 extends EventEmitter {
       return
     }
 
-    msg = msg[0]
-    const res = this.transformer(msg, 'ticker', event.symbol)
+    const res = this.transformer(msg[0], 'ticker', event.symbol)
 
     debug('Emitting ticker, %s, %j', event.symbol, res)
     this.emit('ticker', event.symbol, res)
@@ -177,9 +147,8 @@ class BitfinexWS2 extends EventEmitter {
       return
     }
 
-    msg = msg[0]
     const type = event.prec === 'R0' ? 'orderbookRaw' : 'orderbook'
-    const res = this.transformer(msg, type, event.symbol)
+    const res = this.transformer(msg[0], type, event.symbol)
 
     debug('Emitting orderbook, %s, %j', event.symbol, res)
     this.emit('orderbook', event.symbol, res)
@@ -231,13 +200,13 @@ class BitfinexWS2 extends EventEmitter {
     })
   }
 
-  subscribeOrderBook (symbol = 'tBTCUSD', precision = 'P0', length = '25') {
+  subscribeOrderBook (symbol = 'tBTCUSD', prec = 'P0', len = '25') {
     this.send({
       event: 'subscribe',
       channel: 'book',
       symbol,
-      len: length,
-      prec: precision
+      len,
+      prec
     })
   }
 
@@ -276,22 +245,26 @@ class BitfinexWS2 extends EventEmitter {
 
   config (flags) {
     this.send({
-      flags,
-      'event': 'conf'
+      event: 'conf',
+      flags
     })
   }
 
   auth (calc = 0) {
-    const authNonce = (new Date()).getTime() * 1000
-    const payload = 'AUTH' + authNonce + authNonce
-    const signature = crypto.createHmac('sha384', this.apiSecret).update(payload).digest('hex')
+    const authNonce = Date.now() * 1000
+    const payload = `AUTH${authNonce}${authNonce}`
+
+    const signature = crypto
+      .createHmac('sha384', this.apiSecret)
+      .update(payload)
+      .digest('hex')
 
     this.send({
       event: 'auth',
       apiKey: this.apiKey,
       authSig: signature,
       authPayload: payload,
-      authNonce: +authNonce + 1,
+      authNonce: authNonce + 1,
       calc
     })
   }

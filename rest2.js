@@ -39,12 +39,9 @@ class Rest2 {
     const url = `${this.url}/${this.version}/${path}`
     const nonce = JSON.stringify(this.generateNonce())
     const rawBody = JSON.stringify(payload)
-
-    let signature = `/api/${this.version}${path}${nonce}${rawBody}`
-
-    signature = crypto
+    const signature = crypto
       .createHmac('sha384', this.secret)
-      .update(signature)
+      .update(`/api/${this.version}${path}${nonce}${rawBody}`)
       .digest('hex')
 
     return rp({
@@ -58,29 +55,27 @@ class Rest2 {
       body: payload,
       json: true
     })
-    .then((response) => cb(null, response))
+    .then(res => cb(null, res))
     .catch((error) => {
       if (error.error[1] === 10114) {
-        error.message = error.message +
-        ' see https://github.com/bitfinexcom/bitfinex-api-node/blob/master/README.md#nonce-too-small for help'
+        error.message += ' see https://github.com/bitfinexcom/bitfinex-api-node/blob/master/README.md#nonce-too-small for help'
       }
 
       cb(new Error(error))
     })
   }
 
-  makePublicRequest (name, cb = this.genericCallback.bind(this)) {
+  makePublicRequest (name, cb = this.genericCallback) {
     const url = `${this.url}/${this.version}/${name}`
+
     return rp({
       url,
       method: 'GET',
       timeout: BASE_TIMEOUT,
       json: true
     })
-    .then((response) => {
-      this.transform(response, name, cb)
-    })
-    .catch((error) => cb(new Error(error)))
+    .then(res => this.transform(res, name, cb))
+    .catch(error => cb(new Error(error)))
   }
 
   transform (result, name, cb) {
