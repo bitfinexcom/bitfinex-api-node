@@ -1,8 +1,9 @@
 const rp = require('request-promise')
 const crypto = require('crypto')
-const BASE_TIMEOUT = 15000
 
-function passThrough (d) { return d }
+const { dummyTransform } = require('./lib/transformer.js')
+
+const BASE_TIMEOUT = 15000
 
 class Rest2 {
   constructor (key, secret, opts = {}) {
@@ -18,7 +19,7 @@ class Rest2 {
         return ++this.nonce
       }
 
-    this.transformer = opts.transformer || passThrough
+    this.transformer = opts.transformer || dummyTransform
   }
 
   genericCallback (err, result) {

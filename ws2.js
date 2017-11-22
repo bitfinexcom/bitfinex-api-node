@@ -5,8 +5,7 @@ const debug = require('debug')('bitfinex:ws')
 const crypto = require('crypto')
 const WebSocket = require('ws')
 const { isSnapshot } = require('./lib/helper.js')
-
-function passThrough (d) { return d }
+const { dummyTransform } = require('./lib/transformer.js')
 
 /**
  * Handles communication with Bitfinex WebSocket API.
@@ -17,14 +16,13 @@ function passThrough (d) { return d }
  * @class
  */
 class BitfinexWS2 extends EventEmitter {
-
   constructor (apiKey, apiSecret, opts = {}) {
     super()
 
     this.apiKey = apiKey
     this.apiSecret = apiSecret
     this.websocketURI = opts.websocketURI || 'wss://api.bitfinex.com/ws/2'
-    this.transformer = opts.transformer || passThrough
+    this.transformer = opts.transformer || dummyTransform
   }
 
   open () {
