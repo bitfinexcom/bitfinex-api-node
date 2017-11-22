@@ -84,6 +84,11 @@ class BitfinexWS2 extends EventEmitter {
            * @event BitfinexWS#auth
            */
         this.emit(msg.event, msg)
+      } else if (msg.event === 'error') {
+        /**
+         * @event error
+         */
+        this.emit('error', msg)
       } else {
         debug('Emitting \'%s\' %j', msg.event, msg)
         this.emit(msg.event, msg)
