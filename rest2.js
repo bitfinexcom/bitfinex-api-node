@@ -124,15 +124,15 @@ class Rest2 {
   }
 
   alertSet (type = 'price', symbol = 'tBTCUSD', price = 0) {
-    return this.makeAuthRequest(`/auth/w/alert/set`, {type, symbol, price})
+    return this.makeAuthRequest(`/auth/w/alert/set`, { type, symbol, price })
   }
 
   alertDelete (symbol = 'tBTCUSD', price = 0) {
-    return this.makeAuthRequest(`/auth/w/alert/set`, {symbol, price})
+    return this.makeAuthRequest(`/auth/w/alert/set`, { symbol, price })
   }
 
   trades (symbol = 'tBTCUSD', start = null, end = null, limit = null, cb) {
-    return this.makeAuthRequest(`/auth/r/trades/${symbol}/hist`, {start, end, limit}, cb)
+    return this.makeAuthRequest(`/auth/r/trades/${symbol}/hist`, { start, end, limit }, cb)
   }
 
   // TODO
