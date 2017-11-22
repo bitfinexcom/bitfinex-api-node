@@ -22,6 +22,7 @@ class BitfinexWS2 extends EventEmitter {
     this.apiSecret = apiSecret
     this.websocketURI = opts.websocketURI || 'wss://api.bitfinex.com/ws/2'
     this.transformer = opts.transformer || passThrough
+    this.valueArr = []
   }
 
   open () {
@@ -180,8 +181,17 @@ class BitfinexWS2 extends EventEmitter {
 
     const type = event.prec === 'R0' ? 'orderbookRaw' : 'orderbook'
     const res = this.transformer(msg, type, event.symbol)
-    debug('Emitting orderbook, %s, %j', event.symbol, res)
-    this.emit('orderbook', event.symbol, res)
+    if (res['PRICE'] !== undefined) { this.valueArr.push(res) }
+    this.valueArr.sort((a, b) => {
+      let x = a['PRICE']; let y = b['PRICE']
+      return ((x < y) ? -1 : ((x > y) ? 1 : 0))
+    })
+    console.log(this.valueArr)
+    debug('Emitting orderbook, %s, %j', event.symbol, this.valueArr[0])
+    /**
+     * @event orderbook
+     */
+    this.emit('orderbook', event.symbol, this.valueArr[0])
   }
 
   _processTradeEvent (msg, event) {
