@@ -84,6 +84,11 @@ class BitfinexWS2 extends EventEmitter {
            * @event BitfinexWS#auth
            */
         this.emit(msg.event, msg)
+      } else if (msg.event === 'error') {
+        /**
+         * @event error
+         */
+        this.emit('error', msg)
       } else {
         debug('Emitting \'%s\' %j', msg.event, msg)
         this.emit(msg.event, msg)
@@ -137,7 +142,11 @@ class BitfinexWS2 extends EventEmitter {
 
   _processCandleEvent (msg, event) {
     if (msg[0] === 'hb') { // HeatBeart
-      debug('Received HeatBeart in %s ticker channel', event.key)
+      // debug('Received HeatBeart in %s ticker channel', event.key)
+      msg = msg[0]
+      const res = this.transformer(msg, 'candles', event.symbol)
+      debug('Emitting candles, %s, %j', event.symbol, res)
+      this.emit('candles', event.key.toString().substr(10, 7), res)
       return
     }
 
