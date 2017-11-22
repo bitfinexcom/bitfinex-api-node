@@ -62,10 +62,12 @@ class BitfinexWS2 extends EventEmitter {
     // Overwrite as error if auth failed
     } else if (msg.event === 'auth') {
       if (msg.status !== 'OK') {
-        msg.event = 'error'
-      } else {
-        this.channelMap[msg.chanId] = { channel: 'auth' }
+        debug('Emitting \'error\' %j', msg)
+        this.emit('error', msg)
+        return
       }
+
+      this.channelMap[msg.chanId] = { channel: 'auth' }
     }
 
     debug('Emitting \'%s\' %j', msg.event, msg)
