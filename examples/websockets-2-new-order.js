@@ -1,12 +1,16 @@
 'use strict'
 
 const BFX = require('../')
-// const BFX = require('bitfinex-api-node')
 
+// Don't fill these in unless you are really sure you want to open an order :)
 const API_KEY = ''
 const API_SECRET = ''
+const opts = {
+  version: 2,
+  transform: false,
+  autoOpen: false
+}
 
-const opts = { version: 2, transform: false, autoOpen: false }
 const bws = new BFX(API_KEY, API_SECRET, opts).ws
 
 bws.open()

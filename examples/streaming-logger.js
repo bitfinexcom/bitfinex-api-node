@@ -2,14 +2,14 @@
 
 const fs = require('fs')
 const path = require('path')
-
 const BFX = require('../')
-// const BFX = require('bitfinex-api-node')
 
-const API_KEY = null
-const API_SECRET = null
-
-const opts = { version: 2 }
+const API_KEY = ''
+const API_SECRET = ''
+const opts = {
+  version: 2,
+  autoOpen: true
+}
 
 const bws = new BFX(API_KEY, API_SECRET, opts).ws
 
@@ -20,6 +20,7 @@ bws.on('open', () => {
 })
 
 let length = 0
+
 bws.on('ticker', (pair, ticker) => {
   writeable.write(JSON.stringify(ticker))
   writeable.write('\n')
