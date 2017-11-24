@@ -1,10 +1,18 @@
-const BitfinexWS = require('bitfinex-api-node').WS
-const {version} = require('bitfinex-api-node/package.json')
-const bws = new BitfinexWS()
-console.log(process.cwd())
-console.log(version)
+'use strict'
+
+const BFX = require('../')
+
+const API_KEY = ''
+const API_SECRET = ''
+const opts = {
+  version: 2,
+  autoOpen: true
+}
+
+const bws = new BFX(API_KEY, API_SECRET, opts).ws
+
 bws.on('open', () => {
-  bws.subscribeTrades('BTCUSD')
+  bws.subscribeTrades('tBTCUSD')
 })
 
 bws.on('trade', (pair, trade) => {
