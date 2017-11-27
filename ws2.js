@@ -85,6 +85,11 @@ class BitfinexWS2 extends EventEmitter {
 
     debug('Message in \'%s\' channel', event.channel)
 
+    if (msg[0] === 'hb') {
+      debug(`recv hb in ${event.key || event.symbol} ${event.channel} channel`)
+      return
+    }
+
     if (event.channel === 'book') {
       this._processBookEvent(msg, event)
     } else if (event.channel === 'trades') {
@@ -120,11 +125,6 @@ class BitfinexWS2 extends EventEmitter {
   }
 
   _processCandleEvent (msg, event) {
-    if (msg[0] === 'hb') {
-      debug('Received heartbeat in %s ticker channel', event.key)
-      return
-    }
-
     const res = this.transformer(msg[0], 'candles', event.key)
 
     debug('Emitting candles, %s, %j', event.key, res)
@@ -132,11 +132,6 @@ class BitfinexWS2 extends EventEmitter {
   }
 
   _processTickerEvent (msg, event) {
-    if (msg[0] === 'hb') {
-      debug('Received heartbeat in %s ticker channel', event.symbol)
-      return
-    }
-
     const res = this.transformer(msg[0], 'ticker', event.symbol)
 
     debug('Emitting ticker, %s, %j', event.symbol, res)
@@ -144,11 +139,6 @@ class BitfinexWS2 extends EventEmitter {
   }
 
   _processBookEvent (msg, event) {
-    if (msg[0] === 'hb') {
-      debug('Received heartbeat in %s book channel', event.symbol)
-      return
-    }
-
     const type = event.prec === 'R0' ? 'orderbookRaw' : 'orderbook'
     const res = this.transformer(msg[0], type, event.symbol)
 
@@ -157,11 +147,6 @@ class BitfinexWS2 extends EventEmitter {
   }
 
   _processTradeEvent (msg, event) {
-    if (msg[0] === 'hb') {
-      debug('Received heartbeat in %s trade channel', event.symbol)
-      return
-    }
-
     if (isSnapshot(msg)) {
       msg = msg[0]
     }
