@@ -42,7 +42,11 @@ describe('BFX', () => {
       1726.3 ]`
 
     it('supports http', (done) => {
-      const bfx = new BFX('dummy', 'dummy', { version: 2, autoOpen: false })
+      const bfx = new BFX({
+        apiKey: 'dummy',
+        apiSecret: 'dummy',
+        autoOpen: false
+      })
 
       const bhttp = bfx.rest
       bhttp.url = `http://localhost:${PORT}`

@@ -1,20 +1,11 @@
 'use strict'
 
-const REST = require('./rest.js')
-const WS = require('./ws.js')
-const REST2 = require('./rest2.js')
-const WS2 = require('./ws2.js')
+const WSv2 = require('./lib/transports/ws2')
+const RESTv2 = require('./lib/transports/rest2')
 const t = require('./lib/transformer.js')
 
 class BFX {
-  constructor (apiKey, apiSecret, opts = { version: 1, transform: false, nonceGenerator: false }) {
-    this.apiKey = apiKey
-    this.apiSecret = apiSecret
-
-    if (opts.autoOpen !== false) {
-      opts.autoOpen = true
-    }
-
+  constructor (opts) {
     if (typeof opts === 'number') {
       const msg = [
         'constructor takes an object since version 1.0.0, see:',
@@ -24,28 +15,32 @@ class BFX {
       throw new Error(msg)
     }
 
-    let transformer // optional in transport classes
+    const { apiKey, apiSecret, transform, autoOpen } = opts
 
-    if (opts.transform === true) {
-      transformer = t
-    } else if (typeof opts.transform === 'function') {
-      transformer = opts.transform
+    this.apiKey = apiKey
+    this.apiSecret = apiSecret
+
+    if (opts.autoOpen !== false) {
+      opts.autoOpen = true
     }
 
-    // TODO: Pass opts through to {REST,WS}2 constructors?
-    if (opts.version === 2) {
-      this.rest = new REST2(this.apiKey, this.apiSecret, { transformer })
-      this.ws = new WS2(this.apiKey, this.apiSecret, {
-        websocketURI: opts.websocketURI,
-        agent: opts.wsAgent,
-        transformer
-      })
-    } else {
-      this.rest = new REST(this.apiKey, this.apiSecret, opts)
-      this.ws = new WS(this.apiKey, this.apiSecret)
-    }
+    this.rest = new RESTv2({
+      apiKey,
+      apiSecret,
+      transform,
+    })
 
-    opts.autoOpen && this.ws.open()
+    this.ws = new WSv2({
+      apiKey,
+      apiSecret,
+      url: opts.wsURL,
+      agent: opts.wsAgent,
+      transform
+    })
+
+    if (autoOpen !== false) {
+      this.ws.open()
+    }
   }
 }
 

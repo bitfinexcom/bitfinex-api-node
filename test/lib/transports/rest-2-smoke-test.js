@@ -10,9 +10,13 @@ const http = require('http')
 const API_KEY = 'dummy'
 const API_SECRET = 'dummy'
 
-const REST2 = require('../rest2.js')
+const REST2 = require('../../../lib/transports/rest2.js')
 
-const bhttp = new REST2(API_KEY, API_SECRET)
+const bhttp = new REST2({
+  apiKey: API_KEY,
+  apiSecret: API_SECRET
+})
+
 bhttp.url = `http://localhost:${PORT}`
 
 const testResBody = `[1765.3,

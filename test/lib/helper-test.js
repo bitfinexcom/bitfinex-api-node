@@ -4,7 +4,7 @@
 
 const assert = require('assert')
 
-const { isSnapshot } = require('../lib/helper.js')
+const { isSnapshot } = require('../../lib/helper.js')
 
 describe('isSnapshot - detects snapshots by data structure', () => {
   it('returns false for heartbeats', () => {
