@@ -35,7 +35,11 @@ class BFX {
     // TODO: Pass opts through to {REST,WS}2 constructors?
     if (opts.version === 2) {
       this.rest = new REST2(this.apiKey, this.apiSecret, { transformer })
-      this.ws = new WS2(this.apiKey, this.apiSecret, { transformer })
+      this.ws = new WS2(this.apiKey, this.apiSecret, {
+        websocketURI: opts.websocketURI,
+        agent: opts.wsAgent,
+        transformer
+      })
     } else {
       this.rest = new REST(this.apiKey, this.apiSecret, opts)
       this.ws = new WS(this.apiKey, this.apiSecret)

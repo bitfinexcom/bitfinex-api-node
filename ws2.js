@@ -23,10 +23,11 @@ class BitfinexWS2 extends EventEmitter {
     this.apiSecret = apiSecret
     this.websocketURI = opts.websocketURI || 'wss://api.bitfinex.com/ws/2'
     this.transformer = opts.transformer || dummyTransform
+    this.agent = opts.agent
   }
 
   open () {
-    this.ws = new WebSocket(this.websocketURI)
+    this.ws = new WebSocket(this.websocketURI, { agent: this.agent })
 
     this.ws.on('message', this.onMessage.bind(this))
     this.ws.on('open', this.onOpen.bind(this))
