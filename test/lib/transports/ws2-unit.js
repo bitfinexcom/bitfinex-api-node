@@ -389,6 +389,70 @@ describe('WSv2 channel msg handling', () => {
       ws._handleChannelMessage([0, 'tu', []])
     })
   })
+
+  describe('_payloadPassesFilter', () => {
+    it('correctly detects matching payloads', () => {
+      const filter = {
+        1: 'tBTCUSD'
+      }
+
+      const goodPayloads = [
+        [0, 'tBTCUSD', 42, ''],
+        [0, 'tBTCUSD', 3.14, ''],
+      ]
+
+      const badPayloads = [
+        [0, 'tETHUSD', 42, ''],
+        [0, 'tETHUSD', 3.14, ''],
+      ]
+
+      goodPayloads.forEach(p => assert(WSv2._payloadPassesFilter(p, filter)))
+      badPayloads.forEach(p => assert(!WSv2._payloadPassesFilter(p, filter)))
+    })
+  })
+
+  describe('_notifyListenerGroup', () => {
+    it('notifies all matching listeners in the group', () => {
+      let calls = 0
+      const func = () => { if (assert(calls < 3) && ++calls === 2) { done() } }
+      const lg = {
+        '': [{ cb: func }],
+        'test': [{ cb: func }],
+        'nope': [{ cb: func }]
+      }
+
+      WSv2._notifyListenerGroup(lg, [0, 'test', [0, 'tu']], false)
+    })
+  })
+
+  describe('_propagateMessageToListeners', () => {
+    it('notifies all matching listeners', (done) => {
+      const ws = new WSv2()
+      ws._channelMap = { 0: { channel: 'auth' }}
+
+      ws.onTradeEntry({ pair: 'tBTCUSD' }, () => {
+        done()
+      })
+
+      ws._propagateMessageToListeners([0, 'te', [0, 'tBTCUSD']])
+    })
+  })
+
+  describe('_notifyCatchAllListeners', () => {
+    it('passes data to all listeners on the empty \'\' event', () => {
+      let s = 0
+
+      const lg = {
+        '': [
+          { cb: (d => s += d) },
+          { cb: (d => s += (d * 2)) }
+        ]
+      }
+
+      WSv2._notifyCatchAllListeners(lg, 5)
+      assert.equal(s, 15)
+    })
+  })
 })
 
 describe('WSv2 event msg handling', () => {
