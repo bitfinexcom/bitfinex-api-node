@@ -147,6 +147,52 @@ describe('WSv2 lifetime', () => {
       })
     })
   })
+
+  describe('reconnect', () => {
+    it('connects if not already connected', (done) => {
+      const wss = new MockWSServer()
+      const ws = createTestWSv2Instance()
+
+      ws.on('close', () => {
+        assert(false)
+      })
+
+      ws.on('open', () => {
+        wss.close()
+        done()
+      })
+
+      ws.reconnect()
+    })
+
+    it('disconnects & connects back if currently connected', () => {
+
+      const wss = new MockWSServer()
+      const ws = createTestWSv2Instance()
+
+      let calls = 0
+
+      ws.on('close', () => {
+        if (++calls === 2) {
+          wss.close()
+          done()
+        }
+      })
+
+      ws.once('open', () => {
+        ws.reconnect()
+
+        ws.once('open', () => {
+          if (++calls === 2) {
+            wss.close()
+            done()
+          }
+        })
+      })
+
+      ws.open()
+    })
+  })
 })
 
 describe('WSv2 constructor', () => {
