@@ -42,6 +42,18 @@ describe('WSv2 utilities', () => {
       assert.equal(typeof listener.cb, 'function')
     })
   })
+
+  describe('enableSequencing', () => {
+    it('sends the correct conf flag', (done) => {
+      const ws = new WSv2()
+      ws.send = (packet) => {
+        assert.equal(packet.event, 'conf')
+        assert.equal(packet.flags, 65536)
+        done()
+      }
+      ws.enableSequencing()
+    })
+  })
 })
 
 describe('WSv2 lifetime', () => {
