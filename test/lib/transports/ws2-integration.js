@@ -4,100 +4,22 @@ const WebSocket = require('ws')
 const assert = require('assert')
 const WSv2 = require('../../../lib/transports/ws2')
 const { Order } = require('../../../lib/models')
+const spawnWSServer = require('../../../lib/mocks/ws_server')
 
-const WSS_PORT = 1337
 const API_KEY = 'dummy'
 const API_SECRET = 'dummy'
-
-const spawnWSServer = () => {
-  const wss = new WebSocket.Server({
-    perMessageDeflate: false,
-    port: WSS_PORT
-  })
-
-  const clients = []
-
-  wss.send = (packet) => {
-    clients.forEach(c => c.send(JSON.stringify(packet)))
-  }
-
-  wss.on('connection', (ws) => {
-    clients.push(ws)
-
-    ws.send(JSON.stringify({
-      event: 'info',
-      version: 2
-    }))
-
-    ws.on('message', (msgJSON) => {
-      const msg = JSON.parse(msgJSON)
-
-      if (msg.event === 'auth') {
-        ws.send(JSON.stringify({
-          event: 'auth',
-          status: 'OK',
-          chanId: 0,
-          userId: 0,
-        }))
-      } else if (msg.constructor.name === 'Array') {
-        if (msg[0] !== 0) return
-        if (msg[1] !== 'on') return
-
-        ws.send(JSON.stringify([0, 'n', [
-          null,
-          'on-req',
-          null,
-          null, [
-            msg[3].gid,
-            null,
-            msg[3].cid,
-            msg[3].symol,
-            null,
-            null,
-            msg[3].amount,
-            msg[3].amount,
-            msg[3].type,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            msg[3].price,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            0,
-            null,
-            null
-          ],
-          null,
-          'SUCCESS',
-          'Submitting order'
-        ]]))
-      }
-    })
-  })
-
-  return wss
-}
 
 const createTestWSv2Instance = (params = {}) => {
   return new WSv2(Object.assign({
     apiKey: API_KEY,
     apiSecret: API_SECRET,
-    url: `ws://localhost:${WSS_PORT}`
+    url: `ws://localhost:${spawnWSServer.port}`
   }, params))
 }
 
 describe('WSv2 orders', () => {
-  const wss = spawnWSServer()
-
   it('creates & confirms orders', (done) => {
+    const wss = spawnWSServer()
     const ws = createTestWSv2Instance()
     ws.open()
     ws.on('open', ws.auth.bind(ws))
@@ -111,11 +33,15 @@ describe('WSv2 orders', () => {
         symbol: 'tBTCUSD'
       })
 
-      ws.submitOrder(o).then(() => done()).catch(done)
+      ws.submitOrder(o).then(() => {
+        wss.close()
+        done()
+      }).catch(done)
     })
   })
 
   it('keeps orders up to date', (done) => {
+    const wss = spawnWSServer()
     const ws = createTestWSv2Instance()
     ws.open()
     ws.on('open', ws.auth.bind(ws))
@@ -143,6 +69,7 @@ describe('WSv2 orders', () => {
 
           setTimeout(() => {
             assert.equal(o.price, 150)
+            wss.close()
             done()
           }, 50)
         }, 50)
@@ -151,6 +78,7 @@ describe('WSv2 orders', () => {
   })
 
   it('sends individual order packets when not buffering', (done) => {
+    const wss = spawnWSServer()
     const wsSingle = createTestWSv2Instance()
     wsSingle.open()
     wsSingle.on('open', wsSingle.auth.bind(wsSingle))
@@ -180,7 +108,10 @@ describe('WSv2 orders', () => {
         assert.equal(msg[1], 'on')
         sendN++
 
-        if (sendN === 2) done()
+        if (sendN === 2) {
+          wss.close()
+          done()
+        }
       }
 
       wsSingle.submitOrder(oA)
@@ -189,6 +120,7 @@ describe('WSv2 orders', () => {
   })
 
   it('buffers order packets', (done) => {
+    const wss = spawnWSServer()
     const wsMulti = createTestWSv2Instance({
       orderOpBufferDelay: 100,
     })
@@ -222,6 +154,7 @@ describe('WSv2 orders', () => {
           assert.equal(payload[0], 'on')
         })
 
+        wss.close()
         done()
       }
 

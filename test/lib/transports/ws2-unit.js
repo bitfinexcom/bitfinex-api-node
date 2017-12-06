@@ -3,23 +3,16 @@
 const WebSocket = require('ws')
 const assert = require('assert')
 const WSv2 = require('../../../lib/transports/ws2')
+const spawnWSServer = require('../../../lib/mocks/ws_server')
 
-const WSS_PORT = 1337
 const API_KEY = 'dummy'
 const API_SECRET = 'dummy'
-
-const spawnWSServer = () => {
-  return new WebSocket.Server({
-    perMessageDeflate: false,
-    port: WSS_PORT
-  })
-}
 
 const createTestWSv2Instance = (params = {}) => {
   return new WSv2(Object.assign({
     apiKey: API_KEY,
     apiSecret: API_SECRET,
-    url: `ws://localhost:${WSS_PORT}`
+    url: `ws://localhost:${spawnWSServer.port}`
   }, params))
 }
 
@@ -116,18 +109,22 @@ describe('WSv2 lifetime', () => {
 
   describe('open', () => {
     it('fails to open twice', (done) => {
+      const wss = spawnWSServer()
       const ws = createTestWSv2Instance()
       ws.on('open', () => {
         assert.throws(ws.open.bind(ws))
+        wss.close()
         done()
       })
       ws.open()
     })
 
     it('updates open flag', (done) => {
+      const wss = spawnWSServer()
       const ws = createTestWSv2Instance()
       ws.on('open', () => {
         assert.equal(ws.isOpen(), true)
+        wss.close()
         done()
       })
       ws.open()
@@ -141,27 +138,64 @@ describe('WSv2 lifetime', () => {
     })
 
     it('fails to close twice', (done) => {
+      const wss = spawnWSServer()
       const ws = createTestWSv2Instance()
       ws.open()
       ws.on('open', ws.close.bind(ws))
       ws.on('close', () => {
         assert.throws(ws.close.bind(ws))
+        wss.close()
         done()
       })
     })
   })
 
   describe('auth', () => {
-    it('fails to auth twice')
-    it('updates auth flag')
-    it('forwards calc param')
+    it('fails to auth twice', (done) => {
+      const wss = spawnWSServer()
+      const ws = createTestWSv2Instance()
+      ws.open()
+      ws.on('open', ws.auth.bind(ws))
+      ws.once('auth', () => {
+        assert.throws(ws.auth.bind(ws))
+        wss.close()
+        done()
+      })
+    })
+
+    it('updates auth flag', (done) => {
+      const wss = spawnWSServer()
+      const ws = createTestWSv2Instance()
+      ws.open()
+      ws.on('open', ws.auth.bind(ws))
+      ws.once('auth', () => {
+        assert(ws.isAuthenticated())
+        wss.close()
+        done()
+      })
+    })
+
+    it('forwards calc param', () => {
+      const wss = spawnWSServer()
+      const ws = createTestWSv2Instance()
+      ws.open()
+      ws.on('open', () => {
+        ws.send = (data) => {
+          assert.equal(data.calc, 42)
+          wss.close()
+          done()
+        }
+
+        ws.auth(42)
+      })
+    })
   })
 })
 
 describe('WSv2 constructor', () => {
   it('defaults to production WS url', () => {
     const ws = new WSv2()
-    assert.notEqual(ws._wsURL.indexOf('api.bitfinex.com'), -1)
+    assert.notEqual(ws._url.indexOf('api.bitfinex.com'), -1)
   })
 
   it('defaults to no transform', () => {
@@ -174,23 +208,52 @@ describe('WSv2 constructor', () => {
 
 describe('WSv2 ws event handlers', () => {
   describe('_onWSOpen', () => {
-    it('updates open flag')
+    it('updates open flag', () => {
+      const ws = new WSv2()
+      assert(!ws.isOpen())
+      ws._onWSOpen()
+      assert(ws.isOpen())
+    })
   })
 
   describe('_onWSClose', () => {
-    it('updates open flag')
+    it('updates open flag', () => {
+      const ws = new WSv2()
+      ws._onWSOpen()
+      assert(ws.isOpen())
+      ws._onWSClose()
+      assert(!ws.isOpen())
+    })
   })
 
   describe('_onWSError', () => {
-    it('emits error')
+    it('emits error', (done) => {
+      const ws = new WSv2()
+      ws.on('error', () => done())
+      ws._onWSError(new Error())
+    })
   })
 
   describe('_onWSMessage', () => {
-    it('gracefully returns on receiving invalid packet')
-    it('emits error on invalid packet')
-    it('emits message')
-    it('forwards channel messages to relevant handler')
-    it('forwards event messages to relevant handler')
+    it('emits error on invalid packet', (done) => {
+      const ws = new WSv2()
+      ws.on('error', () => done())
+      ws._onWSMessage('I can\'t believe it\'s not JSON!')
+    })
+
+    it('emits message', (done) => {
+      const ws = new WSv2()
+      const msg = [1]
+      const flags = 'flags'
+
+      ws.on('message', (m, f) => {
+        assert.deepEqual(m, msg)
+        assert.equal(flags, 'flags')
+        done()
+      })
+
+      ws._onWSMessage(JSON.stringify(msg), flags)
+    })
   })
 })
 
@@ -228,7 +291,21 @@ describe('WSv2 event msg handling', () => {
   })
 
   describe('_handleInfoMessage', () => {
-    it('enforces api v2')
+    it('closes & emits error if not on api v2', (done) => {
+      const wss = spawnWSServer(spawnWSServer.port, 3)
+      const ws = new WSv2()
+      let seen = 0
+
+      ws.on('error', () => {
+        if (++seen == 2) done()
+      })
+
+      ws.on('close', () => {
+        if (++seen == 2) done()
+      })
+
+      ws.open()
+    })
   })
 })
 
