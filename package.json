@@ -37,6 +37,7 @@
     "standard": "^10.0.2"
   },
   "dependencies": {
+    "cbq": "0.0.1",
     "debug": "^2.2.0",
     "lodash": "^4.17.4",
     "request": "^2.67.0",

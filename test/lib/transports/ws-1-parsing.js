@@ -1,17 +1,18 @@
-/* eslint-env mocha */
-
 'use strict'
+
 const PORT = 1337
 
 const assert = require('assert')
-
 const WebSocket = require('ws')
-const Bfx = require('../index.js')
+const WSv1 = require('../../../lib/transports/ws')
 
 describe('websocket1 parsing non json', () => {
   it('should not crash the client', (done) => {
-    const bws = new Bfx('dummy', 'dummy', { version: 1, autoOpen: false }).ws
-    bws.WebSocketURI = `ws://localhost:${PORT}`
+    const bws = new WSv1({
+      apiKey: 'dummy',
+      apiSecret: 'dummy',
+      url: `ws://localhost:${PORT}`
+    })
 
     bws.open()
 

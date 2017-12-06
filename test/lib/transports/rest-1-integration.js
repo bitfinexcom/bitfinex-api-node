@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-
 'use strict'
 
 const PORT = 1337
@@ -7,13 +5,12 @@ const PORT = 1337
 const assert = require('assert')
 const http = require('http')
 
-const BFX = require('../index.js')
+const RESTv1 = require('../../../lib/transports/rest')
 
 describe('rest integration test', () => {
   it('should get the fundingbook asks, zero bids, 100 asks', (done) => {
     const opts = { limit_bids: 0, limit_asks: 10 }
-    const bhttp = new BFX({ autoOpen: false }).rest
-    bhttp.url = `http://localhost:${PORT}`
+    const bhttp = new RESTv1({ url: `http://localhost:${PORT}` })
 
     const testResBody = `
 {"bids":[],"asks":[
@@ -46,8 +43,11 @@ describe('rest integration test', () => {
   })
 
   it('new_order -- post_only: postonly used and true', (done) => {
-    const bhttp = new BFX('dummykey', 'dummysecret', { autoOpen: false }).rest
-    bhttp.url = `http://localhost:${PORT}`
+    const bhttp = new RESTv1({
+      apiKey: 'dummykey',
+      apiSecret: 'dummysecret',
+      url: `http://localhost:${PORT}`
+    })
 
     const testResBody = ``
     const server = http.createServer((req, res) => {
@@ -71,8 +71,11 @@ describe('rest integration test', () => {
   })
 
   it('new_order -- post_only: postonly not used and hidden true', (done) => {
-    const bhttp = new BFX('dummykey', 'dummysecret', { autoOpen: false }).rest
-    bhttp.url = `http://localhost:${PORT}`
+    const bhttp = new RESTv1({
+      apiKey: 'dummykey',
+      apiSecret: 'dummysecret',
+      url: `http://localhost:${PORT}`
+    })
 
     const testResBody = ``
     const server = http.createServer((req, res) => {
@@ -97,8 +100,11 @@ describe('rest integration test', () => {
   })
 
   it('new_order -- post_only: postonly not used and hidden not used', (done) => {
-    const bhttp = new BFX('dummykey', 'dummysecret', { autoOpen: false }).rest
-    bhttp.url = `http://localhost:${PORT}`
+    const bhttp = new RESTv1({
+      apiKey: 'dummykey',
+      apiSecret: 'dummysecret',
+      url: `http://localhost:${PORT}`
+    })
 
     const testResBody = ``
     const server = http.createServer((req, res) => {

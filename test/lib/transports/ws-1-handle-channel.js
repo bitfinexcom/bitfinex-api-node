@@ -1,22 +1,16 @@
-/* eslint-env mocha */
-
 'use strict'
 
 const assert = require('assert')
+const BfxWs = require('../../../lib/transports/ws.js')
 
-const BfxWs = require('../ws.js')
-
-const API_KEY = 'dummy'
-const API_SECRET = 'dummy'
-
-const bfxWs = new BfxWs(
-  API_KEY,
-  API_SECRET
-)
+const bfxWs = new BfxWs({
+  apiKey: 'dummy',
+  apiSecret: 'dummy'
+})
 
 describe('ws1 channel msg handling', () => {
   it('ws1 transforms & normalizes well - R0 update', (done) => {
-    bfxWs.channelMap = {
+    bfxWs._channelMap = {
       32755: { channel: 'book', prec: 'R0', symbol: 'tBTCUSD' }
     }
 
@@ -25,11 +19,11 @@ describe('ws1 channel msg handling', () => {
       done()
     })
 
-    bfxWs.handleChannel([ 32755, 2919111002, 2477.1, 0.0125 ])
+    bfxWs._handleChannel([ 32755, 2919111002, 2477.1, 0.0125 ])
   })
 
   it('ws1 transforms & normalizes well - P1 update', (done) => {
-    bfxWs.channelMap = {
+    bfxWs._channelMap = {
       182: { channel: 'book', prec: 'P1', symbol: 'tBTCUSD' }
     }
 
@@ -38,11 +32,11 @@ describe('ws1 channel msg handling', () => {
       done()
     })
 
-    bfxWs.handleChannel([ 182, 2494, 2, 5.9895 ])
+    bfxWs._handleChannel([ 182, 2494, 2, 5.9895 ])
   })
 
   it('ws1 transforms & normalizes well - P1 snap', (done) => {
-    bfxWs.channelMap = {
+    bfxWs._channelMap = {
       39: { channel: 'book', prec: 'P1', symbol: 'tBTCUSD' }
     }
 
@@ -57,11 +51,11 @@ describe('ws1 channel msg handling', () => {
       [ 2492, 1, 0.4 ]
     ]]
 
-    bfxWs.handleChannel(snap)
+    bfxWs._handleChannel(snap)
   })
 
   it('ws1 transforms & normalizes well - R0 snap', (done) => {
-    bfxWs.channelMap = {
+    bfxWs._channelMap = {
       34513: { channel: 'book', prec: 'R0', symbol: 'tBTCUSD' }
     }
 
@@ -79,6 +73,6 @@ describe('ws1 channel msg handling', () => {
       [ 2919280093, 2494.5, 0.03644 ]
     ]]
 
-    bfxWs.handleChannel(snap)
+    bfxWs._handleChannel(snap)
   })
 })

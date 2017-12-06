@@ -1,14 +1,21 @@
-/* eslint-env mocha */
-
 'use strict'
+
 const PORT = 1337
 
 const assert = require('assert')
 
 const WebSocket = require('ws')
-const BFX = require('../index.js')
+const WSv1 = require('../../../lib/transports/ws')
 
-const orderbookR0 = require('./fixtures/response-ws-1-orderbook-R0.json')
+const orderbookR0 = require('../../fixtures/response-ws-1-orderbook-R0.json')
+
+const getWSInstance = () => {
+  return new WSv1({
+    apiKey: 'dummy',
+    apiSecret: 'dummy',
+    url: `ws://localhost:${PORT}`
+  })
+}
 
 describe('WebSocket v1 integration', () => {
   it('plays ping pong', (done) => {
@@ -17,8 +24,7 @@ describe('WebSocket v1 integration', () => {
       port: PORT
     })
 
-    const bws = new BFX('dummy', 'dummy', { version: 1, transform: true, autoOpen: false }).ws
-    bws.WebSocketURI = `ws://localhost:${PORT}`
+    const bws = getWSInstance()
     bws.open()
 
     wss.on('connection', function connection (ws) {
@@ -43,8 +49,7 @@ describe('WebSocket v1 integration', () => {
       port: PORT
     })
 
-    const bws = new BFX('dummy', 'dummy', { version: 1, transform: true, autoOpen: false }).ws
-    bws.WebSocketURI = `ws://localhost:${PORT}`
+    const bws = getWSInstance()
     bws.open()
 
     wss.on('connection', function connection (ws) {
@@ -70,8 +75,7 @@ describe('WebSocket v1 integration', () => {
       port: PORT
     })
 
-    const bws = new BFX('dummy', 'dummy', { version: 1, transform: true, autoOpen: false }).ws
-    bws.WebSocketURI = `ws://localhost:${PORT}`
+    const bws = getWSInstance()
     bws.open()
 
     wss.on('connection', function connection (ws) {
@@ -97,8 +101,7 @@ describe('WebSocket v1 integration', () => {
       port: PORT
     })
 
-    const bws = new BFX('dummy', 'dummy', { version: 1, transform: true, autoOpen: false }).ws
-    bws.WebSocketURI = `ws://localhost:${PORT}`
+    const bws = getWSInstance()
     bws.open()
 
     wss.on('connection', function connection (ws) {
@@ -135,8 +138,7 @@ describe('WebSocket v1 integration', () => {
       port: PORT
     })
 
-    const bws = new BFX('dummy', 'dummy', { version: 1, transform: true, autoOpen: false }).ws
-    bws.WebSocketURI = `ws://localhost:${PORT}`
+    const bws = getWSInstance()
     bws.open()
 
     wss.on('connection', function connection (ws) {
@@ -169,8 +171,7 @@ describe('WebSocket v1 integration', () => {
       })
     })
 
-    const bws = new BFX('dummy', 'dummy', { version: 1, transform: true, autoOpen: false }).ws
-    bws.WebSocketURI = `ws://localhost:${PORT}`
+    const bws = getWSInstance()
     bws.open()
 
     bws.once('orderbook', (pair, data) => {
@@ -201,8 +202,7 @@ describe('WebSocket v1 integration', () => {
       })
     })
 
-    const bws = new BFX('dummy', 'dummy', { version: 1, transform: true, autoOpen: false }).ws
-    bws.WebSocketURI = `ws://localhost:${PORT}`
+    const bws = getWSInstance()
     bws.open()
 
     bws.once('ticker', (pair, data) => {
@@ -255,8 +255,7 @@ describe('WebSocket v1 integration', () => {
       })
     })
 
-    const bws = new BFX('dummy', 'dummy', { version: 1, transform: true, autoOpen: false }).ws
-    bws.WebSocketURI = `ws://localhost:${PORT}`
+    const bws = getWSInstance()
     bws.open()
 
     bws.once('trade', (pair, data) => {
