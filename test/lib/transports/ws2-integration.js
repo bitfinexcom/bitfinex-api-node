@@ -4,7 +4,7 @@ const WebSocket = require('ws')
 const assert = require('assert')
 const WSv2 = require('../../../lib/transports/ws2')
 const { Order } = require('../../../lib/models')
-const spawnWSServer = require('../../../lib/mocks/ws_server')
+const MockWSServer = require('../../../lib/mocks/ws_server')
 
 const API_KEY = 'dummy'
 const API_SECRET = 'dummy'
@@ -13,13 +13,13 @@ const createTestWSv2Instance = (params = {}) => {
   return new WSv2(Object.assign({
     apiKey: API_KEY,
     apiSecret: API_SECRET,
-    url: `ws://localhost:${spawnWSServer.port}`
+    url: 'ws://localhost:1337'
   }, params))
 }
 
 describe('WSv2 orders', () => {
   it('creates & confirms orders', (done) => {
-    const wss = spawnWSServer()
+    const wss = new MockWSServer()
     const ws = createTestWSv2Instance()
     ws.open()
     ws.on('open', ws.auth.bind(ws))
@@ -41,7 +41,7 @@ describe('WSv2 orders', () => {
   })
 
   it('keeps orders up to date', (done) => {
-    const wss = spawnWSServer()
+    const wss = new MockWSServer()
     const ws = createTestWSv2Instance()
     ws.open()
     ws.on('open', ws.auth.bind(ws))
@@ -78,7 +78,7 @@ describe('WSv2 orders', () => {
   })
 
   it('sends individual order packets when not buffering', (done) => {
-    const wss = spawnWSServer()
+    const wss = new MockWSServer()
     const wsSingle = createTestWSv2Instance()
     wsSingle.open()
     wsSingle.on('open', wsSingle.auth.bind(wsSingle))
@@ -120,7 +120,7 @@ describe('WSv2 orders', () => {
   })
 
   it('buffers order packets', (done) => {
-    const wss = spawnWSServer()
+    const wss = new MockWSServer()
     const wsMulti = createTestWSv2Instance({
       orderOpBufferDelay: 100,
     })
@@ -165,7 +165,72 @@ describe('WSv2 orders', () => {
 })
 
 describe('WSv2 listeners', () => {
-  it('notifies filtered listeners')
-  it('manages listeners by cbGID')
-  it('tracks channel refs to auto sub/unsub')
+  it('manages listeners by cbGID', () => {
+    const ws = createTestWSv2Instance()
+    ws._channelMap = { 0: { channel: 'auth' }}
+
+    let updatesSeen = 0
+    ws.onTradeUpdate('tBTCUSD', 10, () => updatesSeen++)
+    ws.onOrderUpdate('tBTCUSD', 10, () => updatesSeen++)
+
+    ws._handleChannelMessage([0, 'tu', [0, 'tBTCUSD']])
+    ws._handleChannelMessage([0, 'ou', [0, 0, 0, 'tBTCUSD']])
+    ws.removeListeners(10)
+    ws._handleChannelMessage([0, 'tu', [0, 'tBTCUSD']])
+    ws._handleChannelMessage([0, 'ou', [0, 0, 0, 'tBTCUSD']])
+
+    assert.equal(updatesSeen, 2)
+  })
+
+  it('tracks channel refs to auto sub/unsub', (done) => {
+    const ws = createTestWSv2Instance()
+    const wss = new MockWSServer()
+    let subs = 0
+    let unsubs = 0
+
+    wss.on('message', (ws, msg) => {
+      console.log(JSON.stringify(msg))
+
+      if (msg.event === 'subscribe' && msg.channel === 'trades') {
+        subs++
+        console.log('sent sub')
+        ws.send(JSON.stringify({
+          event: 'subscribed',
+          chanId: 42,
+          channel: 'trades',
+          symbol: msg.symbol,
+        }))
+      } else if (msg.event === 'unsubscribe' && msg.chanId === 42) {
+        unsubs++
+        console.log('sent unsub')
+        ws.send(JSON.stringify({
+          event: 'unsubscribed',
+          chanId: 42
+        }))
+      }
+    })
+
+    ws.on('open', () => {
+      ws.subscribeTrades('tBTCUSD')
+      ws.subscribeTrades('tBTCUSD')
+      ws.subscribeTrades('tBTCUSD')
+    })
+
+    ws.on('subscribed', () => {
+      ws.unsubscribeTrades('tBTCUSD')
+      ws.unsubscribeTrades('tBTCUSD')
+      ws.unsubscribeTrades('tBTCUSD')
+      ws.unsubscribeTrades('tBTCUSD')
+      ws.unsubscribeTrades('tBTCUSD')
+    })
+
+    ws.on('unsubscribed', () => {
+      assert.equal(subs, 1)
+      assert.equal(unsubs, 1)
+      wss.close()
+      done()
+    })
+
+    ws.open()
+  })
 })
