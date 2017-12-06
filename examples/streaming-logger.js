@@ -6,12 +6,14 @@ const BFX = require('../')
 
 const API_KEY = ''
 const API_SECRET = ''
-const opts = {
-  version: 2,
-  autoOpen: true
-}
+const bfx = new BFX({
+  apiKey: '',
+  apiSecret: '',
+  transform: true
+})
 
-const bws = new BFX(API_KEY, API_SECRET, opts).ws
+const bws = bfx.ws(2)
+bws.open()
 
 const writeable = fs.createWriteStream(path.join(__dirname, '/ticker.log'))
 

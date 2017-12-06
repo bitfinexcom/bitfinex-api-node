@@ -2,16 +2,10 @@
 
 const BFX = require('../')
 
-// Don't fill these in unless you are really sure you want to open an order :)
-const API_KEY = ''
-const API_SECRET = ''
-const opts = {
-  version: 2,
-  transform: false,
-  autoOpen: false
-}
-
-const bws = new BFX(API_KEY, API_SECRET, opts).ws
+const bws = new BFX({
+  apiKey: '',
+  apiSecret: '',
+}).ws(2)
 
 bws.open()
 

@@ -2,14 +2,12 @@
 
 const BFX = require('../')
 
-const API_KEY = ''
-const API_SECRET = ''
-const opts = {
-  version: 2, // v1 and v2 both work here
-  autoOpen: true
-}
+const bws = new BFX({
+  apiKey: '',
+  apiSecret: '',
+}).ws(2)
 
-const bws = new BFX(API_KEY, API_SECRET, opts).ws
+bws.open()
 
 bws.on('open', () => {
   bws.subscribeTrades('BTCUSD')

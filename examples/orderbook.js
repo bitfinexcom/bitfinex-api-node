@@ -1,5 +1,7 @@
 'use strict'
 
+// TODO: Rewrite/replace this example, the OB model should help with most of
+//       this
 const BFX = require('../')
 
 const API_KEY = ''
