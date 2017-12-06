@@ -28,7 +28,7 @@ describe('REST v1', () => {
 
   describe('public endpoints', function () {
     const bfx_rest = new RESTv1()
-    this.timeout(5000)
+    this.timeout(10000) // bumped from 5k for moments of platform lag
     it('should get a ticker', (done) => {
       if (skipPublic) return done()
 
