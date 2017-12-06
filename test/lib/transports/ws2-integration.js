@@ -230,3 +230,25 @@ describe('WSv2 listeners', () => {
     ws.open()
   })
 })
+
+describe('WSv2 info message handling', () => {
+  it('notifies listeners on matching code', (done) => {
+    const ws = new WSv2()
+
+    ws.onInfoMessage(WSv2.info.MAINTENANCE_END, () => {
+      done()
+    })
+
+    ws._onWSMessage(JSON.stringify({
+      event: 'info',
+      code: WSv2.info.MAINTENANCE_START,
+      msg: ''
+    }))
+
+    ws._onWSMessage(JSON.stringify({
+      event: 'info',
+      code: WSv2.info.MAINTENANCE_END,
+      msg: ''
+    }))
+  })
+})
