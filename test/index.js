@@ -101,7 +101,7 @@ describe('BFX', () => {
         apiKey: 'k',
         apiSecret: 's',
         transform: true,
-        wsURL: 'wss://',
+        wsURL: 'wss://'
       })
 
       const ws1 = bfx.ws(1)

@@ -262,15 +262,15 @@ describe('WSv2 channel msg handling', () => {
           assert(!btcListenerCalled)
           btcListenerCalled = true
 
-          if(++calls === 7) done()
+          if (++calls === 7) done()
         })
 
         ws.onTradeEntry({}, () => {
-          if(++calls === 7) done()
+          if (++calls === 7) done()
         })
 
         ws.onTradeEntry({}, () => {
-          if(++calls === 7) done()
+          if (++calls === 7) done()
         })
 
         ws._handleChannelMessage([0, 'te', [0, 'tETHUSD']])

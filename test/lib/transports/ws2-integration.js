@@ -122,7 +122,7 @@ describe('WSv2 orders', () => {
   it('buffers order packets', (done) => {
     const wss = new MockWSServer()
     const wsMulti = createTestWSv2Instance({
-      orderOpBufferDelay: 100,
+      orderOpBufferDelay: 100
     })
 
     wsMulti.open()
@@ -195,7 +195,7 @@ describe('WSv2 listeners', () => {
           event: 'subscribed',
           chanId: 42,
           channel: 'trades',
-          symbol: msg.symbol,
+          symbol: msg.symbol
         }))
       } else if (msg.event === 'unsubscribe' && msg.chanId === 42) {
         unsubs++

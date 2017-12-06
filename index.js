@@ -10,7 +10,7 @@ const WSv2 = require('./lib/transports/ws2.js')
  */
 class BFX {
   /**
-   * @param {Object} opts 
+   * @param {Object} opts
    * @param {string} opts.apiKey
    * @param {string} opts.apiSecret
    * @param {string} opts.transform - if true, packets are converted to models
@@ -18,7 +18,7 @@ class BFX {
    * @param {string} opts.wsURL - optional websocket connection URL
    * @param {string} opts.restURL - optional http api endpoint
    */
-  constructor (opts = { 
+  constructor (opts = {
     apiKey: '',
     apiSecret: '',
     transform: false
@@ -26,7 +26,7 @@ class BFX {
     if (opts.constructor.name !== 'Object') {
       throw new Error([
         'constructor takes an object since version 2.0.0, see:',
-        'https://github.com/bitfinexcom/bitfinex-api-node#version-200-breaking-changes\n',
+        'https://github.com/bitfinexcom/bitfinex-api-node#version-200-breaking-changes\n'
       ].join('\n'))
     }
 
@@ -41,7 +41,7 @@ class BFX {
     }
   }
 
-  _getTransportPayload(extraOpts) {
+  _getTransportPayload (extraOpts) {
     return Object.assign({
       apiKey: this._apiKey,
       apiSecret: this._apiSecret,
@@ -56,7 +56,7 @@ class BFX {
    * @param {Object} extraOpts - passed to transport constructor
    * @return {RESTv1|RESTv2} transport
    */
-  rest(version = 2, extraOpts = {}) {
+  rest (version = 2, extraOpts = {}) {
     if (version !== 1 && version !== 2) {
       throw new Error(`invalid http API version: ${version}`)
     }
@@ -83,7 +83,7 @@ class BFX {
    * @param {Object} extraOpts - passed to transport constructor
    * @return {WSv1|WSv2} transport
    */
-  ws(version = 2, extraOpts = {}) {
+  ws (version = 2, extraOpts = {}) {
     if (version !== 1 && version !== 2) {
       throw new Error(`invalid websocket API version: ${version}`)
     }
