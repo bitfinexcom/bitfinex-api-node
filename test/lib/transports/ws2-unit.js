@@ -405,7 +405,3 @@ describe('WSv2 event msg handling', () => {
     })
   })
 })
-
-describe('WSv2 subscription ref counting', () => {
-  // ...
-})
