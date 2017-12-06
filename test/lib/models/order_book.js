@@ -19,7 +19,7 @@ describe('OrderBook model', () => {
   })
 
   describe('updateWith', () => {
-    it('throws an error if removing an unknown price level', () => {
+    it('emits an error if removing an unknown price level', (done) => {
       const entries = [
         [100, 2, 10],
         [200, 2, -10]
@@ -27,9 +27,12 @@ describe('OrderBook model', () => {
 
       const ob = new OrderBook(entries)
 
-      assert.throws(() => {
-        ob.updateWith([300, 0, 1])
+      ob.on('error', (err) => {
+        assert(err.message.indexOf('unknown price') !== -1)
+        done()
       })
+
+      ob.updateWith([300, 0, 1])
     })
 
     it('correctly applies update', () => {

@@ -382,8 +382,6 @@ describe('WSv2 channel msg handling', () => {
       let calls = 0
 
       ws.onMessage({}, (msg) => {
-        console.log('onMessage called')
-
         if (++calls === 2) done()
       })
 

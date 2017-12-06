@@ -49,7 +49,7 @@ describe('rest integration test', () => {
       url: `http://localhost:${PORT}`
     })
 
-    const testResBody = ``
+    const testResBody = '{}'
     const server = http.createServer((req, res) => {
       res.writeHead(200, {
         'Content-Type': 'application/json'
@@ -77,7 +77,7 @@ describe('rest integration test', () => {
       url: `http://localhost:${PORT}`
     })
 
-    const testResBody = ``
+    const testResBody = '{}'
     const server = http.createServer((req, res) => {
       res.writeHead(200, {
         'Content-Type': 'application/json'
@@ -106,7 +106,7 @@ describe('rest integration test', () => {
       url: `http://localhost:${PORT}`
     })
 
-    const testResBody = ``
+    const testResBody = '{}'
     const server = http.createServer((req, res) => {
       res.writeHead(200, {
         'Content-Type': 'application/json'
