@@ -327,6 +327,24 @@ describe('WSv2 channel msg handling', () => {
       })
     })
   })
+
+  describe('onMessage', () => {
+    it('calls the listener with all messages (no filter)', (done) => {
+      const ws = new WSv2()
+      ws._channelMap = { 0: { channel: 'auth' }}
+
+      let calls = 0
+
+      ws.onMessage({}, (msg) => {
+        console.log('onMessage called')
+
+        if (++calls === 2) done()
+      })
+
+      ws._handleChannelMessage([0, 'wu', []])
+      ws._handleChannelMessage([0, 'tu', []])
+    })
+  })
 })
 
 describe('WSv2 event msg handling', () => {
