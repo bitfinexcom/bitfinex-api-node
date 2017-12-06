@@ -390,15 +390,21 @@ describe('WSv2 event msg handling', () => {
   describe('_handleInfoMessage', () => {
     it('closes & emits error if not on api v2', (done) => {
       const wss = new MockWSServer(1337, 3)
-      const ws = new WSv2()
+      const ws = createTestWSv2Instance()
       let seen = 0
 
       ws.on('error', () => {
-        if (++seen == 2) done()
+        if (++seen == 2) {
+          wss.close()
+          done()
+        }
       })
 
       ws.on('close', () => {
-        if (++seen == 2) done()
+        if (++seen == 2) {
+          wss.close()
+          done()
+        }
       })
 
       ws.open()

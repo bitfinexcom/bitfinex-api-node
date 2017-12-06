@@ -95,13 +95,12 @@ describe('REST v1', () => {
         done()
       })
     })
-      // TODO API returns 1000 instead of 50`
-    it.skip('should get recent trades', (done) => {
+    it('should get recent trades', (done) => {
       if (skipPublic) return done()
 
       bfx_rest.trades('BTCUSD', (error, data) => {
         expect(data).is.an.array
-        expect(data.length).to.eql(50)
+        expect(data.length).to.eql(100)
         expect(_.keys(data[0])).to.eql(['timestamp', 'tid', 'price', 'amount', 'exchange', 'type'])
         expect(
                   _.map(
