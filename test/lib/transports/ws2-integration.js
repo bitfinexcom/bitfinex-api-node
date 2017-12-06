@@ -170,8 +170,8 @@ describe('WSv2 listeners', () => {
     ws._channelMap = { 0: { channel: 'auth' }}
 
     let updatesSeen = 0
-    ws.onTradeUpdate('tBTCUSD', 10, () => updatesSeen++)
-    ws.onOrderUpdate('tBTCUSD', 10, () => updatesSeen++)
+    ws.onTradeUpdate({ pair: 'tBTCUSD', cbGID: 10 }, () => updatesSeen++)
+    ws.onOrderUpdate({ symbol: 'tBTCUSD', cbGID: 10 }, () => updatesSeen++)
 
     ws._handleChannelMessage([0, 'tu', [0, 'tBTCUSD']])
     ws._handleChannelMessage([0, 'ou', [0, 0, 0, 'tBTCUSD']])
@@ -189,11 +189,8 @@ describe('WSv2 listeners', () => {
     let unsubs = 0
 
     wss.on('message', (ws, msg) => {
-      console.log(JSON.stringify(msg))
-
       if (msg.event === 'subscribe' && msg.channel === 'trades') {
         subs++
-        console.log('sent sub')
         ws.send(JSON.stringify({
           event: 'subscribed',
           chanId: 42,
@@ -202,7 +199,6 @@ describe('WSv2 listeners', () => {
         }))
       } else if (msg.event === 'unsubscribe' && msg.chanId === 42) {
         unsubs++
-        console.log('sent unsub')
         ws.send(JSON.stringify({
           event: 'unsubscribed',
           chanId: 42

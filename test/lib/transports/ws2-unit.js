@@ -17,82 +17,10 @@ const createTestWSv2Instance = (params = {}) => {
 }
 
 describe('WSv2 utilities', () => {
-  describe('parseListenerRegArgs', () => {
-    it('throws an error on invalid argument count', () => {
-      assert.throws(() => WSv2.parseListenerRegArgs(null, null, []))
-      assert.throws(() => WSv2.parseListenerRegArgs(null, null, ['a', 'b', 'c', 'd']))
-    })
-
-    it('parses just a callback', () =>{
-      const { cb, filter, cbGID } = WSv2.parseListenerRegArgs(null, null, [() => {}])
-
-      assert.equal(typeof cb, 'function')
-      assert.equal(typeof filter, 'undefined')
-      assert.equal(cbGID, null)
-    })
-
-    it('parses a filter and callback', () => {
-      const {
-        cb, filterKey, filterIndex, cbGID
-      } = WSv2.parseListenerRegArgs('symbol', 2, [
-        'tBTCUSD', () => {}
-      ])
-
-      assert.equal(typeof cb, 'function')
-      assert.equal(typeof filterKey, 'object')
-      assert.equal(typeof filterIndex, 'object')
-      assert.equal(cbGID, null)
-
-      assert.equal(Object.keys(filterKey).length, 1)
-      assert.equal(Object.keys(filterKey)[0], 'symbol')
-      assert.equal(Object.values(filterKey)[0], 'tBTCUSD')
-
-      assert.equal(Object.keys(filterIndex).length, 1)
-      assert.equal(Object.keys(filterIndex)[0], 2)
-      assert.equal(Object.values(filterIndex)[0], 'tBTCUSD')
-    })
-
-    it('parses a callback ID and callback', () => {
-      const {
-        cb, filterKey, filterIndex, cbGID
-      } = WSv2.parseListenerRegArgs(null, null, [
-        42, () => {}
-      ])
-
-      assert.equal(typeof cb, 'function')
-      assert.equal(typeof filterKey, 'undefined')
-      assert.equal(typeof filterIndex, 'undefined')
-      assert.equal(cbGID, 42)
-    })
-
-    it('parses a filter, callback ID, and callback', () => {
-      const {
-        cb, filterKey, filterIndex, cbGID
-      } = WSv2.parseListenerRegArgs('symbol', 2, [
-        'tBTCUSD', 42, () => {}
-      ])
-
-      assert.equal(typeof cb, 'function')
-      assert.equal(typeof filterKey, 'object')
-      assert.equal(typeof filterIndex, 'object')
-      assert.equal(cbGID, 42)
-
-      assert.equal(Object.keys(filterKey).length, 1)
-      assert.equal(Object.keys(filterKey)[0], 'symbol')
-      assert.equal(Object.values(filterKey)[0], 'tBTCUSD')
-
-      assert.equal(Object.keys(filterIndex).length, 1)
-      assert.equal(Object.keys(filterIndex)[0], 2)
-      assert.equal(Object.values(filterIndex)[0], 'tBTCUSD')
-    })
-  })
-
-  describe('_registerListenerFromCall', () => {
+  describe('_registerListener', () => {
     it('correctly adds listener to internal map with cbGID', () => {
       const ws = new WSv2()
-      ws._registerListenerFromCall('trade', 'symbol', 2, Map, [
-        'tBTCUSD', 42, () => {}
-      ])
+      ws._registerListener('trade', 2, 'tBTCUSD', Map, 42, () => {})
 
       const { _listeners } = ws
 
@@ -110,8 +38,7 @@ describe('WSv2 utilities', () => {
       const listener = listenerSet.trade[0]
 
       assert.equal(listener.modelClass, Map)
-      assert.deepEqual(listener.filterKey, { symbol: 'tBTCUSD' })
-      assert.deepEqual(listener.filterIndex, { 2: 'tBTCUSD' })
+      assert.deepEqual(listener.filter, { '2': 'tBTCUSD' })
       assert.equal(typeof listener.cb, 'function')
     })
   })
@@ -302,11 +229,11 @@ describe('WSv2 channel msg handling', () => {
         const ws = new WSv2()
         ws._channelMap = { 0: { channel: 'auth' }}
         let called = 0
-        ws.onWalletUpdate(() => {
+        ws.onWalletUpdate({}, () => {
           if (++called === 2) done()
         })
 
-        ws.onWalletUpdate(() => {
+        ws.onWalletUpdate({}, () => {
           if (++called === 2) done()
         })
 
@@ -319,19 +246,19 @@ describe('WSv2 channel msg handling', () => {
         let calls = 0
         let btcListenerCalled = false
 
-        ws.onTradeEntry('tBTCUSD', () => {
+        ws.onTradeEntry({ pair: 'tBTCUSD' }, () => {
           assert(!btcListenerCalled)
           btcListenerCalled = true
 
-          if(++calls === 6) done()
+          if(++calls === 7) done()
         })
 
-        ws.onTradeEntry(() => {
-          if(++calls === 6) done()
+        ws.onTradeEntry({}, () => {
+          if(++calls === 7) done()
         })
 
-        ws.onTradeEntry(() => {
-          if(++calls === 6) done()
+        ws.onTradeEntry({}, () => {
+          if(++calls === 7) done()
         })
 
         ws._handleChannelMessage([0, 'te', [0, 'tETHUSD']])
@@ -359,14 +286,14 @@ describe('WSv2 channel msg handling', () => {
           0, 'tBTCUSD', Date.now(), 0, 0.1, 1, 'type', 1, 1, 0.001, 'USD'
         ]
 
-        wsNoTransform.onTradeUpdate((trade) => {
+        wsNoTransform.onTradeUpdate({}, (trade) => {
           assert.equal(trade.constructor.name, 'Array')
           assert.deepEqual(trade, tradeData)
 
           if (calls++ === 1) done()
         })
 
-        wsTransform.onTradeUpdate((trade) => {
+        wsTransform.onTradeUpdate({}, (trade) => {
           assert.equal(trade.constructor.name, 'Trade')
           assert.equal(trade.id, tradeData[0])
           assert.equal(trade.pair, tradeData[1])
