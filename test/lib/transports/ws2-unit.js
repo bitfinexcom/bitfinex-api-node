@@ -510,7 +510,7 @@ describe('WSv2 channel msg handling', () => {
    })
 
     it('forwards managed ob to listeners', (done) => {
-      const ws = new WSv2()
+      const ws = new WSv2({ manageOrderBooks: true })
       ws._channelMap = { 42: {
         channel: 'orderbook',
         symbol: 'tBTCUSD'
@@ -531,7 +531,7 @@ describe('WSv2 channel msg handling', () => {
     })
 
     it('emits managed ob', (done) => {
-      const ws = new WSv2()
+      const ws = new WSv2({ manageOrderBooks: true })
       ws._channelMap = { 42: {
         channel: 'orderbook',
         symbol: 'tBTCUSD'
@@ -567,7 +567,7 @@ describe('WSv2 channel msg handling', () => {
   })
 
   describe('_updateManagedOB', () => {
-    it('returns an error on failure', () => {
+    it('returns an error on rm non-existent entry', () => {
       const ws = new WSv2()
       ws._orderBooks.tBTCUSD = [
         [100, 1, 1],
@@ -616,6 +616,255 @@ describe('WSv2 channel msg handling', () => {
 
       assert.equal(ob.length, 1)
       assert.deepEqual(ob, [[100, 1, 1]])
+    })
+  })
+
+  describe('_handleCandleMessage', () => {
+    it('maintains internal candles if management is enabled', () => {
+      const ws = new WSv2({ manageCandles: true })
+      ws._channelMap = { 64: {
+        channel: 'candles',
+        key: 'trade:1m:tBTCUSD'
+      }}
+
+      ws._handleCandleMessage([64, [
+        [5, 100, 70, 150, 30, 1000],
+        [2, 200, 90, 150, 30, 1000],
+        [1, 130, 90, 150, 30, 1000],
+        [4, 104, 80, 150, 30, 1000]
+      ]], ws._channelMap[64])
+
+      const candles = ws._candles['trade:1m:tBTCUSD']
+
+      // maintains sort
+      assert.equal(candles.length, 4)
+      assert.equal(candles[0][0], 5)
+      assert.equal(candles[1][0], 4)
+      assert.equal(candles[2][0], 2)
+      assert.equal(candles[3][0], 1)
+
+      // updates existing candle
+      ws._handleCandleMessage([
+        64,
+        [5, 200, 20, 220, 20, 2000]
+      ], ws._channelMap[64])
+
+      assert.deepEqual(candles[0], [5, 200, 20, 220, 20, 2000])
+
+      // inserts new candle
+      ws._handleCandleMessage([
+        64,
+        [10, 300, 20, 450, 10, 4000]
+      ], ws._channelMap[64])
+
+      assert.deepEqual(candles[0], [10, 300, 20, 450, 10, 4000])
+    })
+
+    it('emits error on internal candle update failure', (done) => {
+      const ws = new WSv2({ manageCandles: true })
+      ws._channelMap = {
+        42: {
+          channel: 'candles',
+          key: 'trade:30m:tBTCUSD'
+        },
+
+        64: {
+          channel: 'candles',
+          key: 'trade:1m:tBTCUSD'
+        }
+      }
+
+      let errorsSeen = 0
+
+      ws.on('error', () => {
+        if (++errorsSeen === 2) done()
+      })
+
+      ws._handleCandleMessage([64, [
+        [5, 100, 70, 150, 30, 1000],
+        [2, 200, 90, 150, 30, 1000],
+        [1, 130, 90, 150, 30, 1000],
+        [4, 104, 80, 150, 30, 1000]
+      ]], ws._channelMap[64])
+
+      // duplicate snapshot
+      ws._handleCandleMessage([64, [
+        [5, 100, 70, 150, 30, 1000],
+        [2, 200, 90, 150, 30, 1000],
+        [1, 130, 90, 150, 30, 1000],
+        [4, 104, 80, 150, 30, 1000]
+      ]], ws._channelMap[64])
+
+      // update for unknown key
+      ws._handleCandleMessage([
+        42,
+        [5, 10, 70, 150, 30, 10]
+      ], ws._channelMap[42])
+    })
+
+    it('forwards managed candles to listeners', (done) => {
+      const ws = new WSv2({ manageCandles: true })
+      ws._channelMap = { 42: {
+        chanId: 42,
+        channel: 'candles',
+        key: 'trade:1m:tBTCUSD'
+      }}
+
+      let seen = 0
+      ws.onCandle({ key: 'trade:1m:tBTCUSD' }, (data) => {
+        assert.deepEqual(data, [[5, 10, 70, 150, 30, 10]])
+        if (++seen === 2) done()
+      })
+
+      ws.onCandle({}, (data) => {
+        assert.deepEqual(data, [[5, 10, 70, 150, 30, 10]])
+        if (++seen === 2) done()
+      })
+
+      ws._handleCandleMessage([
+        42,
+        [[5, 10, 70, 150, 30, 10]]
+      ], ws._channelMap[42])
+    })
+
+    it('emits managed candles', (done) => {
+      const ws = new WSv2({ manageCandles: true })
+      ws._channelMap = { 42: {
+        channel: 'candles',
+        key: 'trade:1m:tBTCUSD'
+      }}
+
+      ws.on('candle', (key, data) => {
+        assert.equal(key, 'trade:1m:tBTCUSD')
+        assert.deepEqual(data, [[5, 10, 70, 150, 30, 10]])
+        done()
+      })
+
+      ws._handleCandleMessage([
+        42,
+        [[5, 10, 70, 150, 30, 10]]
+      ], ws._channelMap[42])
+    })
+
+    it('forwards transformed data if transform enabled', (done) => {
+      const ws = new WSv2({ transform: true })
+      ws._channelMap = { 42: {
+        chanId: 42,
+        channel: 'candles',
+        key: 'trade:1m:tBTCUSD'
+      }}
+
+      ws.onCandle({ key: 'trade:1m:tBTCUSD' }, (candles) => {
+        assert.equal(candles.length, 1)
+        assert.deepEqual(candles[0], {
+          mts: 5,
+          open: 10,
+          close: 70,
+          high: 150,
+          low: 30,
+          volume: 10
+        })
+
+        done()
+      })
+
+      ws._handleCandleMessage([
+        42,
+        [[5, 10, 70, 150, 30, 10]]
+      ], ws._channelMap[42])
+    })
+  })
+
+  describe('_updateManagedCandles', () => {
+    it('returns an error on update for unknown key', () => {
+      const ws = new WSv2()
+      ws._candles['trade:1m:tBTCUSD'] = []
+
+      const err = ws._updateManagedCandles('trade:30m:tBTCUSD', [
+        1, 10, 70, 150, 30, 10
+      ])
+
+      assert(err)
+      assert(err instanceof Error)
+    })
+
+    it('returns error if update is snap & candles exist', () => {
+      const ws = new WSv2()
+      ws._candles['trade:1m:tBTCUSD'] = [
+        [1, 10, 70, 150, 30, 10],
+        [2, 10, 70, 150, 30, 10]
+      ]
+
+      const err = ws._updateManagedCandles('trade:1m:tBTCUSD', [
+        [1, 10, 70, 150, 30, 10]
+      ])
+
+      assert(err)
+      assert(err instanceof Error)
+    })
+
+    it('correctly maintains transformed OBs', () => {
+      const ws = new WSv2({ transform: true })
+
+      assert(!ws._updateManagedCandles('trade:1m:tBTCUSD', [
+        [1, 10, 70, 150, 30, 10],
+        [2, 10, 70, 150, 30, 10]
+      ]))
+
+      assert(!ws._updateManagedCandles('trade:1m:tBTCUSD', [
+        2, 10, 70, 150, 30, 500
+      ]))
+
+      assert(!ws._updateManagedCandles('trade:1m:tBTCUSD', [
+        3, 100, 70, 150, 30, 10
+      ]))
+
+      const candles = ws._candles['trade:1m:tBTCUSD']
+
+      assert.equal(candles.length, 3)
+      assert.deepEqual(candles[0], {
+        mts: 3, open: 100, close: 70, high: 150, low: 30, volume: 10
+      })
+
+      assert.deepEqual(candles[1], {
+        mts: 2, open: 10, close: 70, high: 150, low: 30, volume: 500
+      })
+
+      assert.deepEqual(candles[2], {
+        mts: 1, open: 10, close: 70, high: 150, low: 30, volume: 10
+      })
+    })
+
+    it('correctly maintains non-transformed OBs', () => {
+      const ws = new WSv2()
+
+      assert(!ws._updateManagedCandles('trade:1m:tBTCUSD', [
+        [1, 10, 70, 150, 30, 10],
+        [2, 10, 70, 150, 30, 10]
+      ]))
+
+      assert(!ws._updateManagedCandles('trade:1m:tBTCUSD', [
+        2, 10, 70, 150, 30, 500
+      ]))
+
+      assert(!ws._updateManagedCandles('trade:1m:tBTCUSD', [
+        3, 100, 70, 150, 30, 10
+      ]))
+
+      const candles = ws._candles['trade:1m:tBTCUSD']
+
+      assert.equal(candles.length, 3)
+      assert.deepEqual(candles[0], [
+        3, 100, 70, 150, 30, 10
+      ])
+
+      assert.deepEqual(candles[1], [
+        2, 10, 70, 150, 30, 500
+      ])
+
+      assert.deepEqual(candles[2], [
+        1, 10, 70, 150, 30, 10
+      ])
     })
   })
 })
