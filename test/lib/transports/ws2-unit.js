@@ -5,6 +5,7 @@ const WebSocket = require('ws')
 const assert = require('assert')
 const WSv2 = require('../../../lib/transports/ws2')
 const MockWSServer = require('../../../lib/mocks/ws_server')
+const { OrderBook } = require('../../../lib/models')
 
 const API_KEY = 'dummy'
 const API_SECRET = 'dummy'
@@ -265,7 +266,7 @@ describe('WSv2 channel msg handling', () => {
   describe('_handleChannelMessage', () => {
     it('emits message', (done) => {
       const ws = new WSv2()
-      const packet = [42, 'hb']
+      const packet = [42, 'tu', []]
       ws._channelMap = {
         42: { channel: 'meaning' }
       }
@@ -274,13 +275,7 @@ describe('WSv2 channel msg handling', () => {
         done()
       })
 
-      assert(ws._handleChannelMessage(packet))
-    })
-
-    it('doesn\'t handle messages from unknown channels', () => {
-      const ws = new WSv2()
-      const packet = [42, 'hb']
-      assert(!ws._handleChannelMessage(packet))
+      ws._handleChannelMessage(packet)
     })
 
     describe('listener handling', () => {
@@ -454,29 +449,198 @@ describe('WSv2 channel msg handling', () => {
       assert.equal(s, 15)
     })
   })
+
+  describe('_handleOBMessage', () => {
+    it('maintains internal OB if management is enabled', () => {
+      const ws = new WSv2({
+        manageOrderBooks: true,
+        transform: true
+      })
+
+      ws._channelMap = { 42: {
+        channel: 'orderbook',
+        symbol: 'tBTCUSD'
+      }}
+
+      ws._handleOBMessage([42, [
+        [100, 2, -4],
+        [200, 4, -8],
+        [300, 1, 3]
+      ]], ws._channelMap[42])
+
+      assert(ws._orderBooks.tBTCUSD)
+      const ob = ws._orderBooks.tBTCUSD
+
+      assert.equal(ob.bids.length, 1)
+      assert.deepEqual(ob.bids, [[300, 1, 3]])
+      assert.equal(ob.asks.length, 2)
+      assert.deepEqual(ob.getEntry(100), { price: 100, count: 2, amount: -4 })
+      assert.deepEqual(ob.getEntry(200), { price: 200, count: 4, amount: -8 })
+
+      ws._handleOBMessage([42, [300, 0, 1]], ws._channelMap[42])
+      assert.equal(ob.bids.length, 0)
+    })
+
+    it('emits error on internal OB update failure', (done) => {
+      const wsNoTransform = new WSv2({ manageOrderBooks: true })
+      const wsTransform = new WSv2({
+        manageOrderBooks: true,
+        transform: true
+      })
+
+      wsNoTransform._channelMap = { 42: {
+        channel: 'orderbook',
+        symbol: 'tBTCUSD'
+      }}
+
+      wsTransform._channelMap = wsNoTransform._channelMap
+
+      let errorsSeen = 0
+
+      wsNoTransform.on('error', (err) => {
+        if (++errorsSeen === 2) done()
+      })
+
+      wsTransform.on('error', (err) => {
+        if (++errorsSeen === 2) done()
+      })
+
+      wsTransform._handleOBMessage([42, [100, 0, 1]], wsTransform._channelMap[42])
+      wsNoTransform._handleOBMessage([42, [100, 0, 1]], wsNoTransform._channelMap[42])
+   })
+
+    it('forwards managed ob to listeners', (done) => {
+      const ws = new WSv2()
+      ws._channelMap = { 42: {
+        channel: 'orderbook',
+        symbol: 'tBTCUSD'
+      }}
+
+      let seen = 0
+      ws.onOrderBook({ symbol: 'tBTCUSD' }, (ob) => {
+        assert.deepEqual(ob, [[100, 2, 3]])
+        if (++seen === 2) done()
+      })
+
+      ws.onOrderBook({}, (ob) => {
+        assert.deepEqual(ob, [[100, 2, 3]])
+        if (++seen === 2) done()
+      })
+
+      ws._handleOBMessage([42, [[100, 2, 3]]], ws._channelMap[42])
+    })
+
+    it('emits managed ob', (done) => {
+      const ws = new WSv2()
+      ws._channelMap = { 42: {
+        channel: 'orderbook',
+        symbol: 'tBTCUSD'
+      }}
+
+      ws.on('orderbook', (symbol, data) => {
+        assert.equal(symbol, 'tBTCUSD')
+        assert.deepEqual(data, [[100, 2, 3]])
+        done()
+      })
+
+      ws._handleOBMessage([42, [[100, 2, 3]]], ws._channelMap[42])
+    })
+
+    it('forwards transformed data if transform enabled', (done) => {
+      const ws = new WSv2({ transform: true })
+      ws._channelMap = { 42: {
+        chanId: 42,
+        channel: 'orderbook',
+        symbol: 'tBTCUSD'
+      }}
+
+      ws.onOrderBook({ symbol: 'tBTCUSD' }, (ob) => {
+        assert(ob.asks)
+        assert(ob.bids)
+        assert.equal(ob.asks.length, 0)
+        assert.deepEqual(ob.bids, [{ price: 100, count: 2, amount: 3 }])
+        done()
+      })
+
+      ws._handleOBMessage([42, [[100, 2, 3]]], ws._channelMap[42])
+    })
+  })
+
+  describe('_updateManagedOB', () => {
+    it('returns an error on failure', () => {
+      const ws = new WSv2()
+      ws._orderBooks.tBTCUSD = [
+        [100, 1, 1],
+        [200, 2, 1]
+      ]
+
+      const err = ws._updateManagedOB('tBTCUSD', [150, 0, -1])
+      assert(err)
+      assert(err instanceof Error)
+    })
+
+    it('returns error if update is snap & ob exists', () => {
+      const ws = new WSv2()
+      const errA = ws._updateManagedOB('tBTCUSD', [[150, 0, -1]])
+      const errB = ws._updateManagedOB('tBTCUSD', [[150, 0, -1]])
+
+      assert(!errA)
+      assert(errB)
+      assert(errB instanceof Error)
+    })
+
+    it('correctly maintains transformed OBs', () => {
+      const ws = new WSv2({ transform: true })
+      ws._orderBooks.tBTCUSD = new OrderBook()
+
+      assert(!ws._updateManagedOB('tBTCUSD', [100, 1, 1]))
+      assert(!ws._updateManagedOB('tBTCUSD', [200, 1, -1]))
+      assert(!ws._updateManagedOB('tBTCUSD', [200, 0, -1]))
+
+      const ob = ws._orderBooks.tBTCUSD
+
+      assert.equal(ob.bids.length, 1)
+      assert.equal(ob.asks.length, 0)
+      assert.deepEqual(ob.bids, [[100, 1, 1]])
+    })
+
+    it('correctly maintains non-transformed OBs', () => {
+      const ws = new WSv2()
+      ws._orderBooks.tBTCUSD = []
+
+      assert(!ws._updateManagedOB('tBTCUSD', [100, 1, 1]))
+      assert(!ws._updateManagedOB('tBTCUSD', [200, 1, -1]))
+      assert(!ws._updateManagedOB('tBTCUSD', [200, 0, -1]))
+
+      const ob = ws._orderBooks.tBTCUSD
+
+      assert.equal(ob.length, 1)
+      assert.deepEqual(ob, [[100, 1, 1]])
+    })
+  })
 })
 
 describe('WSv2 event msg handling', () => {
-  describe('_handleAuthMessage', () => {
+  describe('_handleAuthEvent', () => {
     it('emits an error on auth fail', (done) => {
       const ws = new WSv2()
       ws.on('error', () => {
         done()
       })
-      ws._handleAuthMessage({ status: 'FAIL' })
+      ws._handleAuthEvent({ status: 'FAIL' })
     })
 
     it('updates auth flag on auth success', () => {
       const ws = new WSv2()
       assert(!ws.isAuthenticated())
-      ws._handleAuthMessage({ status: 'OK' })
+      ws._handleAuthEvent({ status: 'OK' })
       assert(ws.isAuthenticated())
     })
 
     it('adds auth channel to channel map', () => {
       const ws = new WSv2()
       assert(Object.keys(ws._channelMap).length === 0)
-      ws._handleAuthMessage({ chanId: 42, status: 'OK' })
+      ws._handleAuthEvent({ chanId: 42, status: 'OK' })
       assert(ws._channelMap[42])
       assert.equal(ws._channelMap[42].channel, 'auth')
     })
@@ -488,15 +652,15 @@ describe('WSv2 event msg handling', () => {
         assert.equal(msg.status, 'OK')
         done()
       })
-      ws._handleAuthMessage({ chanId: 0, status: 'OK' })
+      ws._handleAuthEvent({ chanId: 0, status: 'OK' })
     })
   })
 
-  describe('_handleSubscribeMessage', () => {
+  describe('_handleSubscribeEvent', () => {
     it('adds channel to channel map', () => {
       const ws = new WSv2()
       assert(Object.keys(ws._channelMap).length === 0)
-      ws._handleSubscribedMessage({ chanId: 42, channel: 'test', extra: 'stuff' })
+      ws._handleSubscribedEvent({ chanId: 42, channel: 'test', extra: 'stuff' })
       assert(ws._channelMap[42])
       assert.equal(ws._channelMap[42].chanId, 42)
       assert.equal(ws._channelMap[42].channel, 'test')
@@ -504,37 +668,25 @@ describe('WSv2 event msg handling', () => {
     })
   })
 
-  describe('_handleUnsubscribedMessage', () => {
+  describe('_handleUnsubscribedEvent', () => {
     it('removes channel from channel map', () => {
       const ws = new WSv2()
       assert(Object.keys(ws._channelMap).length === 0)
-      ws._handleSubscribedMessage({ chanId: 42, channel: 'test', extra: 'stuff' })
-      ws._handleUnsubscribedMessage({ chanId: 42, channel: 'test', extra: 'stuff' })
+      ws._handleSubscribedEvent({ chanId: 42, channel: 'test', extra: 'stuff' })
+      ws._handleUnsubscribedEvent({ chanId: 42, channel: 'test', extra: 'stuff' })
       assert(Object.keys(ws._channelMap).length === 0)
     })
   })
 
-  describe('_handleInfoMessage', () => {
+  describe('_handleInfoEvent', () => {
     it('closes & emits error if not on api v2', (done) => {
-      const wss = new MockWSServer(1337, 3)
       const ws = createTestWSv2Instance()
       let seen = 0
 
-      ws.on('error', () => {
-        if (++seen == 2) {
-          wss.close()
-          done()
-        }
-      })
+      ws.on('error', () => { if (++seen === 2) { done() }})
+      ws.on('close', () => { if (++seen === 2) { done() }})
 
-      ws.on('close', () => {
-        if (++seen == 2) {
-          wss.close()
-          done()
-        }
-      })
-
-      ws.open()
+      ws._handleInfoEvent({ version: 3 })
     })
   })
 

@@ -7,7 +7,7 @@ const RESTv1 = require('../../../lib/transports/rest')
 const _ = require('lodash')
 
 describe('REST v1', () => {
-  let skipPublic = false
+  let skipPublic = process.env.SKIP_PUBLIC_REST
 
   before((done) => {
     DNS.resolve('api.bitfinex.com', (err) => {
