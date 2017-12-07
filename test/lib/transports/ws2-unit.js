@@ -536,4 +536,57 @@ describe('WSv2 event msg handling', () => {
       ws.open()
     })
   })
+
+  describe('order buffering', () => {
+    it('_flushOrderOps: returned promise rejects if not authorised', (done) => {
+      const ws = new WSv2()
+      ws._orderOpBuffer = [
+        [0, 'oc', null, []]
+      ]
+
+      ws._flushOrderOps().catch(() => done())
+    })
+
+    it('_flushOrderOps: merges the buffer into a multi-op packet & sends', (done) => {
+      const ws = new WSv2()
+      ws._isAuthenticated = true
+
+      ws._orderOpBuffer = [
+        [0, 'oc', null, []],
+        [0, 'on', null, []],
+        [0, 'oc_multi', null, []],
+        [0, 'ou', null, []],
+      ]
+      const smallOrders = ws._orderOpBuffer.map(o => [o[1], o[3]])
+
+      ws.send = (packet) => {
+        assert.equal(packet[1], 'ox_multi')
+        assert.equal(packet[3].length, 4)
+        done()
+      }
+
+      ws._flushOrderOps().catch(() => assert(false))
+    })
+
+    it('_flushOrderOps: splits up buffers greater than 15 ops in size', (done) => {
+      const ws = new WSv2()
+      ws._isAuthenticated = true
+
+      let seenCount = 0
+
+      for (let i = 0; i < 45; i++) {
+        ws._orderOpBuffer.push([0, 'oc', null, []])
+      }
+
+      ws.send = (packet) => {
+        assert.equal(packet[1], 'ox_multi')
+        assert(packet[3].length <= 15)
+        seenCount += packet[3].length
+
+        if (seenCount === 45) done()
+      }
+
+      ws._flushOrderOps().catch(() => assert(false))
+    })
+  })
 })
