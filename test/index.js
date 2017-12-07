@@ -1,5 +1,4 @@
 /* eslint-env mocha */
-
 'use strict'
 
 const PORT = 1337
