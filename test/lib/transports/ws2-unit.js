@@ -211,6 +211,126 @@ describe('WSv2 constructor', () => {
   })
 })
 
+describe('WSv2 auto reconnect', () => {
+  it('reconnects on close if autoReconnect is enabled', (done) => {
+    const wss = new MockWSServer()
+    const ws = createTestWSv2Instance({
+      autoReconnect: true
+    })
+
+    ws.on('open', ws.auth.bind(ws))
+    ws.once('auth', () => {
+      ws.reconnect = () => done()
+      wss.close() // trigger reconnect
+    })
+
+    ws.open()
+  })
+
+  it('respects reconnectDelay', (done) => {
+    const wss = new MockWSServer()
+    const ws = createTestWSv2Instance({
+      autoReconnect: true,
+      reconnectDelay: 75
+    })
+
+    ws.on('open', ws.auth.bind(ws))
+    ws.once('auth', () => {
+      let now = Date.now()
+
+      ws.reconnect = () => {
+        assert((Date.now() - now) >= 70)
+        done()
+      }
+
+      wss.close() // trigger reconnect
+    })
+
+    ws.open()
+  })
+
+  it('does not auto-reconnect if explicity closed', (done) => {
+    const wss = new MockWSServer()
+    const ws = createTestWSv2Instance({
+      autoReconnect: true
+    })
+
+    ws.on('open', ws.auth.bind(ws))
+    ws.once('auth', () => {
+      let now = Date.now()
+
+      ws.reconnect = () => assert(false)
+      ws.close()
+
+      setTimeout(() => {
+        wss.close()
+        done()
+      }, 50)
+    })
+
+    ws.open()
+  })
+})
+
+describe('WSv2 seq audit', () => {
+  it('automatically enables sequencing if seqAudit is true in constructor', (done) => {
+    const wss = new MockWSServer()
+    const ws = createTestWSv2Instance({
+      seqAudit: true
+    })
+
+    wss._onClientMessage = (ws, msgJSON) => {
+      const msg = JSON.parse(msgJSON)
+
+      if (msg.event === 'conf' && msg.flags === 65536) {
+        wss.close()
+        done()
+      }
+    }
+
+    ws.open()
+  })
+
+  it('emits error on invalid seq number', (done) => {
+    const wss = new MockWSServer()
+    const ws = createTestWSv2Instance({
+      seqAudit: true
+    })
+
+    let errorsSeen = 0
+
+    ws.once('open', ws.auth.bind(ws))
+    ws.on('error', (err) => {
+      if (err.message.indexOf('seq #') !== -1) errorsSeen++
+
+      return null
+    })
+
+    ws.once('auth', () => {
+      ws._channelMap[42] = { channel: 'trades', chanId: 42 }
+
+      ws._onWSMessage(JSON.stringify([0, 'tu', [], 0, 0]))
+      ws._onWSMessage(JSON.stringify([0, 'te', [], 1, 0]))
+      ws._onWSMessage(JSON.stringify([0, 'wu', [], 2, 1]))
+      ws._onWSMessage(JSON.stringify([0, 'tu', [], 3, 2])) //
+      ws._onWSMessage(JSON.stringify([0, 'tu', [], 4, 4])) // error
+      ws._onWSMessage(JSON.stringify([0, 'tu', [], 5, 5]))
+      ws._onWSMessage(JSON.stringify([0, 'tu', [], 6, 6]))
+      ws._onWSMessage(JSON.stringify([42, [],  7]))
+      ws._onWSMessage(JSON.stringify([42, [],  8]))
+      ws._onWSMessage(JSON.stringify([42, [],  9]))  //
+      ws._onWSMessage(JSON.stringify([42, [],  13])) // error
+      ws._onWSMessage(JSON.stringify([42, [],  14]))
+      ws._onWSMessage(JSON.stringify([42, [],  15]))
+
+      assert.equal(errorsSeen, 2)
+      done()
+    })
+
+    ws.open()
+  })
+})
+
 describe('WSv2 ws event handlers', () => {
   describe('_onWSOpen', () => {
     it('updates open flag', () => {
