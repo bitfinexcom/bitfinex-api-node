@@ -56,6 +56,8 @@ describe('WSv2 orders', () => {
         symbol: 'tBTCUSD'
       }, ws)
 
+      o.registerListeners()
+
       o.submit().then(() => {
         const arr = o.serialize()
         arr[16] = 256
@@ -70,6 +72,7 @@ describe('WSv2 orders', () => {
 
           setTimeout(() => {
             assert.equal(o.price, 150)
+            o.removeListeners()
             wss.close()
             done()
           }, 50)

@@ -22,7 +22,7 @@ describe('WSv2 utilities', () => {
   describe('_registerListener', () => {
     it('correctly adds listener to internal map with cbGID', () => {
       const ws = new WSv2()
-      ws._registerListener('trade', 2, 'tBTCUSD', Map, 42, () => {})
+      ws._registerListener('trade', { 2: 'tBTCUSD' }, Map, 42, () => {})
 
       const { _listeners } = ws
 

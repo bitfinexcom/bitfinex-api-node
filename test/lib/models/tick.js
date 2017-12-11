@@ -9,8 +9,9 @@ describe('Tick model', () => {
   testModel({
     model: Tick,
     orderedFields: [
-      'frr', 'bid', 'bidPeriod', 'bidSize', 'ask', 'askPeriod', 'askSize',
-      'dailyChange', 'dailyChangePerc', 'lastPrice', 'volume', 'high', 'low'
+      'symbol', 'frr', 'bid', 'bidPeriod', 'bidSize', 'ask', 'askPeriod',
+      'askSize', 'dailyChange', 'dailyChangePerc', 'lastPrice', 'volume',
+      'high', 'low'
     ]
   })
 })
