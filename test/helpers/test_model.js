@@ -49,8 +49,8 @@ const testModel = ({ model, orderedFields, boolFields = [] }) => {
     orderedFields.forEach((f) => {
       if (f === null) return
 
-      if(boolFields.indexOf(f) !== -1) {
-        assert.equal(m[f], false) 
+      if (boolFields.indexOf(f) !== -1) {
+        assert.equal(m[f], false)
       } else {
         assert.equal(m[f], f)
       }

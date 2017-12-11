@@ -168,7 +168,6 @@ describe('WSv2 lifetime', () => {
     })
 
     it('disconnects & connects back if currently connected', () => {
-
       const wss = new MockWSServer()
       const ws = createTestWSv2Instance()
 
@@ -316,12 +315,12 @@ describe('WSv2 seq audit', () => {
       ws._onWSMessage(JSON.stringify([0, 'tu', [], 4, 4])) // error
       ws._onWSMessage(JSON.stringify([0, 'tu', [], 5, 5]))
       ws._onWSMessage(JSON.stringify([0, 'tu', [], 6, 6]))
-      ws._onWSMessage(JSON.stringify([42, [],  7]))
-      ws._onWSMessage(JSON.stringify([42, [],  8]))
-      ws._onWSMessage(JSON.stringify([42, [],  9]))  //
-      ws._onWSMessage(JSON.stringify([42, [],  13])) // error
-      ws._onWSMessage(JSON.stringify([42, [],  14]))
-      ws._onWSMessage(JSON.stringify([42, [],  15]))
+      ws._onWSMessage(JSON.stringify([42, [], 7]))
+      ws._onWSMessage(JSON.stringify([42, [], 8]))
+      ws._onWSMessage(JSON.stringify([42, [], 9]))  //
+      ws._onWSMessage(JSON.stringify([42, [], 13])) // error
+      ws._onWSMessage(JSON.stringify([42, [], 14]))
+      ws._onWSMessage(JSON.stringify([42, [], 15]))
 
       assert.equal(errorsSeen, 2)
       done()
@@ -514,12 +513,12 @@ describe('WSv2 channel msg handling', () => {
 
       const goodPayloads = [
         [0, 'tBTCUSD', 42, ''],
-        [0, 'tBTCUSD', 3.14, ''],
+        [0, 'tBTCUSD', 3.14, '']
       ]
 
       const badPayloads = [
         [0, 'tETHUSD', 42, ''],
-        [0, 'tETHUSD', 3.14, ''],
+        [0, 'tETHUSD', 3.14, '']
       ]
 
       goodPayloads.forEach(p => assert(WSv2._payloadPassesFilter(p, filter)))
@@ -560,8 +559,8 @@ describe('WSv2 channel msg handling', () => {
 
       const lg = {
         '': [
-          { cb: (d => s += d) },
-          { cb: (d => s += (d * 2)) }
+          { cb: d => s += d },
+          { cb: d => s += (d * 2) }
         ]
       }
 
@@ -627,7 +626,7 @@ describe('WSv2 channel msg handling', () => {
 
       wsTransform._handleOBMessage([42, [100, 0, 1]], wsTransform._channelMap[42])
       wsNoTransform._handleOBMessage([42, [100, 0, 1]], wsNoTransform._channelMap[42])
-   })
+    })
 
     it('forwards managed ob to listeners', (done) => {
       const ws = new WSv2({ manageOrderBooks: true })
@@ -1052,8 +1051,8 @@ describe('WSv2 event msg handling', () => {
       const ws = createTestWSv2Instance()
       let seen = 0
 
-      ws.on('error', () => { if (++seen === 2) { done() }})
-      ws.on('close', () => { if (++seen === 2) { done() }})
+      ws.on('error', () => { if (++seen === 2) { done() } })
+      ws.on('close', () => { if (++seen === 2) { done() } })
 
       ws._handleInfoEvent({ version: 3 })
     })
@@ -1077,7 +1076,7 @@ describe('WSv2 event msg handling', () => {
         [0, 'oc', null, []],
         [0, 'on', null, []],
         [0, 'oc_multi', null, []],
-        [0, 'ou', null, []],
+        [0, 'ou', null, []]
       ]
       const smallOrders = ws._orderOpBuffer.map(o => [o[1], o[3]])
 

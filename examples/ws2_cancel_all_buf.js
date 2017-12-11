@@ -7,7 +7,7 @@ const { Order } = require('../lib/models')
 const bfx = require('./bfx')
 const ws = bfx.ws(2, {
   transform: true,
-  orderOpBufferDelay: 250, // this is the only difference :)
+  orderOpBufferDelay: 250 // this is the only difference :)
 })
 
 // The rest is as in ws_cancel_all.js
