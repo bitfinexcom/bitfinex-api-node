@@ -58,10 +58,11 @@ describe('OrderBook model', () => {
     ob.updateWith([20, 5, 10])
     ob.updateWith([150, 5, 10])
     ob.updateWith([80, 5, 10])
-    ob.updateWith([300, 5, 10])
-    ob.updateWith([40, 5, -10])
-    ob.updateWith([130, 5, -10])
+    ob.updateWith([300, 5, -10])
+    ob.updateWith([40, 5, 10])
+    ob.updateWith([130, 5, 10])
     ob.updateWith([342, 5, -10])
+    ob.updateWith([457, 5, -10])
 
     for (let i = 0; i < ob.bids.length - 2; i++) {
       assert(ob.bids[i][0] > ob.bids[i + 1][0])
@@ -140,12 +141,14 @@ describe('OrderBook model', () => {
     OrderBook.updateArrayOBWith(ob, [100, 0, 1])
     OrderBook.updateArrayOBWith(ob, [150, 1, 16])
     OrderBook.updateArrayOBWith(ob, [200, 7, -42])
-
-    ob.sort((a, b) => a[0] - b[0])
+    OrderBook.updateArrayOBWith(ob, [121, 3, 14])
+    OrderBook.updateArrayOBWith(ob, [300, 1, -4])
 
     assert.deepEqual(ob, [
+      [300, 1, -4],
+      [200, 7, -42],
       [150, 1, 16],
-      [200, 7, -42]
+      [121, 3, 14]
     ])
   })
 
