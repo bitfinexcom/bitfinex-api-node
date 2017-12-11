@@ -48,7 +48,9 @@ describe('BFX', () => {
         apiKey: 'k',
         apiSecret: 's',
         transform: true,
-        restURL: 'http://'
+        rest: {
+          url: 'http://'
+        }
       })
 
       const rest1 = bfx.rest(1)
@@ -100,7 +102,9 @@ describe('BFX', () => {
         apiKey: 'k',
         apiSecret: 's',
         transform: true,
-        wsURL: 'wss://'
+        ws: {
+          url: 'wss://'
+        }
       })
 
       const ws1 = bfx.ws(1)

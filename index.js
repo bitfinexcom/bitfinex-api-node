@@ -15,13 +15,15 @@ class BFX {
    * @param {string} opts.apiSecret
    * @param {string} opts.transform - if true, packets are converted to models
    * @param {string} opts.nonceGenerator - optional
-   * @param {string} opts.wsURL - optional websocket connection URL
-   * @param {string} opts.restURL - optional http api endpoint
+   * @param {string} opts.ws - ws transport options
+   * @param {string} opts.rest - rest transport options
    */
   constructor (opts = {
     apiKey: '',
     apiSecret: '',
-    transform: false
+    transform: false,
+    ws: {},
+    rest: {}
   }) {
     if (opts.constructor.name !== 'Object') {
       throw new Error([
@@ -32,9 +34,9 @@ class BFX {
 
     this._apiKey = opts.apiKey || ''
     this._apiSecret = opts.apiSecret || ''
-    this._transform = !!opts.transform
-    this._wsURL = opts.wsURL
-    this._restURL = opts.restURL
+    this._transform = opts.transform === true
+    this._wsArgs = opts.ws || {}
+    this._restArgs = opts.rest || {}
     this._transportCache = {
       rest: {},
       ws: {}
@@ -62,10 +64,7 @@ class BFX {
     }
 
     if (!this._transportCache.rest[version]) {
-      if (this._restURL && !extraOpts.url) {
-        extraOpts.url = this._restURL
-      }
-
+      Object.assign(extraOpts, this._restArgs)
       const payload = this._getTransportPayload(extraOpts)
 
       this._transportCache.rest[version] = version === 2
@@ -89,10 +88,7 @@ class BFX {
     }
 
     if (!this._transportCache.ws[version]) {
-      if (this._wsURL && !extraOpts.url) {
-        extraOpts.url = this._wsURL
-      }
-
+      Object.assign(extraOpts, this._wsArgs)
       const payload = this._getTransportPayload(extraOpts)
 
       this._transportCache.ws[version] = version === 2
@@ -105,3 +101,7 @@ class BFX {
 }
 
 module.exports = BFX
+module.exports.RESTv1 = RESTv1
+module.exports.RESTv2 = RESTv2
+module.exports.WSv1 = WSv1
+module.exports.WSv2 = WSv2
