@@ -8,3 +8,4 @@ source/images
 todo
 package-lock.json
 doc
+.env
