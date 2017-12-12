@@ -9,12 +9,14 @@ const _ = require('lodash')
 describe('REST v1', () => {
   let skipPublic = process.env.SKIP_PUBLIC_REST
 
-  before((done) => {
-    DNS.resolve('api.bitfinex.com', (err) => {
-      if (err) skipPublic = true
-      done()
+  if (!skipPublic) {
+    before((done) => {
+      DNS.resolve('api.bitfinex.com', (err) => {
+        if (err) skipPublic = true
+        done()
+      })
     })
-  })
+  }
 
   describe('errors', function () {
     const bfx_rest = new RESTv1()
