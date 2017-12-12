@@ -587,8 +587,8 @@ describe('WSv2 channel msg handling', () => {
         [300, 1, 3]
       ]], ws._channelMap[42])
 
-      assert(ws._orderBooks.tBTCUSD)
-      const ob = ws._orderBooks.tBTCUSD
+      let ob = ws.getManagedOB('tBTCUSD')
+      assert(ob !== null)
 
       assert.equal(ob.bids.length, 1)
       assert.deepEqual(ob.bids, [[300, 1, 3]])
@@ -597,6 +597,7 @@ describe('WSv2 channel msg handling', () => {
       assert.deepEqual(ob.getEntry(200), { price: 200, count: 4, amount: -8 })
 
       ws._handleOBMessage([42, [300, 0, 1]], ws._channelMap[42])
+      ob = ws.getManagedOB('tBTCUSD')
       assert.equal(ob.bids.length, 0)
     })
 
@@ -677,7 +678,7 @@ describe('WSv2 channel msg handling', () => {
         assert(ob.asks)
         assert(ob.bids)
         assert.equal(ob.asks.length, 0)
-        assert.deepEqual(ob.bids, [{ price: 100, count: 2, amount: 3 }])
+        assert.deepEqual(ob.bids, [[100, 2, 3 ]])
         done()
       })
 
@@ -710,13 +711,13 @@ describe('WSv2 channel msg handling', () => {
 
     it('correctly maintains transformed OBs', () => {
       const ws = new WSv2({ transform: true })
-      ws._orderBooks.tBTCUSD = new OrderBook()
+      ws._orderBooks.tBTCUSD = []
 
       assert(!ws._updateManagedOB('tBTCUSD', [100, 1, 1]))
       assert(!ws._updateManagedOB('tBTCUSD', [200, 1, -1]))
       assert(!ws._updateManagedOB('tBTCUSD', [200, 0, -1]))
 
-      const ob = ws._orderBooks.tBTCUSD
+      const ob = ws.getManagedOB('tBTCUSD')
 
       assert.equal(ob.bids.length, 1)
       assert.equal(ob.asks.length, 0)
@@ -853,7 +854,7 @@ describe('WSv2 channel msg handling', () => {
         key: 'trade:1m:tBTCUSD'
       }}
 
-      ws.on('candle', (key, data) => {
+      ws.on('candle', (data, key) => {
         assert.equal(key, 'trade:1m:tBTCUSD')
         assert.deepEqual(data, [[5, 10, 70, 150, 30, 10]])
         done()
@@ -941,17 +942,17 @@ describe('WSv2 channel msg handling', () => {
       const candles = ws._candles['trade:1m:tBTCUSD']
 
       assert.equal(candles.length, 3)
-      assert.deepEqual(candles[0], {
-        mts: 3, open: 100, close: 70, high: 150, low: 30, volume: 10
-      })
+      assert.deepEqual(candles[0], [
+        3, 100, 70, 150, 30, 10
+      ])
 
-      assert.deepEqual(candles[1], {
-        mts: 2, open: 10, close: 70, high: 150, low: 30, volume: 500
-      })
+      assert.deepEqual(candles[1], [
+        2, 10, 70, 150, 30, 500
+      ])
 
-      assert.deepEqual(candles[2], {
-        mts: 1, open: 10, close: 70, high: 150, low: 30, volume: 10
-      })
+      assert.deepEqual(candles[2], [
+        1, 10, 70, 150, 30, 10
+      ])
     })
 
     it('correctly maintains non-transformed OBs', () => {

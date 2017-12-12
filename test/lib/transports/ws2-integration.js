@@ -44,8 +44,8 @@ describe('WSv2 orders', () => {
   it('keeps orders up to date', (done) => {
     const wss = new MockWSServer()
     const ws = createTestWSv2Instance()
-    ws.open()
     ws.on('open', ws.auth.bind(ws))
+
     ws.once('auth', () => {
       const o = new Order({
         gid: null,
@@ -75,10 +75,12 @@ describe('WSv2 orders', () => {
             o.removeListeners()
             wss.close()
             done()
-          }, 50)
-        }, 50)
+          }, 100)
+        }, 100)
       }).catch(done)
     })
+
+    ws.open()
   })
 
   it('sends individual order packets when not buffering', (done) => {
