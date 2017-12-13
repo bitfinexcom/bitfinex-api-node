@@ -3,11 +3,28 @@
 const crypto = require('crypto')
 const request = require('request')
 
+
+var index = 0
+var proxies = null
+
+if(process.env.proxies) {
+  proxies = process.env.proxies.split(",")
+}
+
+var getProxy = function() {
+  if(proxies) {
+    index++
+    return proxies[(index % proxies.length)]
+  }
+  return null
+}
+
 function rest (key, secret, opts = {}) {
   this.url = 'https://api.bitfinex.com'
   this.version = 'v1'
   this.key = key
   this.secret = secret
+  this.proxy =
   this.nonce = Date.now()
   this.generateNonce = (typeof opts.nonceGenerator === 'function')
       ? opts.nonceGenerator
@@ -37,18 +54,21 @@ rest.prototype.make_request = function (path, params, cb) {
   headers = {
     'X-BFX-APIKEY': this.key,
     'X-BFX-PAYLOAD': payload,
-    'X-BFX-SIGNATURE': signature
+    'X-BFX-SIGNATURE': signature,
+    // 'Proxy-Authorization': this.proxyAuthoriation
   }
   return request({
     url,
     method: 'POST',
     headers,
+    proxy: getProxy(),
     timeout: 15000
   }, (err, response, body) => {
     let error, result
     if (err || (response.statusCode !== 200 && response.statusCode !== 400)) {
       return cb(new Error(err != null ? err : response.statusCode))
     }
+    console.log(body)
     try {
       result = JSON.parse(body)
     } catch (error1) {
@@ -74,9 +94,13 @@ rest.prototype.make_public_request = function (path, cb) {
   return request({
     url,
     method: 'GET',
-    timeout: 15000
+    timeout: 15000,
+    // proxyAuthoriation: getProxy()Authoriation,
+    proxy: getProxy()
   }, (err, response, body) => {
     let error, result
+    console.log(body)
+    console.log("body")
     if (err || (response.statusCode !== 200 && response.statusCode !== 400)) {
       return cb(new Error(err != null ? err : response.statusCode))
     }
