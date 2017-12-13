@@ -167,7 +167,7 @@ describe('WSv2 lifetime', () => {
       ws.reconnect()
     })
 
-    it('disconnects & connects back if currently connected', () => {
+    it('disconnects & connects back if currently connected', (done) => {
       const wss = new MockWSServer()
       const ws = createTestWSv2Instance()
 
@@ -189,6 +189,34 @@ describe('WSv2 lifetime', () => {
             done()
           }
         })
+      })
+
+      ws.open()
+    })
+
+    it('automatically auths on open if previously authenticated', (done) => {
+      const wss = new MockWSServer()
+      const ws = createTestWSv2Instance()
+
+      let closed = false
+      let opened = false
+
+      ws.on('error', done)
+
+      ws.once('open', ws.auth.bind(ws))
+      ws.once('auth', () => {
+        setTimeout(() => {
+          ws.once('close', () => closed = true)
+          ws.once('open', () => opened = true)
+          ws.once('auth', () => {
+            assert(closed)
+            assert(opened)
+            wss.close()
+            done()
+          })
+
+          ws.reconnect()
+        }, 50)
       })
 
       ws.open()
@@ -1110,5 +1138,94 @@ describe('WSv2 event msg handling', () => {
 
       ws._flushOrderOps().catch(() => assert(false))
     })
+  })
+})
+
+describe('WSv2 packet watch-dog', () => {
+  it ('resets the WD timeout on every websocket message', (done) => {
+    const ws = new WSv2({ packetWDDelay: 1000 })
+    assert.equal(ws._packetWDTimeout, null)
+
+    ws.on('error', (err) => {}) // ignore json errors
+
+    let wdResets = 0
+    ws._resetPacketWD = () => {
+      if (++wdResets === 4) done()
+    }
+
+    ws._onWSMessage('asdf')
+    ws._onWSMessage('asdf')
+    ws._onWSMessage('asdf')
+    ws._onWSMessage('asdf')
+  })
+
+  it('_resetPacketWD: clears existing wd timeout', (done) => {
+    const ws = new WSv2({ packetWDDelay: 1000 })
+    ws._packetWDTimeout = setTimeout(() => {
+      assert(false)
+    }, 100)
+
+    ws._resetPacketWD()
+    setTimeout(done, 200)
+  })
+
+  it('_resetPacketWD: schedules new wd timeout', (done) => {
+    const ws = new WSv2({ packetWDDelay: 500 })
+    ws._isOpen = true
+    ws._triggerPacketWD = () => done()
+    ws._resetPacketWD()
+    assert(ws._packetWDTimeout !== null)
+  })
+
+  it('_triggerPacketWD: does nothing if wd is disabled', (done) => {
+    const ws = new WSv2()
+    ws._isOpen = true
+    ws.reconnect = () => assert(false)
+    ws._triggerPacketWD()
+
+    setTimeout(() => {
+      done()
+    }, 50)
+  })
+
+  it('_triggerPacketWD: calls reconnect()', (done) => {
+    const ws = new WSv2({ packetWDDelay: 1000 })
+    ws._isOpen = true
+    ws.reconnect = () => done()
+    ws._triggerPacketWD()
+  })
+
+  it('triggers wd when no packet arrives after delay elapses', (done) => {
+    const ws = new WSv2({ packetWDDelay: 100 })
+    const now = Date.now()
+    ws._isOpen = true
+
+    ws.on('error', () => {}) // invalid json to prevent message routing
+    ws._triggerPacketWD = () => {
+      assert((Date.now() - now) >= 100)
+      done()
+    }
+
+    ws._onWSMessage('asdf') // send first packet, init wd
+  })
+
+  it('doesn\'t trigger wd when packets arrive as expected', (done) => {
+    const ws = new WSv2({ packetWDDelay: 100 })
+    const now = Date.now()
+    ws._isOpen = true
+
+    ws.on('error', () => {}) // invalid json to prevent message routing
+
+    const sendInterval = setInterval(() => {
+      ws._onWSMessage('asdf')
+    }, 50)
+
+    ws._triggerPacketWD = () => assert(false)
+    ws._onWSMessage('asdf')
+
+    setTimeout(() => {
+      clearInterval(sendInterval)
+      done()
+    }, 200)
   })
 })
