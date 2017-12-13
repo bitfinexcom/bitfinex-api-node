@@ -139,7 +139,7 @@ describe('Order model', () => {
         gid: 2,
         cid: 3,
         type: 'EXCHANGE LIMIT',
-        symbol: 42,
+        symbol: 42
       }).serialize())
     }
 
@@ -278,9 +278,6 @@ describe('Order model', () => {
   it('recreate: saves new order data off of response', (done) => {
     const ws = new WSv2()
     const o = new Order({ id: 42 }, ws)
-
-    let canceled = false
-    let submitted = false
 
     o.cancel = () => Promise.resolve()
     ws.submitOrder = () => {

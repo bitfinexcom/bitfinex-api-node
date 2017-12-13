@@ -1,7 +1,6 @@
 /* eslint-env mocha */
 'use strict'
 
-const assert = require('assert')
 const { Notification } = require('../../../lib/models')
 const testModel = require('../../helpers/test_model')
 

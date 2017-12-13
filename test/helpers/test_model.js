@@ -1,10 +1,13 @@
+/* eslint-env mocha */
 'use strict'
 
 const assert = require('assert')
 
 const testModel = ({ model, orderedFields, boolFields = [] }) => {
+  const Model = model
+
   it('constructs from an array source', () => {
-    const m = new model(orderedFields)
+    const m = new Model(orderedFields)
 
     orderedFields.forEach((f) => {
       if (f === null) return
@@ -21,16 +24,23 @@ const testModel = ({ model, orderedFields, boolFields = [] }) => {
     const data = {}
     orderedFields.forEach(f => (f !== null) && (data[f] = f))
 
-    const m = new model(data)
+    const m = new Model(data)
     orderedFields.forEach(f => (f !== null) && assert.equal(m[f], f))
   })
 
   it('serializes correctly', () => {
     const data = {}
-    orderedFields.forEach(f => (f !== null) && (data[f] = f))
-    boolFields.forEach(f => data[f] = false)
+    orderedFields.forEach((f) => {
+      if (f !== null) {
+        data[f] = f
+      }
+    })
 
-    const m = new model(data)
+    boolFields.forEach((f) => {
+      data[f] = false
+    })
+
+    const m = new Model(data)
     const arr = m.serialize()
 
     arr.forEach((v, i) => {

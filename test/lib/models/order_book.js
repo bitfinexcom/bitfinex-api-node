@@ -108,7 +108,6 @@ describe('OrderBook model', () => {
     assert.equal(entry, null)
   })
 
-
   it('getEntry: returns entry even with only one OB side', () => {
     const entriesA = [[100, 2, 10]]
     const entriesB = [[200, 2, -10]]

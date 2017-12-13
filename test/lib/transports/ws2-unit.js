@@ -1,11 +1,9 @@
 /* eslint-env mocha */
 'use strict'
 
-const WebSocket = require('ws')
 const assert = require('assert')
 const WSv2 = require('../../../lib/transports/ws2')
 const MockWSServer = require('../../../lib/mocks/ws_server')
-const { OrderBook } = require('../../../lib/models')
 
 const API_KEY = 'dummy'
 const API_SECRET = 'dummy'
@@ -134,7 +132,7 @@ describe('WSv2 lifetime', () => {
       })
     })
 
-    it('forwards calc param', () => {
+    it('forwards calc param', (done) => {
       const wss = new MockWSServer()
       const ws = createTestWSv2Instance()
       ws.open()
@@ -206,8 +204,8 @@ describe('WSv2 lifetime', () => {
       ws.once('open', ws.auth.bind(ws))
       ws.once('auth', () => {
         setTimeout(() => {
-          ws.once('close', () => closed = true)
-          ws.once('open', () => opened = true)
+          ws.once('close', () => { closed = true })
+          ws.once('open', () => { opened = true })
           ws.once('auth', () => {
             assert(closed)
             assert(opened)
@@ -284,8 +282,6 @@ describe('WSv2 auto reconnect', () => {
 
     ws.on('open', ws.auth.bind(ws))
     ws.once('auth', () => {
-      let now = Date.now()
-
       ws.reconnect = () => assert(false)
       ws.close()
 
@@ -351,6 +347,7 @@ describe('WSv2 seq audit', () => {
       ws._onWSMessage(JSON.stringify([42, [], 15]))
 
       assert.equal(errorsSeen, 2)
+      wss.close()
       done()
     })
 
@@ -428,7 +425,7 @@ describe('WSv2 channel msg handling', () => {
     describe('listener handling', () => {
       it('calls all registered listeners (nofilter)', (done) => {
         const ws = new WSv2()
-        ws._channelMap = { 0: { channel: 'auth' }}
+        ws._channelMap = { 0: { channel: 'auth' } }
         let called = 0
         ws.onWalletUpdate({}, () => {
           if (++called === 2) done()
@@ -443,7 +440,7 @@ describe('WSv2 channel msg handling', () => {
 
       const doFilterTest = (transform, done) => {
         const ws = new WSv2({ transform })
-        ws._channelMap = { 0: { channel: 'auth' }}
+        ws._channelMap = { 0: { channel: 'auth' } }
         let calls = 0
         let btcListenerCalled = false
 
@@ -480,8 +477,8 @@ describe('WSv2 channel msg handling', () => {
 
         const wsTransform = new WSv2({ transform: true })
         const wsNoTransform = new WSv2({ transform: false })
-        wsTransform._channelMap = { 0: { channel: 'auth' }}
-        wsNoTransform._channelMap = { 0: { channel: 'auth' }}
+        wsTransform._channelMap = { 0: { channel: 'auth' } }
+        wsNoTransform._channelMap = { 0: { channel: 'auth' } }
 
         const tradeData = [
           0, 'tBTCUSD', Date.now(), 0, 0.1, 1, 'type', 1, 1, 0.001, 'USD'
@@ -520,7 +517,7 @@ describe('WSv2 channel msg handling', () => {
   describe('onMessage', () => {
     it('calls the listener with all messages (no filter)', (done) => {
       const ws = new WSv2()
-      ws._channelMap = { 0: { channel: 'auth' }}
+      ws._channelMap = { 0: { channel: 'auth' } }
 
       let calls = 0
 
@@ -555,9 +552,13 @@ describe('WSv2 channel msg handling', () => {
   })
 
   describe('_notifyListenerGroup', () => {
-    it('notifies all matching listeners in the group', () => {
+    it('notifies all matching listeners in the group', (done) => {
       let calls = 0
-      const func = () => { if (assert(calls < 3) && ++calls === 2) { done() } }
+      const func = () => {
+        assert(calls < 3)
+        if (++calls === 2) done()
+      }
+
       const lg = {
         '': [{ cb: func }],
         'test': [{ cb: func }],
@@ -571,7 +572,7 @@ describe('WSv2 channel msg handling', () => {
   describe('_propagateMessageToListeners', () => {
     it('notifies all matching listeners', (done) => {
       const ws = new WSv2()
-      ws._channelMap = { 0: { channel: 'auth' }}
+      ws._channelMap = { 0: { channel: 'auth' } }
 
       ws.onTradeEntry({ pair: 'tBTCUSD' }, () => {
         done()
@@ -587,8 +588,8 @@ describe('WSv2 channel msg handling', () => {
 
       const lg = {
         '': [
-          { cb: d => s += d },
-          { cb: d => s += (d * 2) }
+          { cb: d => { s += d } },
+          { cb: d => { s += (d * 2) } }
         ]
       }
 
@@ -645,11 +646,11 @@ describe('WSv2 channel msg handling', () => {
 
       let errorsSeen = 0
 
-      wsNoTransform.on('error', (err) => {
+      wsNoTransform.on('error', () => {
         if (++errorsSeen === 2) done()
       })
 
-      wsTransform.on('error', (err) => {
+      wsTransform.on('error', () => {
         if (++errorsSeen === 2) done()
       })
 
@@ -706,7 +707,7 @@ describe('WSv2 channel msg handling', () => {
         assert(ob.asks)
         assert(ob.bids)
         assert.equal(ob.asks.length, 0)
-        assert.deepEqual(ob.bids, [[100, 2, 3 ]])
+        assert.deepEqual(ob.bids, [[100, 2, 3]])
         done()
       })
 
@@ -1107,7 +1108,6 @@ describe('WSv2 event msg handling', () => {
         [0, 'oc_multi', null, []],
         [0, 'ou', null, []]
       ]
-      const smallOrders = ws._orderOpBuffer.map(o => [o[1], o[3]])
 
       ws.send = (packet) => {
         assert.equal(packet[1], 'ox_multi')
@@ -1142,11 +1142,11 @@ describe('WSv2 event msg handling', () => {
 })
 
 describe('WSv2 packet watch-dog', () => {
-  it ('resets the WD timeout on every websocket message', (done) => {
+  it('resets the WD timeout on every websocket message', (done) => {
     const ws = new WSv2({ packetWDDelay: 1000 })
     assert.equal(ws._packetWDTimeout, null)
 
-    ws.on('error', (err) => {}) // ignore json errors
+    ws.on('error', () => {}) // ignore json errors
 
     let wdResets = 0
     ws._resetPacketWD = () => {
@@ -1211,7 +1211,6 @@ describe('WSv2 packet watch-dog', () => {
 
   it('doesn\'t trigger wd when packets arrive as expected', (done) => {
     const ws = new WSv2({ packetWDDelay: 100 })
-    const now = Date.now()
     ws._isOpen = true
 
     ws.on('error', () => {}) // invalid json to prevent message routing

@@ -1,7 +1,6 @@
 /* eslint-env mocha */
 'use strict'
 
-const WebSocket = require('ws')
 const assert = require('assert')
 const WSv2 = require('../../../lib/transports/ws2')
 const { Order } = require('../../../lib/models')
@@ -173,7 +172,7 @@ describe('WSv2 orders', () => {
 describe('WSv2 listeners', () => {
   it('manages listeners by cbGID', () => {
     const ws = createTestWSv2Instance()
-    ws._channelMap = { 0: { channel: 'auth' }}
+    ws._channelMap = { 0: { channel: 'auth' } }
 
     let updatesSeen = 0
     ws.onTradeUpdate({ pair: 'tBTCUSD', cbGID: 10 }, () => updatesSeen++)

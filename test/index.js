@@ -1,12 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
-const PORT = 1337
-
 const assert = require('assert')
-const http = require('http')
-const WebSocket = require('ws')
-
 const BFX = require('../index')
 const RESTv1 = require('../lib/transports/rest')
 const RESTv2 = require('../lib/transports/rest2')

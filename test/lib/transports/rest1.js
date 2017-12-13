@@ -1,6 +1,9 @@
-/* eslint-env mocha */
 'use strict'
+/* eslint-env mocha */
+/* eslint camelcase: "off" */
+/* eslint-disable no-unused-expressions */
 
+const assert = require('assert')
 const { expect } = require('chai')
 const DNS = require('dns')
 const RESTv1 = require('../../../lib/transports/rest')
@@ -36,6 +39,7 @@ describe('REST v1', () => {
       if (skipPublic) return done()
 
       bfx_rest.ticker('BTCUSD', (error, data) => {
+        assert(!error)
         expect(data).to.exist
         expect(_.has(data, ['mid',
           'bid',
@@ -52,6 +56,7 @@ describe('REST v1', () => {
       if (skipPublic) return done()
 
       bfx_rest.today('BTCUSD', (error, data) => {
+        assert(!error)
         expect(data).to.exist
         done()
       })
@@ -60,6 +65,7 @@ describe('REST v1', () => {
       if (skipPublic) return done()
 
       bfx_rest.stats('BTCUSD', (error, data) => {
+        assert(!error)
         expect(data).to.exist
         expect(_.has(data[0], ['period', 'volume']))
         expect(_.has(data[1], ['period', 'volume']))
@@ -71,14 +77,12 @@ describe('REST v1', () => {
       if (skipPublic) return done()
 
       bfx_rest.fundingbook('USD', (error, data) => {
+        assert(!error)
         expect(data).to.exist
         expect(_.has(data, ['bids', 'asks']))
         expect(_.keys(data.bids[0])).is.eql(['rate', 'amount', 'period', 'timestamp', 'frr'])
         expect(_.keys(data.asks[0])).is.eql(['rate', 'amount', 'period', 'timestamp', 'frr'])
-        expect(
-                  _.every(
-                      [data.asks[0] + data.bids[0]]
-                  ), !NaN).ok
+        expect(_.every([data.asks[0] + data.bids[0]]), !NaN).ok
         done()
       })
     })
@@ -87,14 +91,12 @@ describe('REST v1', () => {
       if (skipPublic) return done()
 
       bfx_rest.orderbook('BTCUSD', (error, data) => {
+        assert(!error)
         expect(data).to.exist
         expect(_.keys(data)).is.eql(['bids', 'asks'])
         expect(_.keys(data.bids[0])).is.eql(['price', 'amount', 'timestamp'])
         expect(_.keys(data.asks[0])).is.eql(['price', 'amount', 'timestamp'])
-        expect(
-                  _.every(
-                      [data.asks[0] + data.bids[0]]
-                  ), !NaN).ok
+        expect(_.every([data.asks[0] + data.bids[0]]), !NaN).ok
         done()
       })
     })
@@ -102,15 +104,13 @@ describe('REST v1', () => {
       if (skipPublic) return done()
 
       bfx_rest.trades('BTCUSD', (error, data) => {
+        assert(!error)
         expect(data).is.an.array
         expect(data.length).to.eql(100)
         expect(_.keys(data[0])).to.eql(['timestamp', 'tid', 'price', 'amount', 'exchange', 'type'])
         expect(
-                  _.map(
-                      _.values(
-                          data[0]
-                      ), (v) => typeof (v)
-                  )).is.eql(['number', 'number', 'string', 'string', 'string', 'string'])
+          _.map(_.values(data[0]), (v) => typeof (v))
+        ).is.eql(['number', 'number', 'string', 'string', 'string', 'string'])
         done()
       })
     })
@@ -118,16 +118,14 @@ describe('REST v1', () => {
       if (skipPublic) return done()
 
       bfx_rest.lends('USD', (error, data) => {
+        assert(!error)
         expect(data).to.exist
         expect(data).is.an.array
         expect(data.length).to.eql(50)
         expect(_.keys(data[0])).to.eql(['rate', 'amount_lent', 'amount_used', 'timestamp'])
         expect(
-                  _.map(
-                      _.values(
-                          data[0]
-                      ), (v) => typeof (v)
-                  )).is.eql(['string', 'string', 'string', 'number'])
+          _.map(_.values(data[0]), (v) => typeof (v))
+        ).is.eql(['string', 'string', 'string', 'number'])
         done()
       })
     })
@@ -135,6 +133,7 @@ describe('REST v1', () => {
       if (skipPublic) return done()
 
       bfx_rest.get_symbols((error, data) => {
+        assert(!error)
         expect(data[0]).to.eql('btcusd')
         done()
       })
@@ -143,6 +142,7 @@ describe('REST v1', () => {
       if (skipPublic) return done()
 
       bfx_rest.symbols_details((error, data) => {
+        assert(!error)
         expect(data).to.exist
         expect(data[0].pair).to.eql('btcusd')
         done()
