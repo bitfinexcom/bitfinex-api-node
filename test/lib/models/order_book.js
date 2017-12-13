@@ -108,6 +108,18 @@ describe('OrderBook model', () => {
     assert.equal(entry, null)
   })
 
+
+  it('getEntry: returns entry even with only one OB side', () => {
+    const entriesA = [[100, 2, 10]]
+    const entriesB = [[200, 2, -10]]
+
+    const obA = new OrderBook(entriesA)
+    const obB = new OrderBook(entriesB)
+
+    assert.deepEqual(obA.getEntry(100), { price: 100, count: 2, amount: 10 })
+    assert.deepEqual(obB.getEntry(200), { price: 200, count: 2, amount: -10 })
+  })
+
   it('getEntry: unserializes entry before returning', () => {
     const entries = [
       [100, 2, 10],
