@@ -16,7 +16,7 @@ ws.on('open', () => {
   ws.auth()
 })
 
-ws.on('auth', () => {
+ws.once('auth', () => {
   debug('authenticated')
 
   // Build new order

@@ -28,7 +28,7 @@ ws.onOrderSnapshot({}, (snapshot) => {
   })
 })
 
-ws.on('auth', () => {
+ws.once('auth', () => {
   debug('authenticated')
 })
 
