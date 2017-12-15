@@ -1,5 +1,6 @@
 'use strict'
 
+const Models = require('./lib/models')
 const RESTv1 = require('./lib/transports/rest.js')
 const WSv1 = require('./lib/transports/ws.js')
 const RESTv2 = require('./lib/transports/rest2.js')
@@ -105,3 +106,4 @@ module.exports.RESTv1 = RESTv1
 module.exports.RESTv2 = RESTv2
 module.exports.WSv1 = WSv1
 module.exports.WSv2 = WSv2
+module.exports.Models = Models
