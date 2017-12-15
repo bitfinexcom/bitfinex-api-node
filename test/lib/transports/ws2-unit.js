@@ -50,6 +50,11 @@ describe('WSv2 utilities', () => {
     }
     ws.enableSequencing()
   })
+
+  it('getCandles: returns empty array if no candle set is available', () => {
+    const ws = new WSv2()
+    assert.deepEqual(ws.getCandles('i.dont.exist'), [])
+  })
 })
 
 describe('WSv2 lifetime', () => {
@@ -389,6 +394,48 @@ describe('WSv2 ws event handlers', () => {
 
     ws._onWSMessage(JSON.stringify(msg), flags)
   })
+
+  it('_onWSNotification: triggers event callbacks for new orders', (done) => {
+    const ws = new WSv2()
+    const kNew = 'order-new-42'
+
+    ws._eventCallbacks.push(kNew, (err, order) => {
+      assert(!err)
+      assert(order)
+      assert.deepEqual(order, [0, 0, 42])
+
+      ws._eventCallbacks.push(kNew, (err, order) => {
+        assert(err)
+        assert.deepEqual(order, [0, 0, 42])
+        done()
+      })
+
+      ws._onWSNotification([0, 'on-req', null, null, [0, 0, 42], 0, 'ERROR'])
+    })
+
+    ws._onWSNotification([0, 'on-req', null, null, [0, 0, 42], 0, 'SUCCESS'])
+  })
+
+  it('_onWSNotification: triggers event callbacks for cancelled orders', (done) => {
+    const ws = new WSv2()
+    const kCancel = 'order-cancel-42'
+
+    ws._eventCallbacks.push(kCancel, (err, order) => {
+      assert(!err)
+      assert(order)
+      assert.deepEqual(order, [42])
+
+      ws._eventCallbacks.push(kCancel, (err, order) => {
+        assert(err)
+        assert.deepEqual(order, [42])
+        done()
+      })
+
+      ws._onWSNotification([0, 'oc-req', null, null, [42], 0, 'ERROR'])
+    })
+
+    ws._onWSNotification([0, 'oc-req', null, null, [42], 0, 'SUCCESS'])
+ })
 })
 
 describe('WSv2 channel msg handling', () => {
@@ -982,6 +1029,22 @@ describe('WSv2 channel msg handling', () => {
 })
 
 describe('WSv2 event msg handling', () => {
+  it('_handleErrorEvent: emits error', (done) => {
+    const ws = new WSv2()
+    ws.on('error', (err) => {
+      if (err === 42) done()
+    })
+    ws._handleErrorEvent(42)
+  })
+
+  it('_handleConfigEvent: emits error if config failed', (done) => {
+    const ws = new WSv2()
+    ws.on('error', (err) => {
+      if (err.code === 42) done()
+    })
+    ws._handleConfigEvent({ status: 'bad', code: 42 })
+  })
+
   it('_handleAuthEvent: emits an error on auth fail', (done) => {
     const ws = new WSv2()
     ws.on('error', () => {
@@ -1034,13 +1097,23 @@ describe('WSv2 event msg handling', () => {
   })
 
   it('_handleInfoEvent: closes & emits error if not on api v2', (done) => {
+    const wss = new MockWSServer()
     const ws = createTestWSv2Instance()
     let seen = 0
 
-    ws.on('error', () => { if (++seen === 2) { done() } })
-    ws.on('close', () => { if (++seen === 2) { done() } })
+    const d = () => {
+      wss.close()
+      done()
+    }
 
-    ws._handleInfoEvent({ version: 3 })
+    ws.once('open', () => {
+      ws.on('error', () => { if (++seen === 2) { d() } })
+      ws.on('close', () => { if (++seen === 2) { d() } })
+
+      ws._handleInfoEvent({ version: 3 })
+    })
+
+    ws.open()
   })
 
   it('_flushOrderOps: returned promise rejects if not authorised', (done) => {

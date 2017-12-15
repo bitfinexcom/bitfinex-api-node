@@ -76,4 +76,8 @@ describe('ws1 channel msg handling', () => {
 
     bfxWs._handleChannel(snap)
   })
+
+  it('ws1 _handleChannel ignores heartbeats')
+  it('ws1 _processUserEvent emits data, breaks up snapshots')
+  it('ws1 _processTradeEvent emits a single trade for te & tu messages')
 })
