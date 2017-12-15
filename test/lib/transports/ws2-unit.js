@@ -64,9 +64,10 @@ describe('WSv2 lifetime', () => {
     const wss = new MockWSServer()
     const ws = createTestWSv2Instance()
     ws.on('open', () => {
-      assert.throws(ws.open.bind(ws))
-      wss.close()
-      done()
+      ws.open().then(() => assert(false)).catch(() => {
+        wss.close()
+        done()
+      })
     })
     ws.open()
   })
@@ -82,9 +83,11 @@ describe('WSv2 lifetime', () => {
     ws.open()
   })
 
-  it('close: doesn\'t close if not open', () => {
+  it('close: doesn\'t close if not open', (done) => {
     const ws = createTestWSv2Instance()
-    assert.throws(ws.close.bind(ws))
+    ws.close().then(() => assert(false)).catch(() => {
+      done()
+    })
   })
 
   it('close: fails to close twice', (done) => {
@@ -93,9 +96,10 @@ describe('WSv2 lifetime', () => {
     ws.open()
     ws.on('open', ws.close.bind(ws))
     ws.on('close', () => {
-      assert.throws(ws.close.bind(ws))
-      wss.close()
-      done()
+      ws.close().then(() => assert(false)).catch(() => {
+        wss.close()
+        done()
+      })
     })
   })
 
@@ -105,9 +109,10 @@ describe('WSv2 lifetime', () => {
     ws.open()
     ws.on('open', ws.auth.bind(ws))
     ws.once('auth', () => {
-      assert.throws(ws.auth.bind(ws))
-      wss.close()
-      done()
+      ws.auth().then(() => assert(false)).catch(() => {
+        wss.close()
+        done()
+      })
     })
   })
 
