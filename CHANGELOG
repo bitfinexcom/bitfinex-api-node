@@ -10,6 +10,7 @@
 - WS API v2: most callback methods now support message filtering
 - WS API v2: replaced transform logic w/ model classes (i.e. Order)
 - WS API v2: many methods now return promises, such as submitOrder()
+- REST API v2: transform method updated to match WSv2 class
 - REST API v1: minor refactor, methods unchanged
 - REST API v2: minor refactor, methods unchanged
 - WS API v1: minor refactor, methods unchanged
