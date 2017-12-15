@@ -435,7 +435,7 @@ describe('WSv2 ws event handlers', () => {
     })
 
     ws._onWSNotification([0, 'oc-req', null, null, [42], 0, 'SUCCESS'])
- })
+  })
 })
 
 describe('WSv2 channel msg handling', () => {

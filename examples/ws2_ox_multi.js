@@ -23,21 +23,21 @@ ws.once('auth', () => {
     symbol: 'tBTCUSD',
     price: 200,
     amount: 1,
-    type: 'EXCHANGE LIMIT',
+    type: 'EXCHANGE LIMIT'
   }, ws)
 
   const oB = new Order({
     symbol: 'tETHUSD',
     price: 50,
     amount: 1,
-    type: 'EXCHANGE LIMIT',
+    type: 'EXCHANGE LIMIT'
   }, ws)
 
   const oC = new Order({
     symbol: 'tETHBTC',
     price: 1,
     amount: 1,
-    type: 'EXCHANGE LIMIT',
+    type: 'EXCHANGE LIMIT'
   }, ws)
 
   oA.submit().then(() => {
