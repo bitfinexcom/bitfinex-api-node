@@ -64,16 +64,18 @@ class BFX {
       throw new Error(`invalid http API version: ${version}`)
     }
 
-    if (!this._transportCache.rest[version]) {
+    const key = `${version}|${JSON.stringify(extraOpts)}`
+
+    if (!this._transportCache.rest[key]) {
       Object.assign(extraOpts, this._restArgs)
       const payload = this._getTransportPayload(extraOpts)
 
-      this._transportCache.rest[version] = version === 2
+      this._transportCache.rest[key] = version === 2
         ? new RESTv2(payload)
         : new RESTv1(payload)
     }
 
-    return this._transportCache.rest[version]
+    return this._transportCache.rest[key]
   }
 
   /**
@@ -88,16 +90,18 @@ class BFX {
       throw new Error(`invalid websocket API version: ${version}`)
     }
 
-    if (!this._transportCache.ws[version]) {
+    const key = `${version}|${JSON.stringify(extraOpts)}`
+
+    if (!this._transportCache.ws[key]) {
       Object.assign(extraOpts, this._wsArgs)
       const payload = this._getTransportPayload(extraOpts)
 
-      this._transportCache.ws[version] = version === 2
+      this._transportCache.ws[key] = version === 2
         ? new WSv2(payload)
         : new WSv1(payload)
     }
 
-    return this._transportCache.ws[version]
+    return this._transportCache.ws[key]
   }
 }
 
