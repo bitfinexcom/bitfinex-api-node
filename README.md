@@ -2,97 +2,152 @@
 
 [![Build Status](https://travis-ci.org/bitfinexcom/bitfinex-api-node.svg?branch=master)](https://travis-ci.org/bitfinexcom/bitfinex-api-node)
 
-A Node.JS reference implementation of the Bitfinex API. See the full docs at <http://bitfinexcom.github.io/bitfinex-api-node/>
+A Node.JS reference implementation of the Bitfinex API
 
 * Official implementation
-* REST API
-* WebSockets API
+* REST v2 API
+* WebSockets v2 API
 
 ## Installation
 ```bash
-  npm install bitfinex-api-node
+  npm i bitfinex-api-node
 ```
+
+See doc/ for REST2 and WS2 API methods.
 
 ## Usage
 
-Version 1.0.0 supports the new v2 Websocket and Rest API. As Network calls are slow, the data is sent as lists.
+Version 2.0.0 of `bitfinex-api-node` supports the v2 REST and WebSocket APIs. The clients for v1 of those APIs are maintained for backwards compatibility, but deprecated.
 
-In order to reconstruct key / value pairs, set `opts.transform` to `true`.
+As network calls are slow, data is sent as arrays. In order to reconstruct key / value pairs, set `opts.transform` to `true` when creating an interface.
+
+The BFX constructor returns a client manager, which can be used to create clients for v1 & v2 of the REST and WebSocket APIs via `.rest()` and `.ws()`. The options for the clients can be defined here, or passed in later
 
 ```js
 const BFX = require('bitfinex-api-node')
 
-const API_KEY = 'secret'
-const API_SECRET = 'secret'
+const bfx = new BFX({
+  apiKey: '...',
+  apiSecret: '...',
 
-const opts = {
-  version: 2,
-  transform: true
-}
-
-const bws = new BFX(API_KEY, API_SECRET, opts).ws
-
-bws.on('auth', () => {
-  // emitted after .auth()
-  // needed for private api endpoints
-
-  console.log('authenticated')
-  // bws.submitOrder ...
+  ws: {
+    autoReconnect: true,
+    seqAudit: true,
+    packetWDDelay: 10 * 1000
+  }
 })
-
-bws.on('open', () => {
-  bws.subscribeTicker('BTCUSD')
-  bws.subscribeOrderBook('BTCUSD')
-  bws.subscribeTrades('BTCUSD')
-
-  // authenticate
-  // bws.auth()
-})
-
-bws.on('orderbook', (pair, book) => {
-  console.log('Order book:', book)
-})
-
-bws.on('trade', (pair, trade) => {
-  console.log('Trade:', trade)
-})
-
-bws.on('ticker', (pair, ticker) => {
-  console.log('Ticker:', ticker)
-})
-
-bws.on('error', console.error)
 ```
 
-## new BFX(API_KEY, API_SECRET, opts)
+The clients are cached per version/options pair, and default to version 2:
 
-Where opts can be:
+```js
+let ws2 = bfx.ws() //
+ws2 = bfx.ws(2)    // same client
+const ws1 = bfx.ws(1)
 
+const rest2 = bfx.rest(2, {
+  // options
+})
 ```
-const opts = {
-  // use v1 or v2 of the API, values: 1, 2
-  version: 2,
-  // transform lists for the v2 API. values: true, false, function
-  transform: true
-}
+
+The websocket client is recommended for receiving realtime data & notifications
+on completed actions.
+
+## WS2 Example: Sending an order & tracking status
+
+```js
+const ws = bfx.ws()
+
+ws.on('error', (err) => console.log(err))
+ws.on('open', ws.auth.bind(ws))
+
+ws.once('auth', () => {
+  const o = new Order({
+    cid: Date.now(),
+    symbol: 'tETHUSD',
+    amount: 0.1,
+    type: Order.type.MARKET
+  }, ws)
+
+  // Enable automatic updates
+  o.registerListeners()
+
+  o.on('update', () => {
+    console.log(`order updated: ${o.serialize()}`)
+  })
+
+  o.on('close', () => {
+    console.log(`order closed: ${o.status}`)
+    ws.close()
+  })
+
+  o.submit().then(() => {
+    console.log(`submitted order ${o.id}`)
+  }).catch((err) => {
+    console.error(err)
+    ws.close()
+  })
+})
 ```
 
-## Version 1.0.0 Breaking changes:
+## WS2 Example: Cancel all open orders
 
-### constructor takes an options object now, instead of version number:
+```js
+const ws = bfx.ws()
+
+ws.on('error', (err) => console.log(err))
+ws.on('open', ws.auth.bind(ws))
+
+ws.onOrderSnapshot({}, (orders) => {
+  if (orders.length === 0) {
+    console.log('no open orders')
+    return
+  }
+
+  console.log(`recv ${orders.length} open orders`)
+
+  ws.cancelOrders(orders).then(() => {
+    console.log('cancelled orders')
+  })
+})
+
+ws.open()
+```
+
+## WS2 Example: Subscribe to trades by pair
+
+```js
+const ws = bfx.ws()
+
+ws.on('error', (err) => console.log(err))
+ws.on('open', () => {
+  ws.onTrade({ pair: 'BTCUSD' }, (trade) => {
+    if (Array.isArray(trade[0])) {
+      console.log(`recv snapshot of ${trade.length} trades`)
+    } else {
+      console.log(`trade: ${JSON.stringify(trade)}`)
+    }
+  })
+})
+
+ws.open()
+```
+
+## Version 2.0.0 Breaking changes:
+
+### constructor takes only an options object now, including the API keys.
 
 Old:
 
 ```js
-new BFX(API_KEY, API_SECRET, 2)
-```
-
-since 1.0.0:
-
-```js
 new BFX(API_KEY, API_SECRET, { version: 2 })
 ```
-**Note** version must be of type `Number`.
+
+since 2.0.0:
+
+```js
+new BFX({ apiKey: '', apiSecret: '' })
+```
 
 ### `trade` and `orderbook` snapshots are emitted as nested lists
 
@@ -102,8 +157,7 @@ To make dealing with snapshots better predictable, snapshots are emitted as an a
 
 Lists of raw orderbooks (`R0`) are ordered in the same order as `P0`, `P1`, `P2`, `P3`
 
-
-## Tests
+## Testing
 
 ```bash
 npm test
@@ -136,3 +190,4 @@ If you need to go parallel, you have to use multiple API keys right now.
  - Andrew &lt;androng@users.noreply.github.com&gt;
  - Rob Ellis &lt;rob@silentrob.me&gt;
  - MaxSvargal &lt;maxsvargal@gmail.com&gt;
+ - Cris Mihalache &lt;me@f3rno.com&gt;

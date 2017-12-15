@@ -7,5 +7,4 @@ source/images
 .DS_Store
 todo
 package-lock.json
-doc
 .env
