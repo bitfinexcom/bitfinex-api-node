@@ -10,7 +10,7 @@ class Rest2 {
     this.version = 'v2'
     this.key = key
     this.secret = secret
-    this.nonce = Date.now()
+    this.nonce = Date.now() * 1000
     this.generateNonce = (typeof opts.nonceGenerator === 'function')
       ? opts.nonceGenerator
       : function () {
