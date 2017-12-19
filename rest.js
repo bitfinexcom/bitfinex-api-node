@@ -8,7 +8,7 @@ function rest (key, secret, opts = {}) {
   this.version = 'v1'
   this.key = key
   this.secret = secret
-  this.nonce = Date.now()
+  this.nonce = Date.now() * 1000
   this.generateNonce = (typeof opts.nonceGenerator === 'function')
       ? opts.nonceGenerator
       : function () {
