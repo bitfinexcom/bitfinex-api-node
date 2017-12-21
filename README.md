@@ -8,12 +8,14 @@ A Node.JS reference implementation of the Bitfinex API
 * REST v2 API
 * WebSockets v2 API
 
+Documentation at [https://docs.bitfinex.com/v2/reference](https://docs.bitfinex.com/v2/reference)
+
 ## Installation
 ```bash
   npm i bitfinex-api-node
 ```
 
-See doc/ for REST2 and WS2 API methods.
+See `doc/` for REST2 and WS2 API methods.
 
 ## Usage
 
@@ -52,6 +54,8 @@ const rest2 = bfx.rest(2, {
 
 The websocket client is recommended for receiving realtime data & notifications
 on completed actions.
+
+For more examples, check the `examples/` folder.
 
 ## WS2 Example: Sending an order & tracking status
 

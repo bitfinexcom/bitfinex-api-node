@@ -3,68 +3,68 @@
 
 const assert = require('assert')
 
-const testModel = ({ model, orderedFields, boolFields = [] }) => {
+const testModel = ({ values = {}, model, orderedFields, boolFields = [] }) => {
   const Model = model
+  const fields = orderedFields
+  const fieldValues = fields.slice()
+
+  // Apply overrides
+  for (let i = 0; i < fields.length; i++) {
+    if (values[fields[i]]) {
+      fieldValues[i] = values[fields[i]]
+    }
+  }
+
+  const checkModelFields = (m) => {
+    fields.forEach((f) => {
+      checkField(m, f)
+    })
+  }
+
+  const checkField = (m, f) => {
+    if (f === null) return
+
+    if (boolFields.indexOf(f) !== -1) {
+      assert.equal(m[f], false)
+    } else if (values[f]) {
+      assert.equal(m[f], values[f])
+    } else {
+      assert.equal(m[f], f)
+    }
+  }
 
   it('constructs from an array source', () => {
-    const m = new Model(orderedFields)
-
-    orderedFields.forEach((f) => {
-      if (f === null) return
-
-      if (boolFields.indexOf(f) !== -1) {
-        assert.equal(m[f], false)
-      } else {
-        assert.equal(m[f], f)
-      }
-    })
+    const m = new Model(fieldValues)
+    checkModelFields(m)
   })
 
   it('constructs from an object source', () => {
     const data = {}
-    orderedFields.forEach(f => (f !== null) && (data[f] = f))
+    fields.forEach(f => (f !== null) && (data[f] = f))
+    boolFields.forEach((f) => { data[f] = false })
+    Object.assign(data, values)
 
     const m = new Model(data)
-    orderedFields.forEach(f => (f !== null) && assert.equal(m[f], f))
+    checkModelFields(m)
   })
 
   it('serializes correctly', () => {
     const data = {}
-    orderedFields.forEach((f) => {
-      if (f !== null) {
-        data[f] = f
-      }
-    })
-
-    boolFields.forEach((f) => {
-      data[f] = false
-    })
+    fields.forEach(f => (f !== null) && (data[f] = f))
+    boolFields.forEach((f) => { data[f] = false })
+    Object.assign(data, values)
 
     const m = new Model(data)
     const arr = m.serialize()
 
     arr.forEach((v, i) => {
-      if (v === null) return
-
-      if (boolFields.indexOf(orderedFields[i]) !== -1) {
-        assert.equal(v, 0)
-      } else {
-        assert.equal(v, orderedFields[i])
-      }
+      checkField(m, fields[i])
     })
   })
 
   it('unserializes correctly', () => {
-    const m = model.unserialize(orderedFields)
-    orderedFields.forEach((f) => {
-      if (f === null) return
-
-      if (boolFields.indexOf(f) !== -1) {
-        assert.equal(m[f], false)
-      } else {
-        assert.equal(m[f], f)
-      }
-    })
+    const m = model.unserialize(fieldValues)
+    checkModelFields(m)
   })
 }
 

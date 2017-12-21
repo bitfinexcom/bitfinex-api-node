@@ -3,7 +3,7 @@
 
 const assert = require('assert')
 const WSv2 = require('../../../lib/transports/ws2')
-const MockWSServer = require('../../../lib/mocks/ws_server')
+const { MockWSv2Server } = require('api-mock-srv')
 
 const API_KEY = 'dummy'
 const API_SECRET = 'dummy'
@@ -12,7 +12,7 @@ const createTestWSv2Instance = (params = {}) => {
   return new WSv2(Object.assign({
     apiKey: API_KEY,
     apiSecret: API_SECRET,
-    url: 'ws://localhost:1337'
+    url: 'ws://localhost:9997'
   }, params))
 }
 
@@ -66,7 +66,7 @@ describe('WSv2 lifetime', () => {
   })
 
   it('open: fails to open twice', (done) => {
-    const wss = new MockWSServer()
+    const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
     ws.on('open', () => {
       ws.open().then(() => assert(false)).catch(() => {
@@ -78,7 +78,7 @@ describe('WSv2 lifetime', () => {
   })
 
   it('open: updates open flag', (done) => {
-    const wss = new MockWSServer()
+    const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
     ws.on('open', () => {
       assert.equal(ws.isOpen(), true)
@@ -96,7 +96,7 @@ describe('WSv2 lifetime', () => {
   })
 
   it('close: fails to close twice', (done) => {
-    const wss = new MockWSServer()
+    const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
     ws.open()
     ws.on('open', ws.close.bind(ws))
@@ -109,7 +109,7 @@ describe('WSv2 lifetime', () => {
   })
 
   it('auth: fails to auth twice', (done) => {
-    const wss = new MockWSServer()
+    const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
     ws.open()
     ws.on('open', ws.auth.bind(ws))
@@ -122,7 +122,7 @@ describe('WSv2 lifetime', () => {
   })
 
   it('auth: updates auth flag', (done) => {
-    const wss = new MockWSServer()
+    const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
     ws.open()
     ws.on('open', ws.auth.bind(ws))
@@ -134,7 +134,7 @@ describe('WSv2 lifetime', () => {
   })
 
   it('auth: forwards calc param', (done) => {
-    const wss = new MockWSServer()
+    const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
     ws.open()
     ws.on('open', () => {
@@ -149,7 +149,7 @@ describe('WSv2 lifetime', () => {
   })
 
   it('reconnect: connects if not already connected', (done) => {
-    const wss = new MockWSServer()
+    const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
 
     ws.on('close', () => {
@@ -165,7 +165,7 @@ describe('WSv2 lifetime', () => {
   })
 
   it('reconnect: disconnects & connects back if currently connected', (done) => {
-    const wss = new MockWSServer()
+    const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
 
     let calls = 0
@@ -192,7 +192,7 @@ describe('WSv2 lifetime', () => {
   })
 
   it('reconnect: automatically auths on open if previously authenticated', (done) => {
-    const wss = new MockWSServer()
+    const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
 
     let closed = false
@@ -236,7 +236,7 @@ describe('WSv2 constructor', () => {
 
 describe('WSv2 auto reconnect', () => {
   it('reconnects on close if autoReconnect is enabled', (done) => {
-    const wss = new MockWSServer()
+    const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance({
       autoReconnect: true
     })
@@ -251,7 +251,7 @@ describe('WSv2 auto reconnect', () => {
   })
 
   it('respects reconnectDelay', (done) => {
-    const wss = new MockWSServer()
+    const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance({
       autoReconnect: true,
       reconnectDelay: 75
@@ -273,7 +273,7 @@ describe('WSv2 auto reconnect', () => {
   })
 
   it('does not auto-reconnect if explicity closed', (done) => {
-    const wss = new MockWSServer()
+    const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance({
       autoReconnect: true
     })
@@ -295,7 +295,7 @@ describe('WSv2 auto reconnect', () => {
 
 describe('WSv2 seq audit', () => {
   it('automatically enables sequencing if seqAudit is true in constructor', (done) => {
-    const wss = new MockWSServer()
+    const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance({
       seqAudit: true
     })
@@ -313,7 +313,7 @@ describe('WSv2 seq audit', () => {
   })
 
   it('emits error on invalid seq number', (done) => {
-    const wss = new MockWSServer()
+    const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance({
       seqAudit: true
     })
@@ -1097,7 +1097,7 @@ describe('WSv2 event msg handling', () => {
   })
 
   it('_handleInfoEvent: closes & emits error if not on api v2', (done) => {
-    const wss = new MockWSServer()
+    const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
     let seen = 0
 

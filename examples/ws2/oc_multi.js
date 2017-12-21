@@ -4,7 +4,7 @@ process.env.DEBUG = '*'
 
 const debug = require('debug')('bfx:examples:ws2_oc_multi')
 const { Order } = require('../lib/models')
-const bfx = require('./bfx')
+const bfx = require('../bfx')
 const ws = bfx.ws(2)
 
 ws.on('error', (err) => {

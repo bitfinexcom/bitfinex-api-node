@@ -3,7 +3,7 @@
 process.env.DEBUG = 'bfx:examples:*'
 
 const debug = require('debug')('bfx:examples:ws2_auth')
-const bfx = require('./bfx')
+const bfx = require('../bfx')
 const ws = bfx.ws(2)
 
 ws.on('open', () => { // wait for socket open

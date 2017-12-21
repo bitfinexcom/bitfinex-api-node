@@ -4,7 +4,7 @@
 const assert = require('assert')
 const WSv2 = require('../../../lib/transports/ws2')
 const { Order } = require('../../../lib/models')
-const MockWSServer = require('../../../lib/mocks/ws_server')
+const { MockWSv2Server } = require('api-mock-srv')
 
 const API_KEY = 'dummy'
 const API_SECRET = 'dummy'
@@ -13,20 +13,20 @@ const createTestWSv2Instance = (params = {}) => {
   return new WSv2(Object.assign({
     apiKey: API_KEY,
     apiSecret: API_SECRET,
-    url: 'ws://localhost:1337'
+    url: 'ws://localhost:9997'
   }, params))
 }
 
 describe('WSv2 orders', () => {
   it('creates & confirms orders', (done) => {
-    const wss = new MockWSServer()
+    const wss = new MockWSv2Server({ listen: true })
     const ws = createTestWSv2Instance()
     ws.open()
     ws.on('open', ws.auth.bind(ws))
     ws.once('auth', () => {
       const o = new Order({
         gid: null,
-        cid: Date.now(),
+        cid: 0,
         type: 'EXCHANGE LIMIT',
         price: 100,
         amount: 1,
@@ -41,14 +41,14 @@ describe('WSv2 orders', () => {
   })
 
   it('keeps orders up to date', (done) => {
-    const wss = new MockWSServer()
+    const wss = new MockWSv2Server({ listen: true })
     const ws = createTestWSv2Instance()
     ws.on('open', ws.auth.bind(ws))
 
     ws.once('auth', () => {
       const o = new Order({
         gid: null,
-        cid: Date.now(),
+        cid: 0,
         type: 'EXCHANGE LIMIT',
         price: 100,
         amount: 1,
@@ -83,7 +83,7 @@ describe('WSv2 orders', () => {
   })
 
   it('sends individual order packets when not buffering', (done) => {
-    const wss = new MockWSServer()
+    const wss = new MockWSv2Server()
     const wsSingle = createTestWSv2Instance()
     wsSingle.open()
     wsSingle.on('open', wsSingle.auth.bind(wsSingle))
@@ -125,7 +125,7 @@ describe('WSv2 orders', () => {
   })
 
   it('buffers order packets', (done) => {
-    const wss = new MockWSServer()
+    const wss = new MockWSv2Server()
     const wsMulti = createTestWSv2Instance({
       orderOpBufferDelay: 100
     })
@@ -189,7 +189,7 @@ describe('WSv2 listeners', () => {
 
   it('tracks channel refs to auto sub/unsub', (done) => {
     const ws = createTestWSv2Instance()
-    const wss = new MockWSServer()
+    const wss = new MockWSv2Server()
     let subs = 0
     let unsubs = 0
 

@@ -8,7 +8,7 @@ Communicates with v2 of the Bitfinex HTTP API
 * [RESTv2](#RESTv2)
     * [new RESTv2(opts)](#new_RESTv2_new)
     * [.ticker(symbol, cb)](#RESTv2+ticker) ⇒ <code>Promise</code>
-    * [.tickers(cb)](#RESTv2+tickers) ⇒ <code>Promise</code>
+    * [.tickers(symbols, cb)](#RESTv2+tickers) ⇒ <code>Promise</code>
     * [.stats(key, context, cb)](#RESTv2+stats) ⇒ <code>Promise</code>
     * [.candles(opts, cb)](#RESTv2+candles) ⇒ <code>Promise</code>
     * [.alertList(type, cb)](#RESTv2+alertList) ⇒ <code>Promise</code>
@@ -59,12 +59,13 @@ Instantiate a new REST v2 transport.
 
 <a name="RESTv2+tickers"></a>
 
-### resTv2.tickers(cb) ⇒ <code>Promise</code>
+### resTv2.tickers(symbols, cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
 
 | Param | Type |
 | --- | --- |
+| symbols | <code>Array.&lt;string&gt;</code> | 
 | cb | <code>Method</code> | 
 
 <a name="RESTv2+stats"></a>

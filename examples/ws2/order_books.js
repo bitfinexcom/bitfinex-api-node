@@ -3,7 +3,7 @@
 process.env.DEBUG = 'bfx:examples:*'
 
 const debug = require('debug')('bfx:examples:ws2_order_books')
-const bfx = require('./bfx')
+const bfx = require('../bfx')
 
 const ws = bfx.ws(2, {
   manageOrderBooks: true,  // tell the ws client to maintain full sorted OBs

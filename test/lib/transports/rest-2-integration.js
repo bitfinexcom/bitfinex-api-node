@@ -3,7 +3,7 @@
 
 const assert = require('assert')
 const RESTv2 = require('../../../lib/transports/rest2')
-const { MockRESTv2Server } = require('bfx-api-mock-srv')
+const { MockRESTv2Server } = require('api-mock-srv')
 
 const getTestREST2 = () => {
   return new RESTv2({
@@ -31,7 +31,7 @@ describe('RESTv2 integration (mock server) tests', () => {
   const methods = [
     // public
     ['ticker', 'ticker.BTCUSD', ['BTCUSD']],
-    ['tickers'],
+    ['tickers', 'tickers', [['tBTCUSD', 'tETHUSD']]],
     ['stats', 'stats.key.context', ['key', 'context']],
     ['candles', 'candles.trade:30m:tBTCUSD.hist', [{ timeframe: '30m', symbol: 'tBTCUSD', section: 'hist' }]],
 

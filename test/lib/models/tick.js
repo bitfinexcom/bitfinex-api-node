@@ -4,12 +4,30 @@
 const { Tick } = require('../../../lib/models')
 const testModel = require('../../helpers/test_model')
 
-describe('Tick model', () => {
+describe('Trade Tick model', () => {
   testModel({
     model: Tick,
+    values: {
+      symbol: 'tBTCUSD',
+    },
+
     orderedFields: [
-      'symbol', 'frr', 'bid', 'bidPeriod', 'bidSize', 'ask', 'askPeriod',
-      'askSize', 'dailyChange', 'dailyChangePerc', 'lastPrice', 'volume',
+      'symbol', 'bid', 'bidSize', 'ask', 'askSize', 'dailyChange',
+      'dailyChangePerc', 'lastPrice', 'volume', 'high', 'low'
+    ]
+  })
+})
+
+describe('Funding Tick model', () => {
+  testModel({
+    model: Tick,
+    values: {
+      symbol: 'fUSD',
+    },
+
+    orderedFields: [
+      'symbol', 'frr', 'bid', 'bidSize', 'bidPeriod', 'ask', 'askSize',
+      'askPeriod', 'dailyChange', 'dailyChangePerc', 'lastPrice', 'volume',
       'high', 'low'
     ]
   })

@@ -3,7 +3,7 @@
 process.env.DEBUG = '*'
 
 const debug = require('debug')('bfx:examples:ws2_calc')
-const bfx = require('./bfx')
+const bfx = require('../bfx')
 const ws = bfx.ws(2)
 
 ws.on('error', (err) => {
