@@ -8,7 +8,7 @@ describe('Trade Tick model', () => {
   testModel({
     model: Tick,
     values: {
-      symbol: 'tBTCUSD',
+      symbol: 'tBTCUSD'
     },
 
     orderedFields: [
@@ -22,7 +22,7 @@ describe('Funding Tick model', () => {
   testModel({
     model: Tick,
     values: {
-      symbol: 'fUSD',
+      symbol: 'fUSD'
     },
 
     orderedFields: [

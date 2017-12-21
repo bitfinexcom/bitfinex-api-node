@@ -13,18 +13,18 @@ const getTestREST2 = () => {
   })
 }
 
-  it('trades: fetches expected data', (done) => {
-    const srv = new MockRESTv2Server({ listen: true })
-    const r = getTestREST2()
-    srv.setResponse('trades.BTCUSD.0.10.50', [42])
+it('trades: fetches expected data', (done) => {
+  const srv = new MockRESTv2Server({ listen: true })
+  const r = getTestREST2()
+  srv.setResponse('trades.BTCUSD.0.10.50', [42])
 
-    r.trades('BTCUSD', 0, 10, 50, (err, res) => {
-      if (err) return done(err)
+  r.trades('BTCUSD', 0, 10, 50, (err, res) => {
+    if (err) return done(err)
 
-      assert.deepEqual(res, [42])
-      srv.close().then(done).catch(done)
-    })
+    assert.deepEqual(res, [42])
+    srv.close().then(done).catch(done)
   })
+})
 
 describe('RESTv2 integration (mock server) tests', () => {
   // [rest2MethodName, finalMockResponseKey, rest2MethodArgs]

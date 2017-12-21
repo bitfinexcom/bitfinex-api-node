@@ -1,18 +1,12 @@
 /* eslint-env mocha */
 'use strict'
 
-const assert = require('assert')
-const RESTv2 = require('../../../lib/transports/rest2')
+// const assert = require('assert')
+// const RESTv2 = require('../../../lib/transports/rest2')
 
-const API_KEY = 'dummy'
-const API_SECRET = 'dummy'
-
-describe('RESTv2 unit tests', () => {
-  it('constructor: applies options', () => {
-  })
-
+describe.skip('RESTv2 unit tests', () => {
+  it('constructor: applies options')
   it('constructor: provides defaults')
-
   it('_generateNonce: increments internal nonce')
 
   it('_makeAuthRequest: calls cb w/ error on missing arguments')
