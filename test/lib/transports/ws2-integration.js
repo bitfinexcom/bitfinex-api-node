@@ -4,7 +4,7 @@
 const assert = require('assert')
 const WSv2 = require('../../../lib/transports/ws2')
 const { Order } = require('../../../lib/models')
-const { MockWSv2Server } = require('api-mock-srv')
+const { MockWSv2Server } = require('bfx-api-mock-srv')
 
 const API_KEY = 'dummy'
 const API_SECRET = 'dummy'

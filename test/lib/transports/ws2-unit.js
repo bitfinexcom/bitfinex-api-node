@@ -3,7 +3,7 @@
 
 const assert = require('assert')
 const WSv2 = require('../../../lib/transports/ws2')
-const { MockWSv2Server } = require('api-mock-srv')
+const { MockWSv2Server } = require('bfx-api-mock-srv')
 
 const API_KEY = 'dummy'
 const API_SECRET = 'dummy'
@@ -1228,7 +1228,7 @@ describe('WSv2 packet watch-dog', () => {
 
     ws.on('error', () => {}) // invalid json to prevent message routing
     ws._triggerPacketWD = () => {
-      assert((Date.now() - now) >= 100)
+      assert((Date.now() - now) >= 95)
       done()
     }
 
