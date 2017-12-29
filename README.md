@@ -177,6 +177,10 @@ Nonces are used to guard against replay attacks. When multiple HTTP requests arr
 
 If you need to go parallel, you have to use multiple API keys right now.
 
+### How do `te` and `tu` messages differ?
+
+A `te` packet is sent first to the client immediately after a trade has been matched & executed, followed by a `tu` message once it has completed processing. During times of high load, the `tu` message may be noticably delayed, and as such only the `te` message should be used for a realtime feed.
+
 ## Contributors
 
  - Josh Rossi &lt;maximojoshuarossi@gmail.com&gt;
