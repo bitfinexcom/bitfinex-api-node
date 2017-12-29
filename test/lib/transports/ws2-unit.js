@@ -633,7 +633,7 @@ describe('WSv2 channel msg handling', () => {
       [300, 1, 3]
     ]], ws._channelMap[42])
 
-    let ob = ws.getManagedOB('tBTCUSD')
+    let ob = ws.getOB('tBTCUSD')
     assert(ob !== null)
 
     assert.equal(ob.bids.length, 1)
@@ -643,7 +643,7 @@ describe('WSv2 channel msg handling', () => {
     assert.deepEqual(ob.getEntry(200), { price: 200, count: 4, amount: -8 })
 
     ws._handleOBMessage([42, [300, 0, 1]], ws._channelMap[42])
-    ob = ws.getManagedOB('tBTCUSD')
+    ob = ws.getOB('tBTCUSD')
     assert.equal(ob.bids.length, 0)
   })
 
@@ -695,6 +695,46 @@ describe('WSv2 channel msg handling', () => {
 
     ws._handleOBMessage([42, [[100, 2, 3]]], ws._channelMap[42])
   })
+
+  it('_handleOBMessage: filters by prec and len', (done) => {
+    const ws = new WSv2({ manageOrderBooks: true })
+    ws._channelMap = {
+      40: {
+        channel: 'orderbook',
+        symbol: 'tBTCUSD',
+        prec: 'P0'
+      },
+
+      41: {
+        channel: 'orderbook',
+        symbol: 'tBTCUSD',
+        prec: 'P1'
+      },
+
+      42: {
+        channel: 'orderbook',
+        symbol: 'tBTCUSD',
+        prec: 'P2'
+      }
+     }
+
+    let seen = 0
+    ws.onOrderBook({ symbol: 'tBTCUSD', prec: 'P0' }, (ob) => {
+      assert(false)
+    })
+
+    ws.onOrderBook({ symbol: 'tBTCUSD', prec: 'P1' }, (ob) => {
+      assert(false)
+    })
+
+    ws.onOrderBook({ symbol: 'tBTCUSD', prec: 'P2' }, (ob) => {
+      if (++seen === 2) done()
+    })
+
+    ws._handleOBMessage([42, [[100, 2, 3]]], ws._channelMap[42])
+    ws._handleOBMessage([42, [100, 2, 3]], ws._channelMap[42])
+  })
+
 
   it('_handleOBMessage: emits managed ob', (done) => {
     const ws = new WSv2({ manageOrderBooks: true })
@@ -761,7 +801,7 @@ describe('WSv2 channel msg handling', () => {
     assert(!ws._updateManagedOB('tBTCUSD', [200, 1, -1]))
     assert(!ws._updateManagedOB('tBTCUSD', [200, 0, -1]))
 
-    const ob = ws.getManagedOB('tBTCUSD')
+    const ob = ws.getOB('tBTCUSD')
 
     assert.equal(ob.bids.length, 1)
     assert.equal(ob.asks.length, 0)
