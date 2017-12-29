@@ -51,6 +51,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.ticker(symbol, cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-public-ticker  
 
 | Param | Type | Default |
 | --- | --- | --- |
@@ -62,6 +63,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.tickers(symbols, cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-public-tickers  
 
 | Param | Type |
 | --- | --- |
@@ -73,6 +75,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.stats(key, context, cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-public-stats  
 
 | Param | Type | Default |
 | --- | --- | --- |
@@ -100,6 +103,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.alertList(type, cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-auth-alert-list  
 
 | Param | Type | Default |
 | --- | --- | --- |
@@ -111,6 +115,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.alertSet(type, symbol, price) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-auth-alert-set  
 
 | Param | Type | Default |
 | --- | --- | --- |
@@ -123,6 +128,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.alertDelete(symbol, price) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-auth-alert-delete  
 
 | Param | Type | Default |
 | --- | --- | --- |
@@ -134,6 +140,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.trades(symbol, start, end, limit, cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-auth-trades-hist  
 
 | Param | Type | Default |
 | --- | --- | --- |
@@ -148,6 +155,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.wallets(cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-auth-wallets  
 
 | Param | Type |
 | --- | --- |
@@ -158,6 +166,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.activeOrders(cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-auth-orders  
 
 | Param | Type |
 | --- | --- |
@@ -168,6 +177,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.orderHistory(symbol, start, end, limit, cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#orders-history  
 
 | Param | Type | Default |
 | --- | --- | --- |
@@ -182,6 +192,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.orderTrades(symbol, start, end, limit, orderID, cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-auth-order-trades  
 
 | Param | Type | Default |
 | --- | --- | --- |
@@ -197,6 +208,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.positions(cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-auth-positions  
 
 | Param | Type |
 | --- | --- |
@@ -207,6 +219,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.fundingOffers(symbol, cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-auth-funding-offers  
 
 | Param | Type | Default |
 | --- | --- | --- |
@@ -218,6 +231,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.fundingOfferHistory(symbol, start, end, limit, cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-auth-funding-offers-hist  
 
 | Param | Type | Default |
 | --- | --- | --- |
@@ -232,6 +246,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.fundingLoans(symbol, cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-auth-funding-loans  
 
 | Param | Type | Default |
 | --- | --- | --- |
@@ -243,6 +258,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.fundingLoanHistory(symbol, start, end, limit, cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-auth-funding-loans-hist  
 
 | Param | Type | Default |
 | --- | --- | --- |
@@ -257,6 +273,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.fundingCredits(symbol, cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-auth-funding-credits  
 
 | Param | Type | Default |
 | --- | --- | --- |
@@ -268,6 +285,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.fundingCreditHistory(symbol, start, end, limit, cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-auth-funding-credits-hist  
 
 | Param | Type | Default |
 | --- | --- | --- |
@@ -282,6 +300,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.fundingTrades(symbol, start, end, limit, cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-auth-funding-trades-hist  
 
 | Param | Type | Default |
 | --- | --- | --- |
@@ -296,6 +315,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.marginInfo(key, cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-auth-info-margin  
 
 | Param | Type | Default |
 | --- | --- | --- |
@@ -307,6 +327,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.fundingInfo(key, cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-auth-info-funding  
 
 | Param | Type | Default |
 | --- | --- | --- |
@@ -318,6 +339,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.performance(cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-auth-performance  
 
 | Param | Type |
 | --- | --- |
@@ -328,6 +350,7 @@ Instantiate a new REST v2 transport.
 ### resTv2.calcAvailableBalance(symbol, dir, rate, type, cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-auth-calc-bal-avail  
 
 | Param | Type | Default |
 | --- | --- | --- |

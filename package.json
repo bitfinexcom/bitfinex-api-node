@@ -12,8 +12,9 @@
     "unit": "NODE_ENV=test istanbul cover _mocha -- -R spec -b --recursive",
     "test-without-coverage": "NODE_ENV=test mocha -R spec -b --recursive",
     "ws_docs": "node_modules/jsdoc-to-markdown/bin/cli.js lib/transports/ws2.js > doc/ws2.md",
+    "order_docs": "node_modules/jsdoc-to-markdown/bin/cli.js lib/models/order.js > doc/order.md",
     "rest_docs": "node_modules/jsdoc-to-markdown/bin/cli.js lib/transports/rest2.js > doc/rest2.md",
-    "docs": "npm run ws_docs && npm run rest_docs"
+    "docs": "npm run ws_docs && npm run rest_docs && npm run order_docs"
   },
   "repository": {
     "type": "git",

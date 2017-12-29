@@ -6,8 +6,7 @@ const testModel = require('../../helpers/test_model')
 
 describe('Trade Tick model', () => {
   testModel({
-    model: Trade,
-    boolFields: ['maker'],
+    model: TradeTick,
     orderedFields: [
       'id', 'mts', 'amount', 'price'
     ]

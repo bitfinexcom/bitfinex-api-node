@@ -11,10 +11,11 @@ Communicates with v2 of the Bitfinex WebSocket API
     * [.close(code, reason)](#WSv2+close) ⇒ <code>Promise</code>
     * [.auth(calc)](#WSv2+auth) ⇒ <code>Promise</code>
     * [.reconnect()](#WSv2+reconnect) ⇒ <code>Promise</code>
-    * [.getManagedOB(symbol)](#WSv2+getManagedOB) ⇒ <code>OrderBook</code>
+    * [.getOB(symbol)](#WSv2+getOB) ⇒ <code>OrderBook</code>
     * [.getCandles(key)](#WSv2+getCandles) ⇒ <code>Array</code>
     * [.managedSubscribe(channel, identifier, payload)](#WSv2+managedSubscribe) ⇒ <code>boolean</code>
     * [.managedUnsubscribe(channel, identifier)](#WSv2+managedUnsubscribe) ⇒ <code>boolean</code>
+    * [.getChannelData(opts)](#WSv2+getChannelData) ⇒ <code>Object</code>
     * [.send(msg)](#WSv2+send)
     * [.enableSequencing(args)](#WSv2+enableSequencing)
     * [.onServerRestart(cb)](#WSv2+onServerRestart)
@@ -138,9 +139,9 @@ previously authenticated
 
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
 **Returns**: <code>Promise</code> - p - resolves on completion  
-<a name="WSv2+getManagedOB"></a>
+<a name="WSv2+getOB"></a>
 
-### wSv2.getManagedOB(symbol) ⇒ <code>OrderBook</code>
+### wSv2.getOB(symbol) ⇒ <code>OrderBook</code>
 Returns an up-to-date copy of the order book for the specified symbol, or
 null if no OB is managed for that symbol.
 Set `manageOrderBooks: true` in the constructor to use.
@@ -190,6 +191,20 @@ already subscribed to the specified pair, nothing happens.
 | --- | --- |
 | channel | <code>string</code> | 
 | identifier | <code>string</code> | 
+
+<a name="WSv2+getChannelData"></a>
+
+### wSv2.getChannelData(opts) ⇒ <code>Object</code>
+**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Returns**: <code>Object</code> - chanData - null if not found  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| opts | <code>Object</code> |  |
+| opts.chanId | <code>number</code> |  |
+| opts.channel | <code>string</code> | optional |
+| opts.symbol | <code>string</code> | optional |
+| opts.key | <code>string</code> | optional |
 
 <a name="WSv2+send"></a>
 
@@ -467,6 +482,7 @@ received.
 
 ### wSv2.onCandle(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-public-candle  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -479,11 +495,14 @@ received.
 
 ### wSv2.onOrderBook(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-public-order-books  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | opts | <code>Object</code> |  |
 | opts.symbol | <code>string</code> |  |
+| opts.prec | <code>string</code> |  |
+| opts.len | <code>string</code> |  |
 | opts.cbGID | <code>string</code> | callback group id |
 | cb | <code>Method</code> |  |
 
@@ -491,6 +510,7 @@ received.
 
 ### wSv2.onTrade(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-public-trades  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -503,6 +523,7 @@ received.
 
 ### wSv2.onTicker(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-public-ticker  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -515,6 +536,7 @@ received.
 
 ### wSv2.onOrderSnapshot(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-orders  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -528,6 +550,7 @@ received.
 
 ### wSv2.onOrderNew(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-orders  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -541,6 +564,7 @@ received.
 
 ### wSv2.onOrderUpdate(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-orders  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -555,6 +579,7 @@ received.
 
 ### wSv2.onOrderClose(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-orders  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -569,6 +594,7 @@ received.
 
 ### wSv2.onPositionSnapshot(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-position  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -581,6 +607,7 @@ received.
 
 ### wSv2.onPositionNew(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-position  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -593,6 +620,7 @@ received.
 
 ### wSv2.onPositionUpdate(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-position  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -605,6 +633,7 @@ received.
 
 ### wSv2.onPositionClose(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-position  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -617,6 +646,7 @@ received.
 
 ### wSv2.onTradeEntry(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-trades  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -629,6 +659,7 @@ received.
 
 ### wSv2.onTradeUpdate(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-trades  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -641,6 +672,7 @@ received.
 
 ### wSv2.onFundingOfferSnapshot(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-offers  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -653,6 +685,7 @@ received.
 
 ### wSv2.onFundingOfferNew(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-offers  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -665,6 +698,7 @@ received.
 
 ### wSv2.onFundingOfferUpdate(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-offers  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -677,6 +711,7 @@ received.
 
 ### wSv2.onFundingOfferClose(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-offers  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -689,6 +724,7 @@ received.
 
 ### wSv2.onFundingCreditSnapshot(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-credits  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -701,6 +737,7 @@ received.
 
 ### wSv2.onFundingCreditNew(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-credits  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -713,6 +750,7 @@ received.
 
 ### wSv2.onFundingCreditUpdate(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-credits  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -725,6 +763,7 @@ received.
 
 ### wSv2.onFundingCreditClose(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-credits  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -737,6 +776,7 @@ received.
 
 ### wSv2.onFundingLoanSnapshot(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-loans  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -749,6 +789,7 @@ received.
 
 ### wSv2.onFundingLoanNew(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-loans  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -761,6 +802,7 @@ received.
 
 ### wSv2.onFundingLoanUpdate(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-loans  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -773,6 +815,7 @@ received.
 
 ### wSv2.onFundingLoanClose(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-loans  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -785,6 +828,7 @@ received.
 
 ### wSv2.onWalletSnapshot(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-wallets  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -796,6 +840,7 @@ received.
 
 ### wSv2.onWalletUpdate(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-wallets  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -807,6 +852,7 @@ received.
 
 ### wSv2.onBalanceInfoUpdate(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-balance  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -818,6 +864,7 @@ received.
 
 ### wSv2.onMarginInfoUpdate(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-margin  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -829,6 +876,7 @@ received.
 
 ### wSv2.onFundingInfoUpdate(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-funding  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -840,6 +888,7 @@ received.
 
 ### wSv2.onFundingTradeEntry(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-funding-trades  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -852,6 +901,7 @@ received.
 
 ### wSv2.onFundingTradeUpdate(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-funding-trades  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -864,6 +914,7 @@ received.
 
 ### wSv2.onNotification(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-notifications  
 
 | Param | Type | Description |
 | --- | --- | --- |

@@ -716,7 +716,7 @@ describe('WSv2 channel msg handling', () => {
         symbol: 'tBTCUSD',
         prec: 'P2'
       }
-     }
+    }
 
     let seen = 0
     ws.onOrderBook({ symbol: 'tBTCUSD', prec: 'P0' }, (ob) => {
@@ -734,7 +734,6 @@ describe('WSv2 channel msg handling', () => {
     ws._handleOBMessage([42, [[100, 2, 3]]], ws._channelMap[42])
     ws._handleOBMessage([42, [100, 2, 3]], ws._channelMap[42])
   })
-
 
   it('_handleOBMessage: emits managed ob', (done) => {
     const ws = new WSv2({ manageOrderBooks: true })
