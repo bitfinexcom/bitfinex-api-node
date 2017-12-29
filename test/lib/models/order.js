@@ -356,9 +356,9 @@ describe('Order model', () => {
     assert.equal(o.id, 42)
   })
 
-  it('_onWSOrderNew: emits new event', (done) => {
+  it('_onWSOrderNew: emits update event', (done) => {
     const o = new Order({ id: 100 })
-    o.on('new', () => done())
+    o.on('update', () => done())
     o._onWSOrderNew([42])
   })
 
