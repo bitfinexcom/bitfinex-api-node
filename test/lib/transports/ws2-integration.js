@@ -178,10 +178,10 @@ describe('WSv2 listeners', () => {
     ws.onTradeUpdate({ pair: 'tBTCUSD', cbGID: 10 }, () => updatesSeen++)
     ws.onOrderUpdate({ symbol: 'tBTCUSD', cbGID: 10 }, () => updatesSeen++)
 
-    ws._handleChannelMessage([0, 'tu', [0, 'tBTCUSD']])
+    ws._handleChannelMessage([0, 'tu', ['tBTCUSD']])
     ws._handleChannelMessage([0, 'ou', [0, 0, 0, 'tBTCUSD']])
     ws.removeListeners(10)
-    ws._handleChannelMessage([0, 'tu', [0, 'tBTCUSD']])
+    ws._handleChannelMessage([0, 'tu', ['tBTCUSD']])
     ws._handleChannelMessage([0, 'ou', [0, 0, 0, 'tBTCUSD']])
 
     assert.equal(updatesSeen, 2)

@@ -489,9 +489,9 @@ describe('WSv2 channel msg handling', () => {
       if (++calls === 7) done()
     })
 
-    ws._handleChannelMessage([0, 'te', [0, 'tETHUSD']])
-    ws._handleChannelMessage([0, 'te', [0, 'tETHUSD']])
-    ws._handleChannelMessage([0, 'te', [0, 'tBTCUSD']])
+    ws._handleChannelMessage([0, 'te', ['tETHUSD']])
+    ws._handleChannelMessage([0, 'te', ['tETHUSD']])
+    ws._handleChannelMessage([0, 'te', ['tBTCUSD']])
   }
 
   it('_handleChannelMessage: filters messages if listeners require it (transform)', (done) => {
@@ -599,7 +599,7 @@ describe('WSv2 channel msg handling', () => {
       done()
     })
 
-    ws._propagateMessageToListeners([0, 'te', [0, 'tBTCUSD']])
+    ws._propagateMessageToListeners([0, 'te', ['tBTCUSD']])
   })
 
   it('_notifyCatchAllListeners: passes data to all listeners on the empty \'\' event', () => {
