@@ -43,7 +43,7 @@ Communicates with v2 of the Bitfinex WebSocket API
     * [.onMessage(opts, cb)](#WSv2+onMessage)
     * [.onCandle(opts, cb)](#WSv2+onCandle)
     * [.onOrderBook(opts, cb)](#WSv2+onOrderBook)
-    * [.onTrade(opts, cb)](#WSv2+onTrade)
+    * [.onTrades(opts, cb)](#WSv2+onTrades)
     * [.onTicker(opts, cb)](#WSv2+onTicker)
     * [.onOrderSnapshot(opts, cb)](#WSv2+onOrderSnapshot)
     * [.onOrderNew(opts, cb)](#WSv2+onOrderNew)
@@ -506,9 +506,9 @@ received.
 | opts.cbGID | <code>string</code> | callback group id |
 | cb | <code>Method</code> |  |
 
-<a name="WSv2+onTrade"></a>
+<a name="WSv2+onTrades"></a>
 
-### wSv2.onTrade(opts, cb)
+### wSv2.onTrades(opts, cb)
 **Kind**: instance method of <code>[WSv2](#WSv2)</code>  
 **See**: https://docs.bitfinex.com/v2/reference#ws-public-trades  
 

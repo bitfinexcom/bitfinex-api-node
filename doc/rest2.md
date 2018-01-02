@@ -31,6 +31,17 @@ Communicates with v2 of the Bitfinex HTTP API
     * [.fundingInfo(key, cb)](#RESTv2+fundingInfo) ⇒ <code>Promise</code>
     * [.performance(cb)](#RESTv2+performance) ⇒ <code>Promise</code>
     * [.calcAvailableBalance(symbol, dir, rate, type, cb)](#RESTv2+calcAvailableBalance) ⇒ <code>Promise</code>
+    * ~~[.symbols(cb)](#RESTv2+symbols) ⇒ <code>Promise</code>~~
+    * ~~[.symbolDetails(cb)](#RESTv2+symbolDetails) ⇒ <code>Promise</code>~~
+    * ~~[.accountInfo(cb)](#RESTv2+accountInfo) ⇒ <code>Promise</code>~~
+    * ~~[.accountFees(cb)](#RESTv2+accountFees) ⇒ <code>Promise</code>~~
+    * ~~[.accountSummary(cb)](#RESTv2+accountSummary) ⇒ <code>Promise</code>~~
+    * ~~[.deposit(params, cb)](#RESTv2+deposit) ⇒ <code>Promise</code>~~
+    * ~~[.withdraw(params, cb)](#RESTv2+withdraw) ⇒ <code>Promise</code>~~
+    * ~~[.transfer(params, cb)](#RESTv2+transfer) ⇒ <code>Promise</code>~~
+    * ~~[.keyPermissions(cb)](#RESTv2+keyPermissions) ⇒ <code>Promise</code>~~
+    * ~~[.balances(cb)](#RESTv2+balances) ⇒ <code>Promise</code>~~
+    * ~~[.claimPosition(params, cb)](#RESTv2+claimPosition) ⇒ <code>Promise</code>~~
 
 <a name="new_RESTv2_new"></a>
 
@@ -45,6 +56,7 @@ Instantiate a new REST v2 transport.
 | opts.apiSecret | <code>string</code> |  |
 | opts.url | <code>string</code> | endpoint URL |
 | opts.transform | <code>boolean</code> | default false |
+| opts.agent | <code>Object</code> | optional node agent for connection (proxy) |
 
 <a name="RESTv2+ticker"></a>
 
@@ -359,4 +371,203 @@ Instantiate a new REST v2 transport.
 | rate | <code>number</code> |  | 
 | type | <code>string</code> |  | 
 | cb | <code>Method</code> |  | 
+
+<a name="RESTv2+symbols"></a>
+
+### ~~resTv2.symbols(cb) ⇒ <code>Promise</code>~~
+***Deprecated***
+
+Get a list of valid symbol names
+
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v1/reference#rest-public-symbols  
+
+| Param | Type |
+| --- | --- |
+| cb | <code>Method</code> | 
+
+<a name="RESTv2+symbolDetails"></a>
+
+### ~~resTv2.symbolDetails(cb) ⇒ <code>Promise</code>~~
+***Deprecated***
+
+Get a list of valid symbol names and details
+
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v1/reference#rest-public-symbol-details  
+
+| Param | Type |
+| --- | --- |
+| cb | <code>Method</code> | 
+
+<a name="RESTv2+accountInfo"></a>
+
+### ~~resTv2.accountInfo(cb) ⇒ <code>Promise</code>~~
+***Deprecated***
+
+Request information about your account
+
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v1/reference#rest-auth-account-info  
+
+| Param | Type |
+| --- | --- |
+| cb | <code>Method</code> | 
+
+<a name="RESTv2+accountFees"></a>
+
+### ~~resTv2.accountFees(cb) ⇒ <code>Promise</code>~~
+***Deprecated***
+
+Request account withdrawl fees
+
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v1/reference#rest-auth-fees  
+
+| Param | Type |
+| --- | --- |
+| cb | <code>Method</code> | 
+
+<a name="RESTv2+accountSummary"></a>
+
+### ~~resTv2.accountSummary(cb) ⇒ <code>Promise</code>~~
+***Deprecated***
+
+Returns a 30-day summary of your trading volume and return on margin
+funding.
+
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v1/reference#rest-auth-summary  
+
+| Param | Type |
+| --- | --- |
+| cb | <code>Method</code> | 
+
+<a name="RESTv2+deposit"></a>
+
+### ~~resTv2.deposit(params, cb) ⇒ <code>Promise</code>~~
+***Deprecated***
+
+Request a deposit address
+
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v1/reference#rest-auth-deposit  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| params | <code>Object</code> |  |
+| params.request | <code>string</code> |  |
+| params.nonce | <code>string</code> |  |
+| params.method | <code>string</code> | name of currency |
+| params.wallet_name | <code>string</code> | 'trading', 'exchange' or 'deposit' |
+| params.renew | <code>number</code> | 1 or 0 |
+| cb | <code>Method</code> |  |
+
+<a name="RESTv2+withdraw"></a>
+
+### ~~resTv2.withdraw(params, cb) ⇒ <code>Promise</code>~~
+***Deprecated***
+
+Requests a withdrawl from a wallet
+
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v1/reference#rest-auth-withdrawal  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| params | <code>Object</code> |  |
+| params.withdraw_type | <code>string</code> | name of currency |
+| params.walletselected | <code>string</code> | 'trading', 'exchange, or 'deposit' |
+| params.amount | <code>string</code> |  |
+| params.address | <code>string</code> |  |
+| params.payment_id | <code>string</code> | optional, for monero |
+| params.account_name | <code>string</code> |  |
+| params.account_number | <code>string</code> |  |
+| params.swift | <code>string</code> |  |
+| params.bank_name | <code>string</code> |  |
+| params.bank_address | <code>string</code> |  |
+| params.bank_city | <code>string</code> |  |
+| params.bank_country | <code>string</code> |  |
+| params.detail_payment | <code>string</code> | message to beneficiary |
+| params.expressWire | <code>number</code> | 1 or 0 |
+| params.intermediary_bank_name | <code>string</code> |  |
+| params.intermediary_bank_address | <code>string</code> |  |
+| params.intermediary_bank_city | <code>string</code> |  |
+| params.intermediary_bank_country | <code>string</code> |  |
+| params.intermediary_bank_account | <code>string</code> |  |
+| params.intermediary_bank_swift | <code>string</code> |  |
+| cb | <code>Method</code> |  |
+
+<a name="RESTv2+transfer"></a>
+
+### ~~resTv2.transfer(params, cb) ⇒ <code>Promise</code>~~
+***Deprecated***
+
+Execute a balance transfer between wallets
+
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v1/reference#rest-auth-transfer-between-wallets  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| params | <code>Object</code> |  |
+| params.amount | <code>number</code> | amount to transfer |
+| params.currency | <code>string</code> | currency of funds to transfer |
+| params.walletFrom | <code>string</code> | wallet to transfer from |
+| params.walletTo | <code>string</code> | wallet to transfer to |
+| cb | <code>Method</code> |  |
+
+<a name="RESTv2+keyPermissions"></a>
+
+### ~~resTv2.keyPermissions(cb) ⇒ <code>Promise</code>~~
+***Deprecated***
+
+Fetch the permissions of the key being used to generate this request
+
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v1/reference#auth-key-permissions  
+
+| Param | Type |
+| --- | --- |
+| cb | <code>Method</code> | 
+
+<a name="RESTv2+balances"></a>
+
+### ~~resTv2.balances(cb) ⇒ <code>Promise</code>~~
+***Deprecated***
+
+Request your wallet balances
+
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v1/reference#rest-auth-wallet-balances  
+
+| Param | Type |
+| --- | --- |
+| cb | <code>Method</code> | 
+
+<a name="RESTv2+claimPosition"></a>
+
+### ~~resTv2.claimPosition(params, cb) ⇒ <code>Promise</code>~~
+***Deprecated***
+
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v1/reference#rest-auth-claim-position  
+
+| Param | Type |
+| --- | --- |
+| params | <code>Object</code> | 
+| params.position_id | <code>number</code> | 
+| params.amount | <code>number</code> | 
+| cb | <code>Method</code> | 
 
