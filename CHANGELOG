@@ -1,3 +1,22 @@
+2.0.0
+
+- WS API v2: added optional auto-reconnect
+- WS API v2: added optional packet watchdog
+- WS API v2: added optional order packet buffering via multi-op endpoint
+- WS API v2: added optional order book & candle managment/persistence
+- WS API v2: added optional seq number verification/audit
+- WS API v2: added many extra callback/listener funcs (i.e. onMaintenanceStart)
+- WS API v2: added ability to mass-unsubscribe listeners by group ID
+- WS API v2: most callback methods now support message filtering
+- WS API v2: replaced transform logic w/ model classes (i.e. Order)
+- WS API v2: many methods now return promises, such as submitOrder()
+- REST API v2: transform method updated to match WSv2 class
+- REST API v1: minor refactor, methods unchanged
+- REST API v2: minor refactor, methods unchanged
+- WS API v1: minor refactor, methods unchanged
+- BFX constructor exposes & caches clients on `.rest()` and `.ws()` methods
+- Updated ws2 examples
+- Added model classes (OrderBook, Order, Trade, etc)
 
 1.2.1
 
