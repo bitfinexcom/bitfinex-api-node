@@ -6,6 +6,7 @@ const BFX = require('../')
 const SocksProxyAgent = require('socks-proxy-agent')
 
 const { API_KEY, API_SECRET, REST_URL, WS_URL, SOCKS_PROXY_URL } = process.env
+const agent = SOCKS_PROXY_URL ? new SocksProxyAgent(SOCKS_PROXY_URL) : null
 
 const bfx = new BFX({
   apiKey: API_KEY,
@@ -13,11 +14,12 @@ const bfx = new BFX({
 
   ws: {
     url: WS_URL,
-    agent: SOCKS_PROXY_URL ? new SocksProxyAgent(SOCKS_PROXY_URL) : null
+    agent
   },
 
   rest: {
-    url: REST_URL
+    url: REST_URL,
+    agent
   }
 })
 
