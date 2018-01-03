@@ -96,6 +96,8 @@ ws.once('auth', () => {
     ws.close()
   })
 })
+
+ws.open()
 ```
 
 ## WS2 Example: Cancel all open orders
@@ -172,6 +174,10 @@ npm test
 ```
 
 ## FAQ
+
+### My websocket won't connect!
+
+Did you call `open()`? :)
 
 ### nonce too small
 
