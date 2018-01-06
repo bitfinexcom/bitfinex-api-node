@@ -131,7 +131,7 @@ const ws = bfx.ws()
 
 ws.on('error', (err) => console.log(err))
 ws.on('open', () => {
-  ws.onTrade({ pair: 'BTCUSD' }, (trade) => {
+  ws.onTrades({ pair: 'BTCUSD' }, (trade) => {
     if (Array.isArray(trade[0])) {
       console.log(`recv snapshot of ${trade.length} trades`)
     } else {
