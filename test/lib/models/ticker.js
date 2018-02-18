@@ -1,12 +1,12 @@
 /* eslint-env mocha */
 'use strict'
 
-const { TradeTicker } = require('../../../lib/models')
+const { Ticker } = require('../../../lib/models')
 const testModel = require('../../helpers/test_model')
 
-describe('Trade Ticker model', () => {
+describe('Ticker model', () => {
   testModel({
-    model: TradeTicker,
+    model: Ticker,
     values: {
       symbol: 'tBTCUSD'
     },

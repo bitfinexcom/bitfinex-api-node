@@ -8,8 +8,11 @@ const rest = bfx.rest(2)
 
 debug('fetching symbol list...')
 
-rest.symbols((err, symbols) => {
-  if (err) return debug('error: %s', err.message)
-
-  debug('available symbols are: %s', symbols.join(', '))
+rest.symbols().then(symbols => {
+  debug(
+    'available symbols are: %s',
+    symbols.map(s => `t${s.toUpperCase()}`).join(', ')
+  )
+}).catch(err => {
+  debug('error: %j', err)
 })
