@@ -45,7 +45,7 @@
   },
   "homepage": "http://bitfinexcom.github.io/bitfinex-api-node/",
   "devDependencies": {
-    "bfx-api-mock-srv": "git+https://github.com/bitfinexcom/bfx-api-mock-srv.git",
+    "bfx-api-mock-srv": "github:bitfinexcom/bfx-api-mock-srv",
     "chai": "^3.4.1",
     "cli-table2": "^0.2.0",
     "dotenv": "^4.0.0",
