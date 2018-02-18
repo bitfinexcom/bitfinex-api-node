@@ -45,7 +45,6 @@ co(function * () {
     debug('fetching tickers for: %s...', symbols.join(', '))
     const rawTickers = yield rest.tickers(symbols)
     debug('... done')
-    let ticker
 
     for (let i = 0; i < rawTickers.length; i += 1) { // only save lastPrice
       lastPrices[rawTickers[i].symbol] = Number(rawTickers[i].lastPrice)
