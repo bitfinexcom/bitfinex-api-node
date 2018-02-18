@@ -26,6 +26,7 @@ ws.once('auth', () => {
       'wallet_funding_USD'
     ])
 
+    // Watch log output for balance update packets (wu, miu, etc)
     debug('sent calc')
   }, 5000)
 })
