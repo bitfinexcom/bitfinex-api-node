@@ -55,12 +55,15 @@ ws.once('auth', () => {
 
       o.cancel().then(() => {
         debug('got cancel confirmation for order %d', o.cid)
+        ws.close()
       }).catch((err) => {
         debug('error cancelling order: %j', err)
+        ws.close()
       })
     }, 2000)
   }).catch((err) => {
     console.log(err)
+    ws.close()
   })
 })
 
