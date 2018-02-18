@@ -1,16 +1,16 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
+process.env.DEBUG = process.env.SILENT ? '' : 'bfx:examples:*'
 
 const args = process.argv
 const debug = require('debug')('bfx:examples:rest2-trade-history')
+const Table = require('../../lib/util/cli_table')
 
 if (args.length < 3) {
   debug('error: symbol required (i.e: npm run trade-history ETHUSD')
   process.exit(1)
 }
 
-const Table = require('cli-table2')
 const bfx = require('../bfx')
 const rest = bfx.rest(2, { transform: true })
 const pair = String(args[2])
@@ -21,12 +21,15 @@ const START = Date.now() - (30 * 24 * 60 * 60 * 1000 * 1000)
 const END = Date.now()
 const LIMIT = 25
 
-const table = new Table({
-  colWidths: [12, 13, 20, 20, 14, 14, 14, 20],
-  head: [
-    'Trade ID', 'Order ID', 'Created', 'Type', 'Exec Amount', 'Exec Price',
-    'Price', 'Fee'
-  ]
+const table = Table({
+  'Trade ID': 12,
+  'Order ID': 13,
+  Created: 20,
+  Type: 20,
+  'Exec Amount': 14,
+  'Exec Price': 14,
+  Price: 14,
+  Fee: 20
 })
 
 debug('fetching 30d trade history for %s...', symbol)
@@ -45,6 +48,4 @@ rest.trades(symbol, START, END, LIMIT).then(trades => {
   }
 
   console.log(table.toString())
-}).catch(err => {
-  debug('error: %j', err)
-})
+}).catch(console.error)

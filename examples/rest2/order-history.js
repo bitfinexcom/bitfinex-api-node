@@ -1,6 +1,6 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
+process.env.DEBUG = process.env.SILENT ? '' : 'bfx:examples:*'
 
 const args = process.argv
 const debug = require('debug')('bfx:examples:rest2-order-history')
@@ -10,7 +10,7 @@ if (args.length < 3) {
   process.exit(1)
 }
 
-const Table = require('cli-table2')
+const Table = require('../../lib/util/cli_table')
 const bfx = require('../bfx')
 const rest = bfx.rest(2, { transform: true })
 const pair = String(args[2])
@@ -21,11 +21,14 @@ const START = Date.now() - (30 * 24 * 60 * 60 * 1000 * 1000)
 const END = Date.now()
 const LIMIT = 25
 
-const table = new Table({
-  colWidths: [12, 20, 20, 14, 14, 14, 40],
-  head: [
-    'Order ID', 'Created', 'Updated', 'Amount', 'Filled', 'Price', 'Status'
-  ]
+const table = Table({
+  'Order ID': 12,
+  Created: 20,
+  Updated: 20,
+  Amount: 14,
+  Filled: 14,
+  Price: 14,
+  Status: 40
 })
 
 debug('fetching 30d order history for %s...', symbol)
@@ -41,11 +44,9 @@ rest.orderHistory(symbol, START, END, LIMIT).then(orders => {
 
     table.push([
       o.id, o.mtsCreate, o.mtsUpdate, o.amountOrig, o.amountOrig - o.amount,
-      o.price, o.status.split(':')[0]
+      o.price, o.status.split(' was:')[0]
     ])
   }
 
   console.log(table.toString())
-}).catch(err => {
-  debug('error: %j', err)
-})
+}).catch(console.error)

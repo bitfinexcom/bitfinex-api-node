@@ -1,23 +1,30 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
+process.env.DEBUG = process.env.SILENT ? '' : 'bfx:examples:*'
 
-const Table = require('cli-table2')
+const Table = require('../../lib/util/cli_table')
 const debug = require('debug')('bfx:examples:rest2_positions')
 const bfx = require('../bfx')
 const rest = bfx.rest(2, { transform: true })
 
-const t = new Table({
-  colWidths: [14, 14, 14, 20, 20, 10, 20, 16, 16, 20],
-  head: [
-    'ID', 'GID', 'CID', 'Created', 'Updated', 'Symbol', 'Type', 'Amount',
-    'Price', 'Status'
-  ]
+const t = Table({
+  ID: 14,
+  GID: 14,
+  CID: 14,
+  Created: 20,
+  Updated: 20,
+  Symbol: 10,
+  Type: 20,
+  Amount: 16,
+  Price: 16,
+  Status: 20
 })
 
 debug('fetching orders...')
 
 rest.activeOrders().then(orders => {
+  if (orders.length === 0) return debug('no open orders')
+
   let o
   for (let i = 0; i < orders.length; i += 1) {
     o = orders[i]
@@ -33,6 +40,4 @@ rest.activeOrders().then(orders => {
   }
 
   console.log(t.toString())
-}).catch(err => {
-  debug('error: %j', err)
-})
+}).catch(console.error)

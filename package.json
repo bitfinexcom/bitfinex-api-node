@@ -15,14 +15,19 @@
     "order_docs": "node_modules/jsdoc-to-markdown/bin/cli.js lib/models/order.js > doc/order.md",
     "rest_docs": "node_modules/jsdoc-to-markdown/bin/cli.js lib/transports/rest2.js > doc/rest2.md",
     "docs": "npm run ws_docs && npm run rest_docs && npm run order_docs",
+    "account-vol": "node examples/rest2/account-vol.js",
     "tickers": "node examples/rest2/tickers.js",
     "symbols": "node examples/rest2/symbols.js",
+    "symbol-vol": "node examples/rest2/symbol-vol.js",
     "order-history": "node examples/rest2/order-history.js",
     "trade-history": "node examples/rest2/trade-history.js",
+    "trading-fees": "node examples/rest2/trading-fees.js",
     "positions": "node examples/rest2/positions.js",
+    "wallets": "node examples/rest2/wallets.js",
+    "withdrawal-fees": "node examples/rest2/withdrawal-fees.js",
     "balances": "node examples/rest2/balances.js",
     "orders": "node examples/rest2/orders.js",
-    "cancel-orders": "node examples/ws2/cancel_all.js"
+    "cancel-orders": "node examples/ws2/cancel-all.js"
   },
   "repository": {
     "type": "git",
@@ -50,6 +55,7 @@
     "standard": "^10.0.2"
   },
   "dependencies": {
+    "bignumber.js": "^6.0.0",
     "cbq": "0.0.1",
     "co": "^4.6.0",
     "debug": "^2.2.0",
