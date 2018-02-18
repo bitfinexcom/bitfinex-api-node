@@ -18,6 +18,7 @@ ws.on('open', () => {
 ws.onOrderSnapshot({}, (snapshot) => {
   if (snapshot.length === 0) {
     debug('no orders to cancel')
+    ws.close()
     return
   }
 
@@ -25,6 +26,7 @@ ws.onOrderSnapshot({}, (snapshot) => {
 
   ws.cancelOrders(snapshot).then(() => {
     debug('cancelled all orders')
+    ws.close()
   })
 })
 
