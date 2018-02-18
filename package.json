@@ -25,7 +25,6 @@
     "positions": "node examples/rest2/positions.js",
     "wallets": "node examples/rest2/wallets.js",
     "withdrawal-fees": "node examples/rest2/withdrawal-fees.js",
-    "balances": "node examples/rest2/balances.js",
     "orders": "node examples/rest2/orders.js",
     "cancel-orders": "node examples/ws2/cancel-all.js"
   },
