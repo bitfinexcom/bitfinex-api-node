@@ -12,7 +12,7 @@ ws.on('open', () => {
   ws.subscribeTrades('tBTCUSD')
 })
 
-ws.onTradeEntry({ pair: 'BTCUSD' }, (trade) => {
+ws.onTradeExecute({ pair: 'BTCUSD' }, (trade) => {
   debug('te: %j', trade)
 })
 
