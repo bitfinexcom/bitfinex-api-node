@@ -9,12 +9,12 @@ const testModel = require('../../helpers/test_model')
 describe('Order model', () => {
   testModel({
     model: Order,
-    boolFields: ['notify', 'hidden'],
+    boolFields: ['notify'],
     orderedFields: [
       'id', 'gid', 'cid', 'symbol', 'mtsCreate', 'mtsUpdate', 'amount',
       'amountOrig', 'type', 'typePrev', null, null, 'flags', 'status', null,
       null, 'price', 'priceAvg', 'priceTrailing', 'priceAuxLimit', null, null,
-      null, 'notify', 'hidden', 'placedId'
+      null, 'notify', null, 'placedId'
     ]
   })
 
