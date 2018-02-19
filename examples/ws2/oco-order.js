@@ -28,7 +28,7 @@ ws.once('auth', () => {
 
     oco: true,
     price: 2000,
-    priceAuxLimit: 1000,
+    priceAuxLimit: 1000
   }, ws)
 
   let closed = false
@@ -49,8 +49,6 @@ ws.once('auth', () => {
 
   o.submit().then(() => {
     debug('got submit confirmation for order %d [%d]', o.cid, o.id)
-
-    process.exit(0)
 
     // wait a bit...
     setTimeout(() => {
