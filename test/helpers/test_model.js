@@ -13,6 +13,10 @@ const testModel = ({ values = {}, model, orderedFields, boolFields = [] }) => {
     if (values[fields[i]]) {
       fieldValues[i] = values[fields[i]]
     }
+
+    if (boolFields.indexOf(fields[i]) !== -1) {
+      fieldValues[i] = false
+    }
   }
 
   const checkModelFields = (m) => {
