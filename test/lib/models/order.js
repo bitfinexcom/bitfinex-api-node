@@ -9,12 +9,12 @@ const testModel = require('../../helpers/test_model')
 describe('Order model', () => {
   testModel({
     model: Order,
-    boolFields: ['notify', 'hidden'],
+    boolFields: ['notify'],
     orderedFields: [
       'id', 'gid', 'cid', 'symbol', 'mtsCreate', 'mtsUpdate', 'amount',
       'amountOrig', 'type', 'typePrev', null, null, 'flags', 'status', null,
       null, 'price', 'priceAvg', 'priceTrailing', 'priceAuxLimit', null, null,
-      null, 'notify', 'hidden', 'placedId'
+      null, 'notify', null, 'placedId'
     ]
   })
 
@@ -372,12 +372,10 @@ describe('Order model', () => {
       priceTrailing: 0.1,
       priceAuxLimit: 0.2,
       price: 0.3,
-      amount: 0.4,
-      hidden: true,
-      postonly: false
+      amount: 0.4
     })
 
-    const p = o.toNewOrderPacket()
+    let p = o.toNewOrderPacket()
 
     assert.equal(p.constructor.name, 'Object')
     assert(!p.id)
@@ -389,7 +387,108 @@ describe('Order model', () => {
     assert.equal(p.price_aux_limit, '0.2')
     assert.equal(p.price, '0.3')
     assert.equal(p.amount, '0.4')
-    assert.equal(p.hidden, 1)
-    assert.equal(p.postonly, 0)
+    assert(!(p.flags & Order.flags.OCO))
+    assert(!(p.flags & Order.flags.HIDDEN))
+    assert(!(p.flags & Order.flags.POSTONLY))
+
+    o.setHidden(true)
+    p = o.toNewOrderPacket()
+    assert(p.flags & Order.flags.HIDDEN)
+    assert(!(p.flags & Order.flags.OCO))
+    assert(!(p.flags & Order.flags.POSTONLY))
+    o.setHidden(false)
+
+    o.setPostOnly(true)
+    p = o.toNewOrderPacket()
+    assert(p.flags & Order.flags.POSTONLY)
+    assert(!(p.flags & Order.flags.OCO))
+    assert(!(p.flags & Order.flags.HIDDEN))
+    o.setPostOnly(false)
+
+    o.setOCO(true)
+    p = o.toNewOrderPacket()
+    assert(p.flags & Order.flags.OCO)
+    assert(!(p.flags & Order.flags.HIDDEN))
+    assert(!(p.flags & Order.flags.POSTONLY))
+    o.setOCO(false)
+
+    // Just to make sure...
+    o.setOCO(true)
+    o.setHidden(true)
+    o.setPostOnly(true)
+    p = o.toNewOrderPacket()
+
+    assert(p.flags & Order.flags.OCO)
+    assert(p.flags & Order.flags.HIDDEN)
+    assert(p.flags & Order.flags.POSTONLY)
+  })
+
+  it('constructor: sets flags based on bool flag keys', () => {
+    const oHidden = new Order({ hidden: true })
+    const oPostOnly = new Order({ postonly: true })
+    const oOCO = new Order({ oco: true, priceAuxLimit: 42 })
+
+    assert(oHidden.isHidden())
+    assert(!oHidden.isPostOnly())
+    assert(!oHidden.isOCO())
+    assert(oHidden.flags & Order.flags.HIDDEN)
+    assert(!(oHidden.flags & Order.flags.POSTONLY))
+    assert(!(oHidden.flags & Order.flags.OCO))
+
+    assert(oPostOnly.isPostOnly())
+    assert(!oPostOnly.isHidden())
+    assert(!oPostOnly.isOCO())
+    assert(oPostOnly.flags & Order.flags.POSTONLY)
+    assert(!(oPostOnly.flags & Order.flags.HIDDEN))
+    assert(!(oPostOnly.flags & Order.flags.OCO))
+
+    assert(oOCO.isOCO())
+    assert(!oOCO.isHidden())
+    assert(!oOCO.isPostOnly())
+    assert(oOCO.flags & Order.flags.OCO)
+    assert(!(oOCO.flags & Order.flags.HIDDEN))
+    assert(!(oOCO.flags & Order.flags.POSTONLY))
+    assert.equal(oOCO.priceAuxLimit, 42)
+  })
+
+  it('isOCO, setOCO: updates/reads OCO flag & price', () => {
+    const o = new Order()
+
+    assert(!o.isOCO())
+    o.setOCO(true, 42)
+    assert(o.isOCO())
+    assert.equal(o.priceAuxLimit, 42)
+
+    o.setOCO(false)
+    assert(!o.isOCO())
+
+    o.setOCO(true)
+    assert(o.isOCO())
+  })
+
+  it('isHidden, setHidden: updates/reads hidden flag', () => {
+    const o = new Order()
+    assert(!o.isHidden())
+    o.setHidden(true)
+    assert(o.isHidden())
+
+    o.setHidden(false)
+    assert(!o.isHidden())
+
+    o.setHidden(true)
+    assert(o.isHidden())
+  })
+
+  it('isPostOnly, setPostOnly: updates/reads postonly flag', () => {
+    const o = new Order()
+    assert(!o.isPostOnly())
+    o.setPostOnly(true)
+    assert(o.isPostOnly())
+
+    o.setPostOnly(false)
+    assert(!o.isPostOnly())
+
+    o.setPostOnly(true)
+    assert(o.isPostOnly())
   })
 })
