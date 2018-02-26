@@ -55,6 +55,18 @@ describe('WSv2 utilities', () => {
     const ws = new WSv2()
     assert.deepEqual(ws.getCandles('i.dont.exist'), [])
   })
+
+  it('_sendCalc: stringifes payload & passes it to the ws client', (done) => {
+    const ws = new WSv2()
+
+    ws._ws = {}
+    ws._ws.send = (data) => {
+      assert.equal(data, '[]')
+      done()
+    }
+
+    ws._sendCalc([])
+  })
 })
 
 describe('WSv2 lifetime', () => {

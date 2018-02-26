@@ -26,14 +26,13 @@ describe('rest2 api client: issue 80 - argumment length auth request', () => {
     })
 
     server.listen(PORT, () => {
-      bhttp.genericCallback = (err) => {
-        assert.ok(err)
-
+      bhttp._makeAuthRequest('/auth/r/orders').then(() => {
         server.close()
         done()
-      }
-
-      bhttp._makeAuthRequest('/auth/r/orders', () => {})
+      }).catch(err => {
+        server.close()
+        done(err)
+      })
     })
   })
 
@@ -46,8 +45,7 @@ describe('rest2 api client: issue 80 - argumment length auth request', () => {
     })
 
     server.listen(PORT, () => {
-      bhttp._makeAuthRequest('/auth/r/orders', {}, (err, res) => {
-        assert.equal(err, null)
+      bhttp._makeAuthRequest('/auth/r/orders', {}).then(res => {
         assert.deepEqual(
           res,
           [ 'ente', 'gans', 'scholle' ]
@@ -55,6 +53,9 @@ describe('rest2 api client: issue 80 - argumment length auth request', () => {
 
         server.close()
         done()
+      }).catch(err => {
+        server.close()
+        done(err)
       })
     })
   })
