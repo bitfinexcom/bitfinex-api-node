@@ -794,16 +794,6 @@ describe('WSv2 channel msg handling', () => {
     assert(err instanceof Error)
   })
 
-  it('_updateManagedOB: returns error if update is snap & ob exists', () => {
-    const ws = new WSv2()
-    const errA = ws._updateManagedOB('tBTCUSD', [[150, 0, -1]])
-    const errB = ws._updateManagedOB('tBTCUSD', [[150, 0, -1]])
-
-    assert(!errA)
-    assert(errB)
-    assert(errB instanceof Error)
-  })
-
   it('_updateManagedOB: correctly maintains transformed OBs', () => {
     const ws = new WSv2({ transform: true })
     ws._orderBooks.tBTCUSD = []
@@ -890,17 +880,9 @@ describe('WSv2 channel msg handling', () => {
     let errorsSeen = 0
 
     ws.on('error', () => {
-      if (++errorsSeen === 2) done()
+      if (++errorsSeen === 1) done()
     })
 
-    ws._handleCandleMessage([64, [
-      [5, 100, 70, 150, 30, 1000],
-      [2, 200, 90, 150, 30, 1000],
-      [1, 130, 90, 150, 30, 1000],
-      [4, 104, 80, 150, 30, 1000]
-    ]], ws._channelMap[64])
-
-    // duplicate snapshot
     ws._handleCandleMessage([64, [
       [5, 100, 70, 150, 30, 1000],
       [2, 200, 90, 150, 30, 1000],
@@ -993,21 +975,6 @@ describe('WSv2 channel msg handling', () => {
 
     const err = ws._updateManagedCandles('trade:30m:tBTCUSD', [
       1, 10, 70, 150, 30, 10
-    ])
-
-    assert(err)
-    assert(err instanceof Error)
-  })
-
-  it('_updateManagedCandles: returns error if update is snap & candles exist', () => {
-    const ws = new WSv2()
-    ws._candles['trade:1m:tBTCUSD'] = [
-      [1, 10, 70, 150, 30, 10],
-      [2, 10, 70, 150, 30, 10]
-    ]
-
-    const err = ws._updateManagedCandles('trade:1m:tBTCUSD', [
-      [1, 10, 70, 150, 30, 10]
     ])
 
     assert(err)
