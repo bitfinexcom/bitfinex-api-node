@@ -131,13 +131,17 @@ const ws = bfx.ws()
 
 ws.on('error', (err) => console.log(err))
 ws.on('open', () => {
-  ws.onTrades({ pair: 'BTCUSD' }, (trade) => {
-    if (Array.isArray(trade[0])) {
-      console.log(`recv snapshot of ${trade.length} trades`)
-    } else {
-      console.log(`trade: ${JSON.stringify(trade)}`)
-    }
-  })
+  ws.subscribeTrades('BTCUSD')
+})
+
+ws.onTrades({ pair: 'BTCUSD' }, (trades) => {
+  console.log(`trades: ${JSON.stringify(trades)}`)
+})
+ws.onTradeEntry({ pair: 'BTCUSD' }, (trades) => {
+  console.log(`te: ${JSON.stringify(trades)}`)
+})
+ws.onTradeUpdate({ pair: 'BTCUSD' }, (trades) => {
+  console.log(`tu: ${JSON.stringify(trades)}`)
 })
 
 ws.open()
