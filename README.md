@@ -177,7 +177,11 @@ npm test
 
 ### How many orders can I send?
 
-The base limit per-user is 1,000 orders per 5 minute interval, and is shared between all account API connections.
+The base limit per-user is 1,000 orders per 5 minute interval, and is shared between all account API connections. It increases proportionally to your trade volume based on the following formula:
+
+`1000 + (TOTAL_PAIRS_PLATFORM * 60 * 5) / (250000000 / USER_VOL_LAST_30d)`
+
+Where `TOTAL_PAIRS_PLATFORM` is the number of pairs shared between Ethfinex/Bitfinex (currently ~101) and `USER_VOL_LAST_30d` is in USD.
 
 ### Will I always receive an `on` packet?
 
