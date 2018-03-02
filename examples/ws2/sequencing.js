@@ -4,14 +4,22 @@ process.env.DEBUG = 'bfx:examples:*'
 
 const debug = require('debug')('bfx:examples:ws2_sequencing')
 const bfx = require('../bfx')
-const ws = bfx.ws(2, { seqAudit: true })
+const ws = bfx.ws(2)
 
 ws.on('open', () => {
   debug('connection opened')
 
-  ws.enableSequencing()
-  ws.subscribeTrades('tBTCUSD')
+  ws.enableSequencing().then(() => {
+    if (!ws.isFlagEnabled(65536)) {
+      throw new Error('seq enable succeeded, but flag not updated')
+    }
 
+    debug('sequencing enabled')
+  }).catch(err => {
+    debug('failed to enable sequencing: %s', err.message)
+  })
+
+  ws.subscribeTrades('tBTCUSD')
   ws.auth()
 
   ws.on('message', (msg) => {
@@ -31,6 +39,10 @@ ws.on('open', () => {
       debug('recv public seq # %d, auth seq # %d', seq, authSeq)
     }
   })
+})
+
+ws.on('close', () => {
+  debug('connection closed')
 })
 
 ws.on('auth', () => {
