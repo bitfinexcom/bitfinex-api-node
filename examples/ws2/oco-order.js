@@ -2,7 +2,7 @@
 
 process.env.DEBUG = 'bfx:examples:*'
 
-const debug = require('debug')('bfx:examples:ws2_orders')
+const debug = require('debug')('bfx:examples:ws2_oco_order')
 const { Order } = require('../../lib/models')
 const bfx = require('../bfx')
 const ws = bfx.ws(2)
@@ -23,9 +23,12 @@ ws.once('auth', () => {
   const o = new Order({
     cid: Date.now(),
     symbol: 'tBTCUSD',
-    price: 589.10,
-    amount: -0.02,
-    type: Order.type.EXCHANGE_LIMIT
+    type: Order.type.EXCHANGE_LIMIT,
+    amount: -0.05,
+
+    oco: true,
+    price: 2000,
+    priceAuxLimit: 1000
   }, ws)
 
   let closed = false

@@ -131,13 +131,17 @@ const ws = bfx.ws()
 
 ws.on('error', (err) => console.log(err))
 ws.on('open', () => {
-  ws.onTrade({ pair: 'BTCUSD' }, (trade) => {
-    if (Array.isArray(trade[0])) {
-      console.log(`recv snapshot of ${trade.length} trades`)
-    } else {
-      console.log(`trade: ${JSON.stringify(trade)}`)
-    }
-  })
+  ws.subscribeTrades('BTCUSD')
+})
+
+ws.onTrades({ pair: 'BTCUSD' }, (trades) => {
+  console.log(`trades: ${JSON.stringify(trades)}`)
+})
+ws.onTradeEntry({ pair: 'BTCUSD' }, (trades) => {
+  console.log(`te: ${JSON.stringify(trades)}`)
+})
+ws.onTradeUpdate({ pair: 'BTCUSD' }, (trades) => {
+  console.log(`tu: ${JSON.stringify(trades)}`)
 })
 
 ws.open()
@@ -174,6 +178,22 @@ npm test
 ```
 
 ## FAQ
+
+### How many orders can I send?
+
+The base limit per-user is 1,000 orders per 5 minute interval, and is shared between all account API connections. It increases proportionally to your trade volume based on the following formula:
+
+`1000 + (TOTAL_PAIRS_PLATFORM * 60 * 5) / (250000000 / USER_VOL_LAST_30d)`
+
+Where `TOTAL_PAIRS_PLATFORM` is the number of pairs shared between Ethfinex/Bitfinex (currently ~101) and `USER_VOL_LAST_30d` is in USD.
+
+### Will I always receive an `on` packet?
+
+No; if your order fills immediately, the first packet referencing the order will be an `oc` signaling the order has closed. If the order fills partially immediately after creation, an `on` packet will arrive with a status of `PARTIALLY FILLED...`
+
+For example, if you submit a `LIMIT` buy for 0.2 BTC and it is added to the order book, an `on` packet will arrive via ws2. After a partial fill of 0.1 BTC, an `ou` packet will arrive, followed by a final `oc` after the remaining 0.1 BTC fills.
+
+On the other hand, if the order fills immediately for 0.2 BTC, you will only receive an `oc` packet.
 
 ### My websocket won't connect!
 
