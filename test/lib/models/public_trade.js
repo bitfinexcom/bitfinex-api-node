@@ -1,12 +1,12 @@
 /* eslint-env mocha */
 'use strict'
 
-const { TradeTick } = require('../../../lib/models')
+const { PublicTrade } = require('../../../lib/models')
 const testModel = require('../../helpers/test_model')
 
-describe('Trade Tick model', () => {
+describe('Public Trade model', () => {
   testModel({
-    model: TradeTick,
+    model: PublicTrade,
     orderedFields: [
       'id', 'mts', 'amount', 'price'
     ]

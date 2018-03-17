@@ -41,12 +41,14 @@
     "standard": "^10.0.2"
   },
   "dependencies": {
+    "async": "^2.6.0",
     "cbq": "0.0.1",
     "debug": "^2.2.0",
     "lodash": "^4.17.4",
     "lodash.throttle": "^4.1.1",
     "request": "^2.67.0",
     "request-promise": "^4.2.0",
+    "socks-proxy-agent": "^3.0.1",
     "ws": "^3.0.0"
   }
 }
