@@ -22,10 +22,10 @@ ws.on('open', () => {
   debug('open')
 
   ws.enableFlag(WSv2.flags.CHECKSUM)
-  ws.subscribeOrderBook(SYMBOL, 'P0', '100')
+  ws.subscribeOrderBook(SYMBOL, 'R0', '100')
 })
 
-ws.onOrderBookChecksum({ symbol: SYMBOL, prec: 'P0', len: '100' }, cs => {
+ws.onOrderBookChecksum({ symbol: SYMBOL, prec: 'R0', len: '100' }, cs => {
   debug('recv cs for %s:P0:100 - %d', SYMBOL, cs)
 })
 
