@@ -3,7 +3,7 @@
 process.env.DEBUG = '*'
 
 const debug = require('debug')('bfx:examples:ws2_oc_multi')
-const { Order } = require('../lib/models')
+const { Order } = require('../../lib/models')
 const bfx = require('../bfx')
 const ws = bfx.ws(2)
 
@@ -23,14 +23,14 @@ ws.once('auth', () => {
     symbol: 'tBTCUSD',
     price: 200,
     amount: 1,
-    type: 'EXCHANGE LIMIT'
+    type: 'LIMIT'
   }, ws)
 
   const oB = new Order({
     symbol: 'tETHUSD',
-    price: 50,
+    price: 200,
     amount: 1,
-    type: 'EXCHANGE LIMIT'
+    type: 'LIMIT'
   }, ws)
 
   oA.submit().then(() => {

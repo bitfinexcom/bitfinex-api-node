@@ -22,10 +22,9 @@ ws.once('auth', () => {
   // Build new order
   const o = new Order({
     cid: Date.now(),
-    symbol: 'tBTCUSD',
-    price: 589.10,
-    amount: -0.02,
-    type: Order.type.EXCHANGE_LIMIT
+    symbol: 'tBATUSD',
+    amount: 32,
+    type: Order.type.EXCHANGE_MARKET
   }, ws)
 
   let closed = false
@@ -60,7 +59,7 @@ ws.once('auth', () => {
         debug('error cancelling order: %j', err)
         ws.close()
       })
-    }, 2000)
+    }, 60 * 1000)
   }).catch((err) => {
     console.log(err)
     ws.close()

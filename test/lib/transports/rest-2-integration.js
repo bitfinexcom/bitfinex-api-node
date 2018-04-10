@@ -13,19 +13,6 @@ const getTestREST2 = () => {
   })
 }
 
-it('trades: fetches expected data', (done) => {
-  const srv = new MockRESTv2Server({ listen: true })
-  const r = getTestREST2()
-  srv.setResponse('trades.BTCUSD.0.10.50', [42])
-
-  r.trades('BTCUSD', 0, 10, 50, (err, res) => {
-    if (err) return done(err)
-
-    assert.deepEqual(res, [42])
-    srv.close().then(done).catch(done)
-  })
-})
-
 describe('RESTv2 integration (mock server) tests', () => {
   // [rest2MethodName, finalMockResponseKey, rest2MethodArgs]
   const methods = [
@@ -39,7 +26,7 @@ describe('RESTv2 integration (mock server) tests', () => {
     ['alertList', 'alerts.price', ['price']],
     ['alertSet', 'alert_set.type.symbol.price', ['type', 'symbol', 'price']],
     ['alertDelete', 'alert_del.symbol.price', ['symbol', 'price']],
-    ['trades', 'trades.BTCUSD.0.10.50', ['BTCUSD', 0, 10, 50]],
+    ['accountTrades', 'trades.BTCUSD.0.10.50.0', ['BTCUSD', 0, 10, 50, 0]],
     ['wallets', 'wallets'],
     ['activeOrders', 'active_orders'],
     ['orderHistory', 'orders.sym.start.end.limit', ['sym', 'start', 'end', 'limit']],

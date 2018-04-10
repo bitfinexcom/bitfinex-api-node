@@ -1,6 +1,6 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
+process.env.DEBUG = '*'
 
 const debug = require('debug')('bfx:examples:ws2_oco_order')
 const { Order } = require('../../lib/models')
@@ -22,13 +22,13 @@ ws.once('auth', () => {
   // Build new order
   const o = new Order({
     cid: Date.now(),
-    symbol: 'tBTCUSD',
+    symbol: 'tIOTUSD',
     type: Order.type.EXCHANGE_LIMIT,
-    amount: -0.05,
+    amount: -32,
 
     oco: true,
-    price: 2000,
-    priceAuxLimit: 1000
+    price: 0.32,
+    priceAuxLimit: 0.2001
   }, ws)
 
   let closed = false
@@ -63,7 +63,7 @@ ws.once('auth', () => {
         debug('error cancelling order: %j', err)
         ws.close()
       })
-    }, 2000)
+    }, 2 * 1000)
   }).catch((err) => {
     console.log(err)
     ws.close()
