@@ -17,22 +17,6 @@ describe('OrderBook model', () => {
     assert.deepEqual(ob.asks, [entries[1]])
   })
 
-  it('updateWith: emits an error if removing an unknown price level', (done) => {
-    const entries = [
-      [100, 2, 10],
-      [200, 2, -10]
-    ]
-
-    const ob = new OrderBook(entries)
-
-    ob.on('error', (err) => {
-      assert(err.message.indexOf('unknown price') !== -1)
-      done()
-    })
-
-    ob.updateWith([300, 0, 1])
-  })
-
   it('updateWith: correctly applies update', () => {
     const entries = [
       [100, 2, 10],
