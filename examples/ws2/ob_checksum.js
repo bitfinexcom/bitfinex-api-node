@@ -1,32 +1,37 @@
 'use strict'
 
-// process.env.DEBUG = 'bfx:examples:*'
-process.env.DEBUG = '*'
+process.env.DEBUG = 'bfx:examples:*'
 
 const debug = require('debug')('bfx:examples:ws2_ob_checksum')
 const bfx = require('../bfx')
 const WSv2 = require('../../lib/transports/ws2')
 
 const SYMBOL = 'tBTCUSD'
+const PRECISION = 'R0'
+const LENGTH = '100'
 
 const ws = bfx.ws(2, {
-  manageOrderBooks: true,
-  transform: true
+  manageOrderBooks: true // managed OBs are verified against incoming checksums
 })
 
-ws.on('error', (err) => {
-  console.error(err)
+// catch checksum mis-matches
+ws.on('error', err => {
+  debug('error %s:%s:%s %s', SYMBOL, PRECISION, LENGTH, err.message)
 })
 
 ws.on('open', () => {
   debug('open')
 
   ws.enableFlag(WSv2.flags.CHECKSUM)
-  ws.subscribeOrderBook(SYMBOL, 'R0', '100')
+  ws.subscribeOrderBook(SYMBOL, PRECISION, LENGTH)
 })
 
-ws.onOrderBookChecksum({ symbol: SYMBOL, prec: 'R0', len: '100' }, cs => {
-  debug('recv cs for %s:R0:100 - %d', SYMBOL, cs)
+ws.onOrderBookChecksum({
+  symbol: SYMBOL,
+  prec: PRECISION,
+  len: LENGTH
+}, cs => {
+  debug('recv valid cs for %s:%s:%s %d', SYMBOL, PRECISION, LENGTH, cs)
 })
 
 ws.open()
