@@ -2,6 +2,7 @@
 'use strict'
 
 const assert = require('assert')
+const CRC = require('crc-32')
 const { OrderBook } = require('../../../lib/models')
 
 describe('OrderBook model', () => {
@@ -15,6 +16,52 @@ describe('OrderBook model', () => {
 
     assert.deepEqual(ob.bids, [entries[0]])
     assert.deepEqual(ob.asks, [entries[1]])
+  })
+
+  it('checksum: returns expected value for normal OB', () => {
+    const ob = new OrderBook({
+      bids: [[6000, 1, 1], [5900, 1, 2]],
+      asks: [[6100, 1, -3], [6200, 1, -4]]
+    })
+
+    assert.equal(ob.checksum(), CRC.str('6000:1:6100:-3:5900:2:6200:-4'))
+  })
+
+  it('checksum: returns expected value for raw OB', () => {
+    const ob = new OrderBook({
+      bids: [[100, 6000, 1], [101, 6000, 2]], // first field is order ID here
+      asks: [[102, 6100, -3], [103, 6100, -4]]
+    }, true)
+
+    assert.equal(ob.checksum(), CRC.str('100:1:102:-3:101:2:103:-4'))
+  })
+
+  it('checksumArr: returns expected value for normal OB', () => {
+    const ob = [
+      [6000, 1, 1],
+      [5900, 1, 2],
+      [6100, 1, -3],
+      [6200, 1, -4]
+    ]
+
+    assert.equal(
+      OrderBook.checksumArr(ob),
+      CRC.str('6000:1:6100:-3:5900:2:6200:-4')
+    )
+  })
+
+  it('checksumArr: returns expected value for raw OB', () => {
+    const ob = [
+      [100, 6000, 1],
+      [101, 6000, 2],
+      [102, 6100, -3],
+      [103, 6100, -4]
+    ]
+
+    assert.equal(
+      OrderBook.checksumArr(ob, true),
+      CRC.str('100:1:102:-3:101:2:103:-4')
+    )
   })
 
   it('updateWith: correctly applies update', () => {
