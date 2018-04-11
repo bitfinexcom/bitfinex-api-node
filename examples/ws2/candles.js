@@ -6,8 +6,8 @@ const debug = require('debug')('bfx:examples:ws2_candles')
 const bfx = require('../bfx')
 
 const ws = bfx.ws(2, {
-  manageCandles: true,  // enable candle dataset persistence/management
-  transform: true       // converts ws data arrays to Candle models (and others)
+  manageCandles: true, // enable candle dataset persistence/management
+  transform: true // converts ws data arrays to Candle models (and others)
 })
 
 const CANDLE_KEY = 'trade:5m:tBTCUSD'

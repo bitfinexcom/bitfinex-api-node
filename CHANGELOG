@@ -1,4 +1,21 @@
-2.0.0
+2.0.0-beta.1
+- WS API v2: fixed ticker message parsing
+- WS API v2: clean up channel references on connection close
+- WS API v2: pass Order update packet & object to Order event listeners
+- WS API v2: refactored the model system, centralized serialize/unserialize
+- WS API v2: stringified calc payload
+- WS API v2: allow duplicate candle/order book snapshots
+- WS API v2: added ability to filter order packets by all IDs & symbol
+- REST API v2: added support for user settings API
+- REST API v2: passed through various v1 methods
+- REST API v2: added support for legacy v1 positions/close endpoint
+- REST API v2: added ability to specify candles query arguments (start, end, limit)
+- Order: added support for new flags (OCO, POSTONLY, HIDDEN, NO_VR, POS_CLOSE, REDUCE_ONLY)
+- OrderBook: added arrabOBMidPrice helper
+- Updated README & documentation
+- Added more examples
+
+2.0.0-beta
 
 - WS API v2: added optional auto-reconnect
 - WS API v2: added optional packet watchdog

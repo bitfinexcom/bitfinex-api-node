@@ -7,7 +7,7 @@ const bfx = require('../bfx')
 const ws = bfx.ws(2)
 
 ws.on('open', () => { // wait for socket open
-  ws.auth()           // & authenticate
+  ws.auth() // & authenticate
 
   debug('open')
 })

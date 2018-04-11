@@ -4,7 +4,7 @@ process.env.DEBUG = 'bfx:examples:*'
 
 const debug = require('debug')('bfx:examples:ws2_cancel_all')
 const bfx = require('../bfx')
-const ws = bfx.ws(2, { transform: true })
+const ws = bfx.ws(2, {})
 
 ws.on('error', (err) => {
   console.log(err)

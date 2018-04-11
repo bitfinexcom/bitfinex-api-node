@@ -345,18 +345,18 @@ describe('WSv2 seq audit', () => {
       ws._onWSMessage(JSON.stringify([0, 'tu', [], 0, 0]))
       ws._onWSMessage(JSON.stringify([0, 'te', [], 1, 0]))
       ws._onWSMessage(JSON.stringify([0, 'wu', [], 2, 1]))
-      ws._onWSMessage(JSON.stringify([0, 'tu', [], 3, 2])) //
-      ws._onWSMessage(JSON.stringify([0, 'tu', [], 4, 4])) // error
+      ws._onWSMessage(JSON.stringify([0, 'tu', [], 3, 2]))
+      ws._onWSMessage(JSON.stringify([0, 'tu', [], 4, 4])) // errors below
       ws._onWSMessage(JSON.stringify([0, 'tu', [], 5, 5]))
       ws._onWSMessage(JSON.stringify([0, 'tu', [], 6, 6]))
       ws._onWSMessage(JSON.stringify([42, [], 7]))
       ws._onWSMessage(JSON.stringify([42, [], 8]))
-      ws._onWSMessage(JSON.stringify([42, [], 9]))  //
-      ws._onWSMessage(JSON.stringify([42, [], 13])) // error
+      ws._onWSMessage(JSON.stringify([42, [], 9])) // errors below
+      ws._onWSMessage(JSON.stringify([42, [], 13]))
       ws._onWSMessage(JSON.stringify([42, [], 14]))
       ws._onWSMessage(JSON.stringify([42, [], 15]))
 
-      assert.equal(errorsSeen, 2)
+      assert.equal(errorsSeen, 6)
       wss.close()
       done()
     })
@@ -1058,9 +1058,9 @@ describe('WSv2 event msg handling', () => {
   it('_handleConfigEvent: emits error if config failed', (done) => {
     const ws = new WSv2()
     ws.on('error', (err) => {
-      if (err.code === 42) done()
+      if (err.message.indexOf(42) !== -1) done()
     })
-    ws._handleConfigEvent({ status: 'bad', code: 42 })
+    ws._handleConfigEvent({ status: 'bad', flags: 42 })
   })
 
   it('_handleAuthEvent: emits an error on auth fail', (done) => {

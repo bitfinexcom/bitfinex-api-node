@@ -10,19 +10,15 @@ debug('fetching trades...')
 
 const start = Date.now() - (90 * 24 * 60 * 60 * 1000)
 const end = Date.now()
-const limit = 25
+const limit = 100
 
-rest.trades('tETHUSD', start, end, limit, (err, trades) => {
-  if (err) {
-    return debug('error: %s', err.message)
-  }
-
+rest.trades('tBTCUSD', start, end, limit, 1).then(trades => {
   trades.forEach((trade) => {
     debug(
-      'trade ID %d %s | %f @ %f | %s',
-      trade.id, trade.pair, trade.execAmount, trade.execPrice, trade.orderType
+      'trade %d | %s | %f @ %f',
+      trade.id, new Date(trade.mts).toLocaleString(), trade.amount, trade.price
     )
   })
-}).catch((err) => {
-  debug('error: %j', err)
+}).catch(err => {
+  debug('error: %s', err.message)
 })
