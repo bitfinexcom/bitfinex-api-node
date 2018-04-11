@@ -1058,9 +1058,9 @@ describe('WSv2 event msg handling', () => {
   it('_handleConfigEvent: emits error if config failed', (done) => {
     const ws = new WSv2()
     ws.on('error', (err) => {
-      if (err.code === 42) done()
+      if (err.message.indexOf('42') !== -1) done()
     })
-    ws._handleConfigEvent({ status: 'bad', code: 42 })
+    ws._handleConfigEvent({ status: 'bad', flags: 42 })
   })
 
   it('_handleAuthEvent: emits an error on auth fail', (done) => {
