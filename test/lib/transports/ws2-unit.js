@@ -356,7 +356,7 @@ describe('WSv2 seq audit', () => {
       ws._onWSMessage(JSON.stringify([42, [], 14]))
       ws._onWSMessage(JSON.stringify([42, [], 15]))
 
-      assert.equal(errorsSeen, 2)
+      assert.equal(errorsSeen, 6)
       wss.close()
       done()
     })
