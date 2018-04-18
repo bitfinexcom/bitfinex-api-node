@@ -82,6 +82,38 @@ describe('WSv2 orders', () => {
     ws.open()
   })
 
+  it('updateOrder: sends order changeset packet through', (done) => {
+    const wss = new MockWSv2Server()
+    const wsSingle = createTestWSv2Instance()
+    wsSingle.open()
+    wsSingle.on('open', wsSingle.auth.bind(wsSingle))
+    wsSingle.once('auth', () => {
+      const o = new Order({
+        id: Date.now(),
+        type: 'EXCHANGE LIMIT',
+        price: 100,
+        amount: 1,
+        symbol: 'tBTCUSD'
+      }, wsSingle)
+
+      wsSingle._ws.send = (msgJSON) => {
+        const msg = JSON.parse(msgJSON)
+
+        assert.equal(msg[0], 0)
+        assert.equal(msg[1], 'ou')
+        assert(msg[3])
+        assert.equal(msg[3].id, o.id)
+        assert.equal(msg[3].delta, 1)
+        assert.equal(msg[3].price, 200)
+
+        wss.close()
+        done()
+      }
+
+      o.update({ price: 200, delta: 1 })
+    })
+  })
+
   it('sends individual order packets when not buffering', (done) => {
     const wss = new MockWSv2Server()
     const wsSingle = createTestWSv2Instance()
