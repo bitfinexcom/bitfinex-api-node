@@ -120,6 +120,26 @@ describe('WSv2 lifetime', () => {
     })
   })
 
+  it('close: clears connection state', (done) => {
+    const wss = new MockWSv2Server()
+    const ws = createTestWSv2Instance()
+    ws._onWSClose = () => {} // disable fallback reset
+
+    ws.open()
+    ws.on('open', () => {
+      assert(ws._ws !== null)
+      assert(ws._isOpen)
+
+      ws.close().then(() => {
+        assert(ws._ws == null)
+        assert(!ws._isOpen)
+
+        wss.close()
+        done()
+      })
+    })
+  })
+
   it('auth: fails to auth twice', (done) => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
