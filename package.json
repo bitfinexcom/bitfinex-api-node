@@ -42,7 +42,9 @@
     "standard": "^10.0.2"
   },
   "dependencies": {
+    "bignumber.js": "^6.0.0",
     "cbq": "0.0.1",
+    "crc-32": "^1.2.0",
     "debug": "^2.2.0",
     "lodash": "^4.17.4",
     "lodash.throttle": "^4.1.1",
