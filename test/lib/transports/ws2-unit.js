@@ -1134,6 +1134,67 @@ describe('WSv2 event msg handling', () => {
     assert(Object.keys(ws._channelMap).length === 0)
   })
 
+  it('_handleInfoEvent: passes message to relevant listeners (raw access)', (done) => {
+    const wss = new MockWSv2Server()
+    const ws = createTestWSv2Instance()
+    ws.once('open', () => {
+      let n = 0
+
+      ws._infoListeners[42] = [
+        () => { n += 1 },
+        () => { n += 2 }
+      ]
+
+      ws._handleInfoEvent({ code: 42 })
+
+      assert.equal(n, 3)
+      wss.close()
+      done()
+    })
+
+    ws.open()
+  })
+
+  it('_handleInfoEvent: passes message to relevant listeners', (done) => {
+    const wss = new MockWSv2Server()
+    const ws = createTestWSv2Instance()
+    ws.once('open', () => {
+      let n = 0
+
+      ws.onInfoMessage(42, () => { n += 1 })
+      ws.onInfoMessage(42, () => { n += 2 })
+      ws._handleInfoEvent({ code: 42 })
+
+      assert.equal(n, 3)
+      wss.close()
+      done()
+    })
+
+    ws.open()
+  })
+
+  it('_handleInfoEvent: passes message to relevant named listeners', (done) => {
+    const wss = new MockWSv2Server()
+    const ws = createTestWSv2Instance()
+    ws.once('open', () => {
+      let n = 0
+
+      ws.onServerRestart(() => { n += 1 })
+      ws.onMaintenanceStart(() => { n += 10 })
+      ws.onMaintenanceEnd(() => { n += 100 })
+
+      ws._handleInfoEvent({ code: WSv2.info.SERVER_RESTART })
+      ws._handleInfoEvent({ code: WSv2.info.MAINTENANCE_START })
+      ws._handleInfoEvent({ code: WSv2.info.MAINTENANCE_END })
+
+      assert.equal(n, 111)
+      wss.close()
+      done()
+    })
+
+    ws.open()
+  })
+
   it('_handleInfoEvent: closes & emits error if not on api v2', (done) => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
