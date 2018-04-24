@@ -491,4 +491,51 @@ describe('Order model', () => {
     o.setPostOnly(true)
     assert(o.isPostOnly())
   })
+
+  it('update: applies changeset to order model', (done) => {
+    const o = new Order({ price: 42, amount: 1 }, { updateOrder: () => Promise.resolve() })
+    assert.equal(o.price, 42)
+    assert.equal(o.amount, 1)
+
+    o.update({ delta: 1, price: 43 }).catch(done)
+
+    assert.equal(o.price, 43)
+    assert.equal(o.amount, 2)
+
+    assert(typeof o.priceAuxLimit === 'undefined')
+    o.update({ price_aux_limit: 42 }).catch(done)
+    assert(typeof o.price_aux_limit === 'undefined')
+    assert.equal(o.priceAuxLimit, 42)
+
+    assert(typeof o.priceTrailing === 'undefined')
+    o.update({ price_trailing: 42 }).catch(done)
+    assert(typeof o.price_trailing === 'undefined')
+    assert.equal(o.priceTrailing, 42)
+
+    assert(o.gid !== 42)
+    o.update({ gid: 42 }).catch(done)
+    assert.equal(o.gid, 42)
+
+    done()
+  })
+
+  it('update: rejects with error if applying delta to missing amount', (done) => {
+    const o = new Order()
+
+    o.update({ delta: 1 }).catch(() => {
+      done() // no error
+    })
+  })
+
+  it('update: forwards update to ws2', (done) => {
+    const o = new Order({}, { // dirty ws2 mock
+      updateOrder: (o) => {
+        assert(o)
+        assert.equal(o.test, 42)
+        done()
+      }
+    })
+
+    o.update({ test: 42 }).catch(done)
+  })
 })
