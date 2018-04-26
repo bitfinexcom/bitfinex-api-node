@@ -2,7 +2,6 @@
 
 process.env.DEBUG = 'bfx:examples:*'
 
-const co = require('co')
 const Table = require('cli-table2')
 const debug = require('debug')('bfx:examples:rest2_positions')
 const bfx = require('../bfx')
@@ -30,9 +29,13 @@ const t = new Table({
 
 debug('fetching positions...')
 
-co(function * () {
-  const positions = yield rest.positions()
+const example = async () => {
+  const positions = await rest.positions()
   const lastPrices = {}
+
+  if (positions.length === 0) {
+    return debug('no open positions')
+  }
 
   debug('... done')
 
@@ -41,7 +44,7 @@ co(function * () {
     const symbols = positions.map(p => p.symbol)
 
     debug('fetching tickers for: %s...', symbols)
-    const rawTickers = yield rest.tickers(symbols)
+    const rawTickers = await rest.tickers(symbols)
     debug('... done')
 
     for (let i = 0; i < rawTickers.length; i += 1) { // only save lastPrice
@@ -73,6 +76,6 @@ co(function * () {
   }
 
   console.log(t.toString())
-}).catch(err => {
-  debug('error: %j', err)
-})
+}
+
+example().catch(debug)

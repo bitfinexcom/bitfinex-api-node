@@ -2,7 +2,6 @@
 
 process.env.DEBUG = 'bfx:examples:*'
 
-const co = require('co')
 const Table = require('cli-table2')
 const debug = require('debug')('bfx:examples:rest2_balances')
 const bfx = require('../bfx')
@@ -29,8 +28,8 @@ const t = new Table({
 
 debug('fetching balances...')
 
-co(function * () {
-  const balances = yield rest.balances() // actual balance fetch
+const example = async () => {
+  const balances = await rest.balances() // actual balance fetch
   const lastPrices = {}
 
   // Pull in ticker data if the user specified a value currency
@@ -43,7 +42,7 @@ co(function * () {
       )).map(w => symbolForWallet(w))))
 
     debug('fetching tickers for: %s...', symbols.join(', '))
-    const rawTickers = yield rest.tickers(symbols)
+    const rawTickers = await rest.tickers(symbols)
     debug('... done')
 
     for (let i = 0; i < rawTickers.length; i += 1) { // only save lastPrice
@@ -74,10 +73,10 @@ co(function * () {
         ? 1
         : lastPrices[symbolForWallet(w)]
 
-      rowData.push(isNaN(value) ? '' : value)
+      rowData.push(Number.isNaN(+value) ? '' : value)
       rowData.push(unitPrice)
 
-      if (!isNaN(value)) {
+      if (!Number.isNaN(+value)) {
         totalValue += Number(value)
       }
     }
@@ -90,6 +89,6 @@ co(function * () {
   if (VALUE_ENABLED) {
     debug('total value: %d %s', totalValue, VALUE_CURRENCY)
   }
-}).catch(err => {
-  debug('error: %j', err)
-})
+}
+
+example().catch(debug)
