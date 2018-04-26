@@ -33,6 +33,4 @@ rest.symbols().then(symbols => {
   }
 
   console.log(table.toString())
-}).catch(err => {
-  debug('error: %j', err)
-})
+}).catch(debug)
