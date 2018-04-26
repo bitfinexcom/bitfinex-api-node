@@ -158,40 +158,40 @@ describe('RESTv2 integration (mock server) tests', () => {
 
       r[name].apply(r, args)
     })
+  })
 
-    it('correctly parses tickers response', (done) => {
-      const srv = new MockRESTv2Server({ listen: true })
-      const r = getTestREST2({ transform: true })
+  it('correctly parses tickers response', (done) => {
+    const srv = new MockRESTv2Server({ listen: true })
+    const r = getTestREST2({ transform: true })
 
-      srv.setResponse('tickers', [getTestTicker()])
+    srv.setResponse('tickers', [getTestTicker()])
 
-      r.tickers(['tETHUSD'], (err, data = []) => {
-        if (err) {
-          return srv.close().then(() => done(err)).catch(done)
-        }
+    r.tickers(['tETHUSD'], (err, data = []) => {
+      if (err) {
+        return srv.close().then(() => done(err)).catch(done)
+      }
 
-        assert.equal(data.length, 1)
-        const [ticker] = data
+      assert.equal(data.length, 1)
+      const [ticker] = data
 
-        auditTestTicker(ticker)
-        srv.close().then(done).catch(done)
-      })
+      auditTestTicker(ticker)
+      srv.close().then(done).catch(done)
     })
+  })
 
-    it('correctly parses ticker response', (done) => {
-      const srv = new MockRESTv2Server({ listen: true })
-      const r = getTestREST2({ transform: true })
+  it('correctly parses ticker response', (done) => {
+    const srv = new MockRESTv2Server({ listen: true })
+    const r = getTestREST2({ transform: true })
 
-      srv.setResponse('ticker.tETHUSD', getTestTicker())
+    srv.setResponse('ticker.tETHUSD', getTestTicker())
 
-      r.ticker('tETHUSD', (err, ticker = {}) => {
-        if (err) {
-          return srv.close().then(() => done(err)).catch(done)
-        }
+    r.ticker('tETHUSD', (err, ticker = {}) => {
+      if (err) {
+        return srv.close().then(() => done(err)).catch(done)
+      }
 
-        auditTestTicker(ticker)
-        srv.close().then(done).catch(done)
-      })
+      auditTestTicker(ticker)
+      srv.close().then(done).catch(done)
     })
   })
 
