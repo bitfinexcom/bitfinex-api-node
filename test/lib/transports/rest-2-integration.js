@@ -88,6 +88,24 @@ const auditTestFundingCredit = (fc = {}) => {
   assert.equal(fc.positionPair, null)
 }
 
+const getTestTicker = (symbol = 'tETHUSD') => ([
+  symbol, 25, 0, 105, 0, -149, -0.9933, 1, 473, 150, 1
+])
+
+const auditTestTicker = (ticker, symbol = 'tETHUSD') => {
+  assert.equal(ticker.symbol, symbol)
+  assert.equal(ticker.bid, 25)
+  assert.equal(ticker.bidSize, 0)
+  assert.equal(ticker.ask, 105)
+  assert.equal(ticker.askSize, 0)
+  assert.equal(ticker.dailyChange, -149)
+  assert.equal(ticker.dailyChangePerc, -0.9933)
+  assert.equal(ticker.lastPrice, 1)
+  assert.equal(ticker.volume, 473)
+  assert.equal(ticker.high, 150)
+  assert.equal(ticker.low, 1)
+}
+
 describe('RESTv2 integration (mock server) tests', () => {
   // [rest2MethodName, finalMockResponseKey, rest2MethodArgs]
   const methods = [
@@ -130,13 +148,50 @@ describe('RESTv2 integration (mock server) tests', () => {
       srv.setResponse(dataKey, [42])
 
       args.push((err, res) => {
-        if (err) return done(err)
+        if (err) {
+          return srv.close().then(() => done(err)).catch(done)
+        }
 
         assert.deepEqual(res, [42])
         srv.close().then(done).catch(done)
       })
 
       r[name].apply(r, args)
+    })
+
+    it('correctly parses tickers response', (done) => {
+      const srv = new MockRESTv2Server({ listen: true })
+      const r = getTestREST2({ transform: true })
+
+      srv.setResponse('tickers', [getTestTicker()])
+
+      r.tickers(['tETHUSD'], (err, data = []) => {
+        if (err) {
+          return srv.close().then(() => done(err)).catch(done)
+        }
+
+        assert.equal(data.length, 1)
+        const [ticker] = data
+
+        auditTestTicker(ticker)
+        srv.close().then(done).catch(done)
+      })
+    })
+
+    it('correctly parses ticker response', (done) => {
+      const srv = new MockRESTv2Server({ listen: true })
+      const r = getTestREST2({ transform: true })
+
+      srv.setResponse('ticker.tETHUSD', getTestTicker())
+
+      r.ticker('tETHUSD', (err, ticker = {}) => {
+        if (err) {
+          return srv.close().then(() => done(err)).catch(done)
+        }
+
+        auditTestTicker(ticker)
+        srv.close().then(done).catch(done)
+      })
     })
   })
 

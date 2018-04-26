@@ -10,11 +10,30 @@ const API_KEY = 'dummy'
 const API_SECRET = 'dummy'
 
 const createTestWSv2Instance = (params = {}) => {
-  return new WSv2(Object.assign({
+  return new WSv2({
     apiKey: API_KEY,
     apiSecret: API_SECRET,
-    url: 'ws://localhost:9997'
-  }, params))
+    url: 'ws://localhost:9997',
+
+    ...params
+  })
+}
+
+const getTestTicker = () => {
+  return [25, 0, 105, 0, -149, -0.9933, 1, 473, 150, 1]
+}
+
+const auditTestTicker = (ticker) => {
+  assert.equal(ticker.bid, 25)
+  assert.equal(ticker.bidSize, 0)
+  assert.equal(ticker.ask, 105)
+  assert.equal(ticker.askSize, 0)
+  assert.equal(ticker.dailyChange, -149)
+  assert.equal(ticker.dailyChangePerc, -0.9933)
+  assert.equal(ticker.lastPrice, 1)
+  assert.equal(ticker.volume, 473)
+  assert.equal(ticker.high, 150)
+  assert.equal(ticker.low, 1)
 }
 
 describe('WSv2 orders', () => {
@@ -287,5 +306,30 @@ describe('WSv2 info message handling', () => {
       code: WSv2.info.MAINTENANCE_END,
       msg: ''
     }))
+  })
+})
+
+describe('data parsing', () => {
+  it('correctly parses tickers', (done) => {
+    const wss = new MockWSv2Server({ listen: true })
+    const ws = createTestWSv2Instance({ transform: true })
+    ws.open()
+    ws.on('error', done)
+    ws.on('open', () => {
+      ws._channelMap = {
+        5: {
+          channel: 'ticker',
+          symbol: 'tETHUSD'
+        }
+      }
+
+      ws.onTicker({ symbol: 'tETHUSD' }, (ticker) => {
+        auditTestTicker(ticker)
+        wss.close()
+        done()
+      })
+
+      wss.send([5, getTestTicker(null)])
+    })
   })
 })
