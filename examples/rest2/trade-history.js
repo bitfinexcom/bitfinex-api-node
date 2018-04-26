@@ -31,7 +31,7 @@ const table = new Table({
 
 debug('fetching 30d trade history for %s...', symbol)
 
-rest.trades(symbol, START, END, LIMIT).then(trades => {
+rest.accountTrades(symbol, START, END, LIMIT).then(trades => {
   let t
 
   for (let j = 0; j < trades.length; j += 1) {
