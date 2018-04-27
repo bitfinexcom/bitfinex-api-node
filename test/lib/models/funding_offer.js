@@ -7,11 +7,11 @@ const testModel = require('../../helpers/test_model')
 describe('FundingOffer model', () => {
   testModel({
     model: FundingOffer,
-    boolFields: ['notify', 'hidden', 'insure', 'renew'],
+    boolFields: ['notify', 'hidden', 'renew'],
     orderedFields: [
       'id', 'symbol', 'mtsCreate', 'mtsUpdate', 'amount', 'amountOrig', 'type',
-      'flags', 'status', 'rate', 'period', 'notify', 'hidden', 'insure',
-      'renew', 'rateReal'
+      null, null, 'flags', 'status', null, null, null, 'rate', 'period',
+      'notify', 'hidden', null, 'renew', 'rateReal'
     ]
   })
 })
