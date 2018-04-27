@@ -5,6 +5,9 @@ const assert = require('assert')
 const WSv2 = require('../../../lib/transports/ws2')
 const { Order } = require('../../../lib/models')
 const { MockWSv2Server } = require('bfx-api-mock-srv')
+const {
+  getFundingTicker, getTradingTicker, auditTicker
+} = require('../../helpers/data')
 
 const API_KEY = 'dummy'
 const API_SECRET = 'dummy'
@@ -17,23 +20,6 @@ const createTestWSv2Instance = (params = {}) => {
 
     ...params
   })
-}
-
-const getTestTicker = () => {
-  return [25, 0, 105, 0, -149, -0.9933, 1, 473, 150, 1]
-}
-
-const auditTestTicker = (ticker) => {
-  assert.equal(ticker.bid, 25)
-  assert.equal(ticker.bidSize, 0)
-  assert.equal(ticker.ask, 105)
-  assert.equal(ticker.askSize, 0)
-  assert.equal(ticker.dailyChange, -149)
-  assert.equal(ticker.dailyChangePerc, -0.9933)
-  assert.equal(ticker.lastPrice, 1)
-  assert.equal(ticker.volume, 473)
-  assert.equal(ticker.high, 150)
-  assert.equal(ticker.low, 1)
 }
 
 describe('WSv2 orders', () => {
@@ -310,7 +296,7 @@ describe('WSv2 info message handling', () => {
 })
 
 describe('data parsing', () => {
-  it('correctly parses tickers', (done) => {
+  it('correctly parses trading tickers', (done) => {
     const wss = new MockWSv2Server({ listen: true })
     const ws = createTestWSv2Instance({ transform: true })
     ws.open()
@@ -324,12 +310,35 @@ describe('data parsing', () => {
       }
 
       ws.onTicker({ symbol: 'tETHUSD' }, (ticker) => {
-        auditTestTicker(ticker)
+        auditTicker(ticker, 'tETHUSD')
         wss.close()
         done()
       })
 
-      wss.send([5, getTestTicker(null)])
+      wss.send([5, getTradingTicker()])
+    })
+  })
+
+  it('correctly parses funding tickers', (done) => {
+    const wss = new MockWSv2Server({ listen: true })
+    const ws = createTestWSv2Instance({ transform: true })
+    ws.open()
+    ws.on('error', done)
+    ws.on('open', () => {
+      ws._channelMap = {
+        5: {
+          channel: 'ticker',
+          symbol: 'fUSD'
+        }
+      }
+
+      ws.onTicker({ symbol: 'fUSD' }, (ticker) => {
+        auditTicker(ticker, 'fUSD')
+        wss.close()
+        done()
+      })
+
+      wss.send([5, getFundingTicker()])
     })
   })
 })

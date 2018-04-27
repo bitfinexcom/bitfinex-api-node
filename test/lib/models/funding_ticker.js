@@ -12,8 +12,8 @@ describe('Funding Ticker model', () => {
     },
 
     orderedFields: [
-      'symbol', 'frr', 'bid', 'bidSize', 'bidPeriod', 'ask', 'askSize',
-      'askPeriod', 'dailyChange', 'dailyChangePerc', 'lastPrice', 'volume',
+      'symbol', 'frr', 'bid', 'bidPeriod', 'bidSize', 'ask', 'askPeriod',
+      'askSize', 'dailyChange', 'dailyChangePerc', 'lastPrice', 'volume',
       'high', 'low'
     ]
   })

@@ -1,18 +1,18 @@
 /* eslint-env mocha */
 'use strict'
 
-const { Ticker } = require('../../../lib/models')
+const { TradingTicker } = require('../../../lib/models')
 const testModel = require('../../helpers/test_model')
 
-describe('Ticker model', () => {
+describe('Trading Ticker model', () => {
   testModel({
-    model: Ticker,
+    model: TradingTicker,
     values: {
       symbol: 'tBTCUSD'
     },
 
     orderedFields: [
-      'bid', 'bidSize', 'ask', 'askSize', 'dailyChange',
+      'symbol', 'bid', 'bidSize', 'ask', 'askSize', 'dailyChange',
       'dailyChangePerc', 'lastPrice', 'volume', 'high', 'low'
     ]
   })
