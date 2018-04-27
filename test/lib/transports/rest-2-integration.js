@@ -24,6 +24,11 @@ const getTestFundingLoan = () => ([
   null, null, 0.002, 7, 1524786468000, 1524786468000, 0, 0, null, 0, 0.002, 0
 ])
 
+const getTestFundingCredit = () => ([
+  26190108, 'fUSD', -1, 1524846786000, 1524846786000, 32.91281465, 0, 'ACTIVE',
+  null, null, null, 0.002, 7, 1524786468000, null, 0, 0, null, 0, 0.002, 0, null
+])
+
 const auditTestFundingOffer = (fo = {}) => {
   assert.equal(fo.id, 41215275)
   assert.equal(fo.symbol, 'fUSD')
@@ -60,6 +65,27 @@ const auditTestFundingLoan = (fl = {}) => {
   assert.equal(fl.renew, 0)
   assert.equal(fl.rateReal, 0.002)
   assert.equal(fl.noClose, 0)
+}
+
+const auditTestFundingCredit = (fc = {}) => {
+  assert.equal(fc.id, 26190108)
+  assert.equal(fc.symbol, 'fUSD')
+  assert.equal(fc.side, -1)
+  assert.equal(fc.mtsCreate, 1524846786000)
+  assert.equal(fc.mtsUpdate, 1524846786000)
+  assert.equal(fc.amount, 32.91281465)
+  assert.equal(fc.flags, 0)
+  assert.equal(fc.status, 'ACTIVE')
+  assert.equal(fc.rate, 0.002)
+  assert.equal(fc.period, 7)
+  assert.equal(fc.mtsOpening, 1524786468000)
+  assert.equal(fc.mtsLastPayout, null)
+  assert.equal(fc.notify, 0)
+  assert.equal(fc.hidden, 0)
+  assert.equal(fc.renew, 0)
+  assert.equal(fc.rateReal, 0.002)
+  assert.equal(fc.noClose, 0)
+  assert.equal(fc.positionPair, null)
 }
 
 describe('RESTv2 integration (mock server) tests', () => {
@@ -134,6 +160,18 @@ describe('RESTv2 integration (mock server) tests', () => {
 
     r.fundingLoans('fUSD').then(([fo]) => {
       auditTestFundingLoan(fo)
+      return srv.close()
+    }).then(done).catch(done)
+  })
+
+  it('correctly parses funding credit response', (done) => {
+    const srv = new MockRESTv2Server({ listen: true })
+    const r = getTestREST2({ transform: true })
+
+    srv.setResponse('f_credits.fUSD', [getTestFundingCredit()])
+
+    r.fundingCredits('fUSD').then(([fc]) => {
+      auditTestFundingCredit(fc)
       return srv.close()
     }).then(done).catch(done)
   })
