@@ -346,6 +346,12 @@ describe('Order model', () => {
     o._onWSOrderClose([42])
   })
 
+  it('_onWSOrderClose: emits update event', (done) => {
+    const o = new Order({ id: 100 })
+    o.on('update', () => done())
+    o._onWSOrderClose([42])
+  })
+
   it('_onWSOrderNew: updates last fill amount', () => {
     testHandlerFillUpdate('_onWSOrderNew')
   })
@@ -359,6 +365,12 @@ describe('Order model', () => {
   it('_onWSOrderNew: emits update event', (done) => {
     const o = new Order({ id: 100 })
     o.on('update', () => done())
+    o._onWSOrderNew([42])
+  })
+
+  it('_onWSOrderNew: emits new event', (done) => {
+    const o = new Order({ id: 100 })
+    o.on('new', () => done())
     o._onWSOrderNew([42])
   })
 
@@ -537,5 +549,11 @@ describe('Order model', () => {
     })
 
     o.update({ test: 42 }).catch(done)
+  })
+
+  it('isPartiallyFilled: returns true if the order is partially filled', () => {
+    assert(new Order({ amount: 5, amountOrig: 25 }).isPartiallyFilled())
+    assert(!new Order({ amount: 0, amountOrig: 25 }).isPartiallyFilled())
+    assert(!new Order({ amount: 25, amountOrig: 25 }).isPartiallyFilled())
   })
 })
