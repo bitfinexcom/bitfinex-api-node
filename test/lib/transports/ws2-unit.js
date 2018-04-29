@@ -623,6 +623,20 @@ describe('WSv2 channel msg handling', () => {
     WSv2._notifyListenerGroup(lg, [0, 'test', [0, 'tu']], false)
   })
 
+  it('_notifyListenerGroup: doesn\'t fail on missing data if filtering', (done) => {
+    const lg = {
+      'test': [{
+        filter: { 1: 'on' },
+        cb: () => {
+          done(new Error('filter should not have matched'))
+        }
+      }]
+    }
+
+    WSv2._notifyListenerGroup(lg, [0, 'test'], false)
+    done()
+  })
+
   it('_propagateMessageToListeners: notifies all matching listeners', (done) => {
     const ws = new WSv2()
     ws._channelMap = { 0: { channel: 'auth' } }
