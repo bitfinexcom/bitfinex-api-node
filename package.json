@@ -14,7 +14,16 @@
     "ws_docs": "node_modules/jsdoc-to-markdown/bin/cli.js lib/transports/ws2.js > doc/ws2.md",
     "order_docs": "node_modules/jsdoc-to-markdown/bin/cli.js lib/models/order.js > doc/order.md",
     "rest_docs": "node_modules/jsdoc-to-markdown/bin/cli.js lib/transports/rest2.js > doc/rest2.md",
-    "docs": "npm run ws_docs && npm run rest_docs && npm run order_docs"
+    "docs": "npm run ws_docs && npm run rest_docs && npm run order_docs",
+    "tickers": "node examples/rest2/tickers.js",
+    "symbols": "node examples/rest2/symbols.js",
+    "status": "node examples/rest2/status.js",
+    "order-history": "node examples/rest2/order-history.js",
+    "trade-history": "node examples/rest2/trade-history.js",
+    "positions": "node examples/rest2/positions.js",
+    "balances": "node examples/rest2/balances.js",
+    "orders": "node examples/rest2/orders.js",
+    "cancel-orders": "node examples/ws2/cancel_all.js"
   },
   "repository": {
     "type": "git",
@@ -32,7 +41,9 @@
   },
   "homepage": "http://bitfinexcom.github.io/bitfinex-api-node/",
   "devDependencies": {
+    "bfx-api-mock-srv": "git+https://github.com/bitfinexcom/bfx-api-mock-srv.git",
     "chai": "^3.4.1",
+    "cli-table2": "^0.2.0",
     "dotenv": "^4.0.0",
     "istanbul": "^0.4.1",
     "jsdoc-to-markdown": "^1.3.1",
