@@ -4,6 +4,7 @@
 const assert = require('assert')
 const RESTv2 = require('../../../lib/transports/rest2')
 const { MockRESTv2Server } = require('bfx-api-mock-srv')
+const { getTradingTicker, getFundingTicker, auditTicker } = require('../../helpers/data')
 
 const getTestREST2 = (args = {}) => {
   return new RESTv2({
@@ -92,7 +93,7 @@ describe('RESTv2 integration (mock server) tests', () => {
   // [rest2MethodName, finalMockResponseKey, rest2MethodArgs]
   const methods = [
     // public
-    ['ticker', 'ticker.BTCUSD', ['BTCUSD']],
+    ['ticker', 'ticker.tBTCUSD', ['tBTCUSD']],
     ['tickers', 'tickers', [['tBTCUSD', 'tETHUSD']]],
     ['stats', 'stats.key.context', ['key', 'context']],
     ['candles', 'candles.trade:30m:tBTCUSD.hist', [{ timeframe: '30m', symbol: 'tBTCUSD', section: 'hist' }]],
@@ -130,13 +131,70 @@ describe('RESTv2 integration (mock server) tests', () => {
       srv.setResponse(dataKey, [42])
 
       args.push((err, res) => {
-        if (err) return done(err)
+        if (err) {
+          return srv.close().then(() => done(err)).catch(done)
+        }
 
         assert.deepEqual(res, [42])
         srv.close().then(done).catch(done)
       })
 
       r[name].apply(r, args)
+    })
+  })
+
+  it('correctly parses a mixed tickers response', (done) => {
+    const srv = new MockRESTv2Server({ listen: true })
+    const r = getTestREST2({ transform: true })
+
+    srv.setResponse('tickers', [
+      getTradingTicker('tETHUSD'),
+      getFundingTicker('fUSD')
+    ])
+
+    r.tickers(['tETHUSD', 'fUSD'], (err, data = []) => {
+      if (err) {
+        return srv.close().then(() => done(err)).catch(done)
+      }
+
+      assert.equal(data.length, 2)
+
+      auditTicker(data[0], 'tETHUSD')
+      auditTicker(data[1], 'fUSD')
+
+      srv.close().then(done).catch(done)
+    })
+  })
+
+  it('correctly parses single trading ticker response', (done) => {
+    const srv = new MockRESTv2Server({ listen: true })
+    const r = getTestREST2({ transform: true })
+
+    srv.setResponse('ticker.tETHUSD', getTradingTicker())
+
+    r.ticker('tETHUSD', (err, ticker = {}) => {
+      if (err) {
+        return srv.close().then(() => done(err)).catch(done)
+      }
+
+      auditTicker(ticker, 'tETHUSD')
+      srv.close().then(done).catch(done)
+    })
+  })
+
+  it('correctly parses single funding ticker response', (done) => {
+    const srv = new MockRESTv2Server({ listen: true })
+    const r = getTestREST2({ transform: true })
+
+    srv.setResponse('ticker.fUSD', getFundingTicker())
+
+    r.ticker('fUSD', (err, ticker = {}) => {
+      if (err) {
+        return srv.close().then(() => done(err)).catch(done)
+      }
+
+      auditTicker(ticker, 'fUSD')
+      srv.close().then(done).catch(done)
     })
   })
 

@@ -5,16 +5,21 @@ const assert = require('assert')
 const WSv2 = require('../../../lib/transports/ws2')
 const { Order } = require('../../../lib/models')
 const { MockWSv2Server } = require('bfx-api-mock-srv')
+const {
+  getFundingTicker, getTradingTicker, auditTicker
+} = require('../../helpers/data')
 
 const API_KEY = 'dummy'
 const API_SECRET = 'dummy'
 
 const createTestWSv2Instance = (params = {}) => {
-  return new WSv2(Object.assign({
+  return new WSv2({
     apiKey: API_KEY,
     apiSecret: API_SECRET,
-    url: 'ws://localhost:9997'
-  }, params))
+    url: 'ws://localhost:9997',
+
+    ...params
+  })
 }
 
 describe('WSv2 orders', () => {
@@ -287,5 +292,53 @@ describe('WSv2 info message handling', () => {
       code: WSv2.info.MAINTENANCE_END,
       msg: ''
     }))
+  })
+})
+
+describe('data parsing', () => {
+  it('correctly parses trading tickers', (done) => {
+    const wss = new MockWSv2Server({ listen: true })
+    const ws = createTestWSv2Instance({ transform: true })
+    ws.open()
+    ws.on('error', done)
+    ws.on('open', () => {
+      ws._channelMap = {
+        5: {
+          channel: 'ticker',
+          symbol: 'tETHUSD'
+        }
+      }
+
+      ws.onTicker({ symbol: 'tETHUSD' }, (ticker) => {
+        auditTicker(ticker, 'tETHUSD')
+        wss.close()
+        done()
+      })
+
+      wss.send([5, getTradingTicker()])
+    })
+  })
+
+  it('correctly parses funding tickers', (done) => {
+    const wss = new MockWSv2Server({ listen: true })
+    const ws = createTestWSv2Instance({ transform: true })
+    ws.open()
+    ws.on('error', done)
+    ws.on('open', () => {
+      ws._channelMap = {
+        5: {
+          channel: 'ticker',
+          symbol: 'fUSD'
+        }
+      }
+
+      ws.onTicker({ symbol: 'fUSD' }, (ticker) => {
+        auditTicker(ticker, 'fUSD')
+        wss.close()
+        done()
+      })
+
+      wss.send([5, getFundingTicker()])
+    })
   })
 })
