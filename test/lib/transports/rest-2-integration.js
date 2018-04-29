@@ -89,24 +89,6 @@ const auditTestFundingCredit = (fc = {}) => {
   assert.equal(fc.positionPair, null)
 }
 
-const getTestTicker = (symbol = 'tETHUSD') => ([
-  symbol, 25, 0, 105, 0, -149, -0.9933, 1, 473, 150, 1
-])
-
-const auditTestTicker = (ticker, symbol = 'tETHUSD') => {
-  assert.equal(ticker.symbol, symbol)
-  assert.equal(ticker.bid, 25)
-  assert.equal(ticker.bidSize, 0)
-  assert.equal(ticker.ask, 105)
-  assert.equal(ticker.askSize, 0)
-  assert.equal(ticker.dailyChange, -149)
-  assert.equal(ticker.dailyChangePerc, -0.9933)
-  assert.equal(ticker.lastPrice, 1)
-  assert.equal(ticker.volume, 473)
-  assert.equal(ticker.high, 150)
-  assert.equal(ticker.low, 1)
-}
-
 describe('RESTv2 integration (mock server) tests', () => {
   // [rest2MethodName, finalMockResponseKey, rest2MethodArgs]
   const methods = [
