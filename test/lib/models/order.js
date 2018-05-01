@@ -504,6 +504,45 @@ describe('Order model', () => {
     assert(o.isPostOnly())
   })
 
+  it('includesVariableRates, setVariableRates: updates/reads NO_VR flag', () => {
+    const o = new Order()
+    assert(o.includesVariableRates())
+    o.setNoVariableRates(true)
+    assert(!o.includesVariableRates())
+
+    o.setNoVariableRates(false)
+    assert(o.includesVariableRates())
+
+    o.setNoVariableRates(true)
+    assert(!o.includesVariableRates())
+  })
+
+  it('isPositionClose, setPositionClose: updates/reads posclose flag', () => {
+    const o = new Order()
+    assert(!o.isPositionClose())
+    o.setPositionClose(true)
+    assert(o.isPositionClose())
+
+    o.setPositionClose(false)
+    assert(!o.isPositionClose())
+
+    o.setPositionClose(true)
+    assert(o.isPositionClose())
+  })
+
+  it('isReduceOnly, setReduceOnly: updates/reads reduceOnly flag', () => {
+    const o = new Order()
+    assert(!o.isReduceOnly())
+    o.setReduceOnly(true)
+    assert(o.isReduceOnly())
+
+    o.setReduceOnly(false)
+    assert(!o.isReduceOnly())
+
+    o.setReduceOnly(true)
+    assert(o.isReduceOnly())
+  })
+
   it('update: applies changeset to order model', (done) => {
     const o = new Order({ price: 42, amount: 1 }, { updateOrder: () => Promise.resolve() })
     assert.equal(o.price, 42)
