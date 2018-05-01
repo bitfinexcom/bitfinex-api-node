@@ -371,7 +371,7 @@ describe('WSv2 seq audit', () => {
       ws._onWSMessage(JSON.stringify([0, 'tu', [], 6, 6]))
       ws._onWSMessage(JSON.stringify([42, [], 7]))
       ws._onWSMessage(JSON.stringify([42, [], 8]))
-      ws._onWSMessage(JSON.stringify([42, [], 9]))  //
+      ws._onWSMessage(JSON.stringify([42, [], 9])) //
       ws._onWSMessage(JSON.stringify([42, [], 13])) // error
       ws._onWSMessage(JSON.stringify([42, [], 14]))
       ws._onWSMessage(JSON.stringify([42, [], 15]))

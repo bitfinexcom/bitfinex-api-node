@@ -6,8 +6,8 @@ const debug = require('debug')('bfx:examples:ws2_order_books')
 const bfx = require('../bfx')
 
 const ws = bfx.ws(2, {
-  manageOrderBooks: true,  // tell the ws client to maintain full sorted OBs
-  transform: true          // auto-transform array OBs to OrderBook objects
+  manageOrderBooks: true, // tell the ws client to maintain full sorted OBs
+  transform: true // auto-transform array OBs to OrderBook objects
 })
 
 ws.on('error', (err) => {
