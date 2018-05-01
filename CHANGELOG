@@ -1,4 +1,21 @@
-2.0.0
+2.0.0-beta.1
+
+- refactored general model handling (broke out field indexes) (c616696)
+- REST API v1: add support for close position endpoint (14db6fe)
+- REST API v2: added query param support to the candles() handler (be779c3)
+- REST API v2: added platform status endpoint (5e3fe56)
+- WS API v2: clean up channel subscriptions on open/close (7c17b96, 92ce89d)
+- WS API v2: now passes update packet & order to Order model events (c616696)
+- WS API v2: added support for new order flags (79c4a40, 3406ac3)
+- WS API v2: added support for filtering by id to order event listeners (be779c3)
+- WS API v2: added support for managed order book checksum verification (cab9635)
+- WS API v2: added support for atomic order updates (36d10c4)
+- OrderBook: added arrayOBMidPrice helper (f0e3074)
+- OrderBook: added checksum helpers (cab9635)
+- refactored general model handling (broke out field indexes) (c616696)
+- and many small fixes & tweaks
+
+2.0.0-beta
 
 - WS API v2: added optional auto-reconnect
 - WS API v2: added optional packet watchdog
