@@ -531,6 +531,63 @@ describe('Order model', () => {
     done()
   })
 
+  it('update: prepares price & amount', (done) => {
+    const o = new Order({
+      price: 42,
+      amount: 1
+    }, {
+      updateOrder: (changes) => {
+        assert.strictEqual(changes.price, '43.000')
+        assert.strictEqual(changes.amount, '3.00000000')
+        done()
+      }
+    })
+
+    o.update({ price: 43, amount: 3 })
+  })
+
+  it('update: prepares delta', (done) => {
+    const o = new Order({
+      price: 42,
+      amount: 1
+    }, {
+      updateOrder: (changes) => {
+        assert.strictEqual(changes.delta, '3.00000000')
+        done()
+      }
+    })
+
+    o.update({ delta: 3 })
+  })
+
+  it('update: prepares aux limit price', (done) => {
+    const o = new Order({
+      price: 42,
+      amount: 1
+    }, {
+      updateOrder: (changes) => {
+        assert.strictEqual(changes.price_aux_limit, '3.0000')
+        done()
+      }
+    })
+
+    o.update({ price_aux_limit: 3 })
+  })
+
+  it('update: prepares trailing price', (done) => {
+    const o = new Order({
+      price: 42,
+      amount: 1
+    }, {
+      updateOrder: (changes) => {
+        assert.strictEqual(changes.price_trailing, '43.000')
+        done()
+      }
+    })
+
+    o.update({ price_trailing: 43 })
+  })
+
   it('update: rejects with error if applying delta to missing amount', (done) => {
     const o = new Order()
 
