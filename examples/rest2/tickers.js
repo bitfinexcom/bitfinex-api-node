@@ -10,7 +10,7 @@ const rest = bfx.rest(2, { transform: true })
 const table = new Table({
   colWidths: [10, 14, 14, 14, 14, 14, 14, 18, 18],
   head: [
-    'Symbol', 'Last', 'High', 'Low', 'Daily %', 'Bid', 'Ask', 'Bid Size',
+    'Symbol', 'Last', 'High', 'Low', 'Daily Change', 'Bid', 'Ask', 'Bid Size',
     'Ask Size'
   ]
 })
