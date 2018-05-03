@@ -21,7 +21,7 @@ See `doc/` for REST2 and WS2 API methods.
 
 Version 2.0.0 of `bitfinex-api-node` supports the v2 REST and WebSocket APIs. The clients for v1 of those APIs are maintained for backwards compatibility, but deprecated.
 
-As network calls are slow, data is sent as arrays. In order to reconstruct key / value pairs, set `opts.transform` to `true` when creating an interface.
+To minimize the data sent over the network the transmitted data is structured in arrays. In order to reconstruct key / value pairs, set `opts.transform` to `true` when creating an interface.
 
 The BFX constructor returns a client manager, which can be used to create clients for v1 & v2 of the REST and WebSocket APIs via `.rest()` and `.ws()`. The options for the clients can be defined here, or passed in later
 
