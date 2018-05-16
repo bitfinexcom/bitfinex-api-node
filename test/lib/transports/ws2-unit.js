@@ -180,6 +180,21 @@ describe('WSv2 lifetime', () => {
     })
   })
 
+  it('auth: forwards dms param', (done) => {
+    const wss = new MockWSv2Server()
+    const ws = createTestWSv2Instance()
+    ws.open()
+    ws.on('open', () => {
+      ws.send = (data) => {
+        assert.equal(data.dms, 42)
+        wss.close()
+        done()
+      }
+
+      ws.auth(0, 42)
+    })
+  })
+
   it('reconnect: connects if not already connected', (done) => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
