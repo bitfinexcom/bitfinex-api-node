@@ -54,7 +54,6 @@
     "istanbul": "^0.4.1",
     "jsdoc-to-markdown": "^1.3.1",
     "mocha": "^3.4.2",
-    "bfx-api-mock-srv": "git+https://github.com/bitfinexcom/bfx-api-mock-srv.git",
     "socks-proxy-agent": "^3.0.1",
     "standard": "^10.0.2"
   },
