@@ -60,6 +60,7 @@
   },
   "dependencies": {
     "bignumber.js": "^6.0.0",
+    "bluebird": "^3.5.1",
     "cbq": "0.0.1",
     "crc-32": "^1.2.0",
     "debug": "^2.2.0",
