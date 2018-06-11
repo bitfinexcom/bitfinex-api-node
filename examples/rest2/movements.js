@@ -16,34 +16,31 @@ const rest = bfx.rest(2, { transform: true })
 const ccy = String(args[2])
 
 const table = new Table({
-  colWidths: [12, 20, 20, 14, 14, 14, 40],
+  colWidths: [12, 12, 20, 20, 20, 14, 14, 20, 20],
   head: [
-    'Order ID', 'Created', 'Updated', 'Amount', 'Filled', 'Price', 'Status'
+    'ID', 'Currency', 'Started', 'Updated', 'Status', 'Amount', 'Fees',
+    'Destination', 'Tx ID'
   ]
 })
 
 debug('fetching movements for %s...', ccy)
 
 rest.movements(ccy).then(movements => {
-  console.log(JSON.stringify(movements, null, 2))
-
-  /*
   let o
 
-  for (let i = 0; i < orders.length; i += 1) {
-    o = orders[i]
-    o.status = `${o.status[0].toUpperCase()}${o.status.substring(1)}`
-    o.mtsCreate = new Date(o.mtsCreate).toLocaleString()
-    o.mtsUpdate = new Date(o.mtsUpdate).toLocaleString()
+  for (let i = 0; i < movements.length; i += 1) {
+    o = movements[i]
+
+    const status = `${o[9][0].toUpperCase()}${o[9].substring(1).toLowerCase()}`
+    const started = new Date(o[5]).toLocaleString()
+    const updated = new Date(o[6]).toLocaleString()
 
     table.push([
-      o.id, o.mtsCreate, o.mtsUpdate, o.amountOrig, o.amountOrig - o.amount,
-      o.price, o.status.split(':')[0]
+      o[0], o[2], started, updated, status, o[12], o[13], o[16], o[20]
     ])
   }
 
   console.log(table.toString())
-  */
 }).catch(err => {
   debug('error: %j', err)
 })

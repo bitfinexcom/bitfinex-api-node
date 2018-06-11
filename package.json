@@ -23,7 +23,9 @@
     "positions": "node examples/rest2/positions.js",
     "balances": "node examples/rest2/balances.js",
     "orders": "node examples/rest2/orders.js",
-    "cancel-orders": "node examples/ws2/cancel_all.js"
+    "cancel-orders": "node examples/ws2/cancel_all.js",
+    "ledgers": "node examples/rest2/ledgers.js",
+    "movements": "node examples/rest2/movements.js"
   },
   "repository": {
     "type": "git",

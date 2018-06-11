@@ -16,34 +16,26 @@ const rest = bfx.rest(2, { transform: true })
 const ccy = String(args[2])
 
 const table = new Table({
-  colWidths: [12, 20, 20, 14, 14, 14, 40],
+  colWidths: [12, 12, 20, 14, 14, 80],
   head: [
-    'Order ID', 'Created', 'Updated', 'Amount', 'Filled', 'Price', 'Status'
+    'Entry ID', 'Currency', 'Timestamp', 'Amount', 'Balance', 'Description'
   ]
 })
 
 debug('fetching ledger entries for %s...', ccy)
 
 rest.ledgers(ccy).then(entries => {
-  console.log(JSON.stringify(entries, null, 2))
-
-  /*
   let o
 
-  for (let i = 0; i < orders.length; i += 1) {
-    o = orders[i]
-    o.status = `${o.status[0].toUpperCase()}${o.status.substring(1)}`
-    o.mtsCreate = new Date(o.mtsCreate).toLocaleString()
-    o.mtsUpdate = new Date(o.mtsUpdate).toLocaleString()
+  for (let i = 0; i < entries.length; i += 1) {
+    o = entries[i]
 
     table.push([
-      o.id, o.mtsCreate, o.mtsUpdate, o.amountOrig, o.amountOrig - o.amount,
-      o.price, o.status.split(':')[0]
+      o[0], o[1], new Date(o[3]).toLocaleString(), o[5], o[6], o[8]
     ])
   }
 
   console.log(table.toString())
-  */
 }).catch(err => {
   debug('error: %j', err)
 })
