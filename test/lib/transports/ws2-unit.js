@@ -4,6 +4,7 @@
 const assert = require('assert')
 const WSv2 = require('../../../lib/transports/ws2')
 const { MockWSv2Server } = require('bfx-api-mock-srv')
+const _isObject = require('lodash/isObject')
 
 const API_KEY = 'dummy'
 const API_SECRET = 'dummy'
@@ -66,6 +67,47 @@ describe('WSv2 utilities', () => {
     }
 
     ws._sendCalc([])
+  })
+
+  it('notifyUI: throws error if supplied invalid arguments', () => {
+    const ws = new WSv2()
+
+    assert.throws(() => ws.notifyUI())
+    assert.throws(() => ws.notifyUI(null))
+    assert.throws(() => ws.notifyUI(null, null))
+  })
+
+  it('notifyUI: throws error if socket closed or not authenticated', () => {
+    const ws = new WSv2()
+
+    assert.throws(() => ws.notifyUI('info', 'test'))
+    ws._isOpen = true
+    assert.throws(() => ws.notifyUI('info', 'test'))
+    ws._isAuthenticated = true
+    ws.send = () => {}
+    assert.doesNotThrow(() => ws.notifyUI('info', 'test'))
+  })
+
+  it('notifyUI: sends the correct UCM broadcast notification', (done) => {
+    const ws = new WSv2()
+    ws._isOpen = true
+    ws._isAuthenticated = true
+    ws.send = (msg = []) => {
+      assert.deepEqual(msg[0], 0)
+      assert.deepEqual(msg[1], 'n')
+      assert.deepEqual(msg[2], null)
+
+      const data = msg[3]
+
+      assert(_isObject(data))
+      assert.deepEqual(data.type, 'ucm-notify-ui')
+      assert(_isObject(data.info))
+      assert.deepEqual(data.info.type, 'success')
+      assert.deepEqual(data.info.message, '42')
+      done()
+    }
+
+    ws.notifyUI('success', '42')
   })
 })
 
