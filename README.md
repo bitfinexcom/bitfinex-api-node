@@ -210,22 +210,3 @@ If you need to go parallel, you have to use multiple API keys right now.
 ### How do `te` and `tu` messages differ?
 
 A `te` packet is sent first to the client immediately after a trade has been matched & executed, followed by a `tu` message once it has completed processing. During times of high load, the `tu` message may be noticably delayed, and as such only the `te` message should be used for a realtime feed.
-
-## Contributors
-
- - Josh Rossi &lt;maximojoshuarossi@gmail.com&gt;
- - Yago &lt;yago.ftw@gmail.com&gt;
- - Sean Robertson &lt;sprobertson@gmail.com&gt;
- - Paolo Ardoino &lt;paolo.ardoino@gmail.com&gt;
- - Aaron Terry &lt;acterry@gmail.com&gt;
- - Zachary Belford &lt;belfordz66@gmail.com&gt;
- - Robert Kowalski &lt;rok@kowalski.gd&gt;
- - Simone Poggi &lt;motocarota@gmail.com&gt;
- - Matthew Jesuele &lt;matt@makeapps.io&gt;
- - dutu &lt;adrian.clinciu@outlook.com&gt;
- - Tetradeca &lt;31027443+Tetradeca@users.noreply.github.com&gt;
- - Cameron Lockey &lt;ctlockey@gmail.com&gt;
- - Andrew &lt;androng@users.noreply.github.com&gt;
- - Rob Ellis &lt;rob@silentrob.me&gt;
- - MaxSvargal &lt;maxsvargal@gmail.com&gt;
- - Cris Mihalache &lt;me@f3rno.com&gt;
