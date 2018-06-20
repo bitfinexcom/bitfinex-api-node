@@ -653,7 +653,7 @@ describe('OrderBook model', () => {
     assert.deepEqual(ob.asks, [{ price: 200, count: 2, amount: -10 }])
   })
 
-  it('unserialiez: returns map for entries', () => {
+  it('unserialize: returns map for entries', () => {
     const entry = OrderBook.unserialize([150, 0, -1])
 
     assert.deepEqual(entry, {
@@ -661,5 +661,23 @@ describe('OrderBook model', () => {
       count: 0,
       amount: -1
     })
+  })
+
+  it('unserialize: supports raw books', () => {
+    const entry = OrderBook.unserialize([[1337, 150, -1], [1338, 151, 1]], true)
+
+    const exp = {
+      asks: [{
+        orderID: 1337,
+        price: 150,
+        amount: -1
+      }],
+      bids: [{
+        orderID: 1338,
+        price: 151,
+        amount: 1
+      }]
+    }
+    assert.deepEqual(entry, exp)
   })
 })
