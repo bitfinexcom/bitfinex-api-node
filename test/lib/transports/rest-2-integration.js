@@ -143,6 +143,55 @@ describe('RESTv2 integration (mock server) tests', () => {
     })
   })
 
+  it('calls can not be made on missing atuh arguments (Keys or Token)', (done) => {
+    const args = {
+      url: 'http://localhost:9999',
+      transform: true
+    }
+    const rest = new RESTv2(args)
+    rest.wallets((err, data) => {
+      assert.strictEqual(err.toString(), 'Error: missing api key or secret')
+      done()
+    })
+  })
+
+  it('calls can be done with apiKey and apiSecret (Keys)', (done) => {
+    const args = {
+      apiKey: 'fake',
+      apiSecret: 'fake',
+      url: 'http://localhost:9999',
+      transform: true
+    }
+    const srv = new MockRESTv2Server({ listen: true })
+    srv.setResponse('wallets', [ 'wallets' ])
+    const rest = new RESTv2(args)
+    rest.wallets((err, data) => {
+      if (err) {
+        return srv.close().then(() => done(err)).catch(done)
+      }
+      assert.ok(data)
+      srv.close().then(done).catch(done)
+    })
+  })
+
+  it('calls can be done with authToken', (done) => {
+    const args = {
+      authToken: 'fake',
+      url: 'http://localhost:9999',
+      transform: true
+    }
+    const srv = new MockRESTv2Server({ listen: true })
+    srv.setResponse('wallets', [ 'wallets' ])
+    const rest = new RESTv2(args)
+    rest.wallets((err, data) => {
+      if (err) {
+        return srv.close().then(() => done(err)).catch(done)
+      }
+      assert.ok(data)
+      srv.close().then(done).catch(done)
+    })
+  })
+
   it('correctly parses a mixed tickers response', (done) => {
     const srv = new MockRESTv2Server({ listen: true })
     const r = getTestREST2({ transform: true })
