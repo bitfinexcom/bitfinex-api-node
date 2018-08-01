@@ -1424,3 +1424,54 @@ describe('WSv2 packet watch-dog', () => {
     }, 200)
   })
 })
+
+describe('WSv2 message sending', () => {
+  it('emits error if no client available or open', (done) => {
+    const ws = new WSv2()
+
+    ws.on('error', (e) => {
+      if (e.message.indexOf('no ws client') === -1) {
+        done(new Error('received unexpected error'))
+      } else {
+        done()
+      }
+    })
+
+    ws.send({})
+  })
+
+  it('emits error if connection is closing', (done) => {
+    const ws = new WSv2()
+
+    ws._ws = true
+    ws._isOpen = true
+    ws._isClosing = true
+
+    ws.on('error', (e) => {
+      if (e.message.indexOf('currently closing') === -1) {
+        done(new Error('received unexpected error'))
+      } else {
+        done()
+      }
+    })
+
+    ws.send({})
+  })
+
+  it('sends stringified payload', (done) => {
+    const ws = new WSv2()
+
+    ws._isOpen = true
+    ws._isClosing = false
+    ws._ws = {
+      send: (json) => {
+        const msg = JSON.parse(json)
+
+        assert.equal(msg.a, 42)
+        done()
+      }
+    }
+
+    ws.send({ a: 42 })
+  })
+})
