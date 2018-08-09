@@ -16,8 +16,10 @@ Communicates with v2 of the Bitfinex HTTP API
     * [.alertDelete(symbol, price)](#RESTv2+alertDelete) ⇒ <code>Promise</code>
     * [.trades(symbol, start, end, limit, cb)](#RESTv2+trades) ⇒ <code>Promise</code>
     * [.wallets(cb)](#RESTv2+wallets) ⇒ <code>Promise</code>
+    * [.ledgers(symbol, start, end, limit, cb))](#RESTv2+ledgers) ⇒ <code>Promise</code> ledgers
     * [.activeOrders(cb)](#RESTv2+activeOrders) ⇒ <code>Promise</code>
     * [.orderHistory(symbol, start, end, limit, cb)](#RESTv2+orderHistory) ⇒ <code>Promise</code>
+    * [.accountTrades(symbol, start, end, limit, cb)](#RESTv2+accountTrades) ⇒ <code>Promise</code>
     * [.orderTrades(symbol, start, end, limit, orderID, cb)](#RESTv2+orderTrades) ⇒ <code>Promise</code>
     * [.positions(cb)](#RESTv2+positions) ⇒ <code>Promise</code>
     * [.fundingOffers(symbol, cb)](#RESTv2+fundingOffers) ⇒ <code>Promise</code>
@@ -67,8 +69,8 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
-| cb | <code>Method</code> |  | 
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+tickers"></a>
 
@@ -79,8 +81,8 @@ Instantiate a new REST v2 transport.
 
 | Param | Type |
 | --- | --- |
-| symbols | <code>Array.&lt;string&gt;</code> | 
-| cb | <code>Method</code> | 
+| symbols | <code>Array.&lt;string&gt;</code> |
+| cb | <code>Method</code> |
 
 <a name="RESTv2+stats"></a>
 
@@ -91,9 +93,9 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| key | <code>string</code> | <code>&quot;pos.size:1m:tBTCUSD:long&quot;</code> | 
-| context | <code>string</code> | <code>&quot;hist&quot;</code> | 
-| cb | <code>Method</code> |  | 
+| key | <code>string</code> | <code>&quot;pos.size:1m:tBTCUSD:long&quot;</code> |
+| context | <code>string</code> | <code>&quot;hist&quot;</code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+candles"></a>
 
@@ -119,8 +121,8 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| type | <code>string</code> | <code>&quot;price&quot;</code> | 
-| cb | <code>Method</code> |  | 
+| type | <code>string</code> | <code>&quot;price&quot;</code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+alertSet"></a>
 
@@ -131,9 +133,9 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| type | <code>string</code> | <code>&quot;price&quot;</code> | 
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
-| price | <code>number</code> | <code>0</code> | 
+| type | <code>string</code> | <code>&quot;price&quot;</code> |
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
+| price | <code>number</code> | <code>0</code> |
 
 <a name="RESTv2+alertDelete"></a>
 
@@ -144,8 +146,8 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
-| price | <code>number</code> | <code>0</code> | 
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
+| price | <code>number</code> | <code>0</code> |
 
 <a name="RESTv2+trades"></a>
 
@@ -156,11 +158,11 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
-| start | <code>number</code> | <code></code> | 
-| end | <code>number</code> | <code></code> | 
-| limit | <code>number</code> | <code></code> | 
-| cb | <code>Method</code> |  | 
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
+| start | <code>number</code> | <code></code> |
+| end | <code>number</code> | <code></code> |
+| limit | <code>number</code> | <code></code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+wallets"></a>
 
@@ -171,7 +173,22 @@ Instantiate a new REST v2 transport.
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> | 
+| cb | <code>Method</code> |
+
+<a name="RESTv2+ledgers"></a>
+
+### resTv2.ledgers(symbol, start, end, limit, cb) ⇒ <code>Promise</code>
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#ledgers  
+
+| Param | Type | Default |
+| --- | --- | --- |
+| symbol | <code>string</code> | <code></code> |
+| start | <code>number</code> | <code></code> |
+| end | <code>number</code> | <code></code> |
+| limit | <code>number</code> | <code></code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+activeOrders"></a>
 
@@ -182,7 +199,7 @@ Instantiate a new REST v2 transport.
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> | 
+| cb | <code>Method</code> |
 
 <a name="RESTv2+orderHistory"></a>
 
@@ -193,11 +210,26 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
-| start | <code>number</code> | <code></code> | 
-| end | <code>number</code> | <code></code> | 
-| limit | <code>number</code> | <code></code> | 
-| cb | <code>Method</code> |  | 
+| symbol | <code>string</code> | <code></code> |
+| start | <code>number</code> | <code></code> |
+| end | <code>number</code> | <code></code> |
+| limit | <code>number</code> | <code></code> |
+| cb | <code>Method</code> |  |
+
+<a name="RESTv2+accountTrades"></a>
+
+### resTv2.accountTrades(symbol, start, end, limit, cb) ⇒ <code>Promise</code>
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-auth-trades-hist
+
+| Param | Type | Default |
+| --- | --- | --- |
+| symbol | <code>string</code> | <code></code> |
+| start | <code>number</code> | <code></code> |
+| end | <code>number</code> | <code></code> |
+| limit | <code>number</code> | <code></code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+orderTrades"></a>
 
@@ -208,12 +240,12 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
-| start | <code>number</code> | <code></code> | 
-| end | <code>number</code> | <code></code> | 
-| limit | <code>number</code> | <code></code> | 
-| orderID | <code>number</code> |  | 
-| cb | <code>Method</code> |  | 
+| symbol | <code>string</code> | <code></code> |
+| start | <code>number</code> | <code></code> |
+| end | <code>number</code> | <code></code> |
+| limit | <code>number</code> | <code></code> |
+| orderID | <code>number</code> |  |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+positions"></a>
 
@@ -224,7 +256,7 @@ Instantiate a new REST v2 transport.
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> | 
+| cb | <code>Method</code> |
 
 <a name="RESTv2+fundingOffers"></a>
 
@@ -235,8 +267,8 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;fUSD&quot;</code> | 
-| cb | <code>Method</code> |  | 
+| symbol | <code>string</code> | <code>&quot;fUSD&quot;</code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+fundingOfferHistory"></a>
 
@@ -247,11 +279,11 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
-| start | <code>number</code> | <code></code> | 
-| end | <code>number</code> | <code></code> | 
-| limit | <code>number</code> | <code></code> | 
-| cb | <code>Method</code> |  | 
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
+| start | <code>number</code> | <code></code> |
+| end | <code>number</code> | <code></code> |
+| limit | <code>number</code> | <code></code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+fundingLoans"></a>
 
@@ -262,8 +294,8 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;fUSD&quot;</code> | 
-| cb | <code>Method</code> |  | 
+| symbol | <code>string</code> | <code>&quot;fUSD&quot;</code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+fundingLoanHistory"></a>
 
@@ -274,11 +306,11 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
-| start | <code>number</code> | <code></code> | 
-| end | <code>number</code> | <code></code> | 
-| limit | <code>number</code> | <code></code> | 
-| cb | <code>Method</code> |  | 
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
+| start | <code>number</code> | <code></code> |
+| end | <code>number</code> | <code></code> |
+| limit | <code>number</code> | <code></code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+fundingCredits"></a>
 
@@ -289,8 +321,8 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;fUSD&quot;</code> | 
-| cb | <code>Method</code> |  | 
+| symbol | <code>string</code> | <code>&quot;fUSD&quot;</code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+fundingCreditHistory"></a>
 
@@ -301,11 +333,11 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
-| start | <code>number</code> | <code></code> | 
-| end | <code>number</code> | <code></code> | 
-| limit | <code>number</code> | <code></code> | 
-| cb | <code>Method</code> |  | 
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
+| start | <code>number</code> | <code></code> |
+| end | <code>number</code> | <code></code> |
+| limit | <code>number</code> | <code></code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+fundingTrades"></a>
 
@@ -316,11 +348,11 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
-| start | <code>number</code> | <code></code> | 
-| end | <code>number</code> | <code></code> | 
-| limit | <code>number</code> | <code></code> | 
-| cb | <code>Method</code> |  | 
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
+| start | <code>number</code> | <code></code> |
+| end | <code>number</code> | <code></code> |
+| limit | <code>number</code> | <code></code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+marginInfo"></a>
 
@@ -331,8 +363,8 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| key | <code>string</code> | <code>&quot;base&quot;</code> | 
-| cb | <code>Method</code> |  | 
+| key | <code>string</code> | <code>&quot;base&quot;</code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+fundingInfo"></a>
 
@@ -343,8 +375,8 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| key | <code>string</code> | <code>&quot;fUSD&quot;</code> | 
-| cb | <code>Method</code> |  | 
+| key | <code>string</code> | <code>&quot;fUSD&quot;</code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+performance"></a>
 
@@ -355,7 +387,7 @@ Instantiate a new REST v2 transport.
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> | 
+| cb | <code>Method</code> |
 
 <a name="RESTv2+calcAvailableBalance"></a>
 
@@ -366,11 +398,11 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
-| dir | <code>string</code> |  | 
-| rate | <code>number</code> |  | 
-| type | <code>string</code> |  | 
-| cb | <code>Method</code> |  | 
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
+| dir | <code>string</code> |  |
+| rate | <code>number</code> |  |
+| type | <code>string</code> |  |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+symbols"></a>
 
@@ -385,7 +417,7 @@ Get a list of valid symbol names
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> | 
+| cb | <code>Method</code> |
 
 <a name="RESTv2+symbolDetails"></a>
 
@@ -400,7 +432,7 @@ Get a list of valid symbol names and details
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> | 
+| cb | <code>Method</code> |
 
 <a name="RESTv2+accountInfo"></a>
 
@@ -415,7 +447,7 @@ Request information about your account
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> | 
+| cb | <code>Method</code> |
 
 <a name="RESTv2+accountFees"></a>
 
@@ -430,7 +462,7 @@ Request account withdrawl fees
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> | 
+| cb | <code>Method</code> |
 
 <a name="RESTv2+accountSummary"></a>
 
@@ -446,7 +478,7 @@ funding.
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> | 
+| cb | <code>Method</code> |
 
 <a name="RESTv2+deposit"></a>
 
@@ -538,7 +570,7 @@ Fetch the permissions of the key being used to generate this request
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> | 
+| cb | <code>Method</code> |
 
 <a name="RESTv2+balances"></a>
 
@@ -553,7 +585,7 @@ Request your wallet balances
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> | 
+| cb | <code>Method</code> |
 
 <a name="RESTv2+claimPosition"></a>
 
@@ -566,8 +598,7 @@ Request your wallet balances
 
 | Param | Type |
 | --- | --- |
-| params | <code>Object</code> | 
-| params.position_id | <code>number</code> | 
-| params.amount | <code>number</code> | 
-| cb | <code>Method</code> | 
-
+| params | <code>Object</code> |
+| params.position_id | <code>number</code> |
+| params.amount | <code>number</code> |
+| cb | <code>Method</code> |
