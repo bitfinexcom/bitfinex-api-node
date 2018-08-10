@@ -126,18 +126,21 @@ describe('RESTv2 integration (mock server) tests', () => {
     const name = m[0]
     const dataKey = m[1] || m[0]
     const args = m[2] || []
+    let n = Date.now()
 
     it(`${name}: fetches expected data`, (done) => {
       const srv = new MockRESTv2Server({ listen: true })
       const r = getTestREST2()
-      srv.setResponse(dataKey, [42])
+      const nn = n++
+
+      srv.setResponse(dataKey, [nn])
 
       args.push((err, res) => {
         if (err) {
           return srv.close().then(() => done(err)).catch(done)
         }
 
-        assert.deepEqual(res, [42])
+        assert.deepEqual(res, [nn])
         srv.close().then(done).catch(done)
       })
 
