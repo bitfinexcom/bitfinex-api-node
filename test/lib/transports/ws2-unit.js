@@ -816,7 +816,7 @@ describe('WSv2 channel msg handling', () => {
     ws._handleOBMessage([42, [[100, 2, 3]]], ws._channelMap[42])
   })
 
-  it('_updateManagedOB: returns an error on rm non-existent entry', () => {
+  it('_updateManagedOB: does nothing on rm non-existent entry', () => {
     const ws = new WSv2()
     ws._orderBooks.tBTCUSD = [
       [100, 1, 1],
@@ -824,8 +824,11 @@ describe('WSv2 channel msg handling', () => {
     ]
 
     const err = ws._updateManagedOB('tBTCUSD', [150, 0, -1])
-    assert(err)
-    assert(err instanceof Error)
+    assert.equal(err, null)
+    assert.deepEqual(ws._orderBooks.tBTCUSD, [
+      [100, 1, 1],
+      [200, 2, 1]
+    ])
   })
 
   it('_updateManagedOB: correctly maintains transformed OBs', () => {
