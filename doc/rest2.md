@@ -7,6 +7,9 @@ Communicates with v2 of the Bitfinex HTTP API
 
 * [RESTv2](#RESTv2)
     * [new RESTv2(opts)](#new_RESTv2_new)
+    * ~~[._makePublicLegacyRequest(method, cb)](#RESTv2+_makePublicLegacyRequest) ⇒ <code>Promise</code>~~
+    * [._makeAuthLegacyRequest(method, params, cb)](#RESTv2+_makeAuthLegacyRequest) ⇒ <code>Promise</code>
+    * [.status(cb)](#RESTv2+status) ⇒ <code>Promise</code>
     * [.ticker(symbol, cb)](#RESTv2+ticker) ⇒ <code>Promise</code>
     * [.tickers(symbols, cb)](#RESTv2+tickers) ⇒ <code>Promise</code>
     * [.stats(key, context, cb)](#RESTv2+stats) ⇒ <code>Promise</code>
@@ -14,13 +17,15 @@ Communicates with v2 of the Bitfinex HTTP API
     * [.alertList(type, cb)](#RESTv2+alertList) ⇒ <code>Promise</code>
     * [.alertSet(type, symbol, price)](#RESTv2+alertSet) ⇒ <code>Promise</code>
     * [.alertDelete(symbol, price)](#RESTv2+alertDelete) ⇒ <code>Promise</code>
-    * [.trades(symbol, start, end, limit, cb)](#RESTv2+trades) ⇒ <code>Promise</code>
+    * [.trades(symbol, start, end, limit, sort, cb)](#RESTv2+trades) ⇒ <code>Promise</code>
+    * [.accountTrades(symbol, start, end, limit, sort, cb)](#RESTv2+accountTrades) ⇒ <code>Promise</code>
     * [.wallets(cb)](#RESTv2+wallets) ⇒ <code>Promise</code>
     * [.userInfo(cb)](#RESTv2+userInfo) ⇒ <code>Promise</code>
     * [.ledgers(symbol, start, end, limit, cb)](#RESTv2+ledgers) ⇒ <code>Promise</code>
     * [.activeOrders(cb)](#RESTv2+activeOrders) ⇒ <code>Promise</code>
+    * [.movements(ccy, start, end, limit, cb)](#RESTv2+movements) ⇒ <code>Promise</code>
+    * [.ledgers(ccy, start, end, limit, cb)](#RESTv2+ledgers) ⇒ <code>Promise</code>
     * [.orderHistory(symbol, start, end, limit, cb)](#RESTv2+orderHistory) ⇒ <code>Promise</code>
-    * [.accountTrades(symbol, start, end, limit, cb)](#RESTv2+accountTrades) ⇒ <code>Promise</code>
     * [.orderTrades(symbol, start, end, limit, orderID, cb)](#RESTv2+orderTrades) ⇒ <code>Promise</code>
     * [.positions(cb)](#RESTv2+positions) ⇒ <code>Promise</code>
     * [.fundingOffers(symbol, cb)](#RESTv2+fundingOffers) ⇒ <code>Promise</code>
@@ -45,6 +50,11 @@ Communicates with v2 of the Bitfinex HTTP API
     * ~~[.keyPermissions(cb)](#RESTv2+keyPermissions) ⇒ <code>Promise</code>~~
     * ~~[.balances(cb)](#RESTv2+balances) ⇒ <code>Promise</code>~~
     * ~~[.claimPosition(params, cb)](#RESTv2+claimPosition) ⇒ <code>Promise</code>~~
+    * ~~[.closePosition(params, cb)](#RESTv2+closePosition) ⇒ <code>Promise</code>~~
+    * [.updateSettings(settings, cb)](#RESTv2+updateSettings) ⇒ <code>Promise</code>
+    * [.deleteSettings(keys, cb)](#RESTv2+deleteSettings) ⇒ <code>Promise</code>
+    * [.getSettings(keys, cb)](#RESTv2+getSettings) ⇒ <code>Promise</code>
+    * [.exchangeRate(ccy1, ccy2)](#RESTv2+exchangeRate) ⇒ <code>Promise</code>
 
 <a name="new_RESTv2_new"></a>
 
@@ -57,9 +67,51 @@ Instantiate a new REST v2 transport.
 | opts | <code>Object</code> |  |
 | opts.apiKey | <code>string</code> |  |
 | opts.apiSecret | <code>string</code> |  |
+| opts.authToken | <code>string</code> | optional auth option |
 | opts.url | <code>string</code> | endpoint URL |
 | opts.transform | <code>boolean</code> | default false |
 | opts.agent | <code>Object</code> | optional node agent for connection (proxy) |
+
+<a name="RESTv2+_makePublicLegacyRequest"></a>
+
+### ~~resTv2._makePublicLegacyRequest(method, cb) ⇒ <code>Promise</code>~~
+***Deprecated***
+
+Legacy REST1 public method wrapper, that also provides legacy cb
+support. Oh my!
+
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p - use this  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| method | <code>string</code> | REST1 method name |
+| cb | <code>Method</code> | optional legacy cb |
+
+<a name="RESTv2+_makeAuthLegacyRequest"></a>
+
+### resTv2._makeAuthLegacyRequest(method, params, cb) ⇒ <code>Promise</code>
+See _makePublicLegacyRequest
+
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+
+| Param | Type |
+| --- | --- |
+| method | <code>string</code> | 
+| params | <code>Object</code> | 
+| cb | <code>Method</code> | 
+
+<a name="RESTv2+status"></a>
+
+### resTv2.status(cb) ⇒ <code>Promise</code>
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-public-platform-status  
+
+| Param | Type |
+| --- | --- |
+| cb | <code>Method</code> | 
 
 <a name="RESTv2+ticker"></a>
 
@@ -70,8 +122,8 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
-| cb | <code>Method</code> |  |
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
+| cb | <code>Method</code> |  | 
 
 <a name="RESTv2+tickers"></a>
 
@@ -82,8 +134,8 @@ Instantiate a new REST v2 transport.
 
 | Param | Type |
 | --- | --- |
-| symbols | <code>Array.&lt;string&gt;</code> |
-| cb | <code>Method</code> |
+| symbols | <code>Array.&lt;string&gt;</code> | 
+| cb | <code>Method</code> | 
 
 <a name="RESTv2+stats"></a>
 
@@ -94,9 +146,9 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| key | <code>string</code> | <code>&quot;pos.size:1m:tBTCUSD:long&quot;</code> |
-| context | <code>string</code> | <code>&quot;hist&quot;</code> |
-| cb | <code>Method</code> |  |
+| key | <code>string</code> | <code>&quot;pos.size:1m:tBTCUSD:long&quot;</code> | 
+| context | <code>string</code> | <code>&quot;hist&quot;</code> | 
+| cb | <code>Method</code> |  | 
 
 <a name="RESTv2+candles"></a>
 
@@ -122,8 +174,8 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| type | <code>string</code> | <code>&quot;price&quot;</code> |
-| cb | <code>Method</code> |  |
+| type | <code>string</code> | <code>&quot;price&quot;</code> | 
+| cb | <code>Method</code> |  | 
 
 <a name="RESTv2+alertSet"></a>
 
@@ -134,9 +186,9 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| type | <code>string</code> | <code>&quot;price&quot;</code> |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
-| price | <code>number</code> | <code>0</code> |
+| type | <code>string</code> | <code>&quot;price&quot;</code> | 
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
+| price | <code>number</code> | <code>0</code> | 
 
 <a name="RESTv2+alertDelete"></a>
 
@@ -147,23 +199,40 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
-| price | <code>number</code> | <code>0</code> |
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
+| price | <code>number</code> | <code>0</code> | 
 
 <a name="RESTv2+trades"></a>
 
-### resTv2.trades(symbol, start, end, limit, cb) ⇒ <code>Promise</code>
+### resTv2.trades(symbol, start, end, limit, sort, cb) ⇒ <code>Promise</code>
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-public-trades  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |  |
+| start | <code>number</code> | <code></code> |  |
+| end | <code>number</code> | <code></code> |  |
+| limit | <code>number</code> | <code></code> |  |
+| sort | <code>number</code> | <code></code> | if 1, sorts results oldest first |
+| cb | <code>Method</code> |  |  |
+
+<a name="RESTv2+accountTrades"></a>
+
+### resTv2.accountTrades(symbol, start, end, limit, sort, cb) ⇒ <code>Promise</code>
 **Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
 **Returns**: <code>Promise</code> - p  
 **See**: https://docs.bitfinex.com/v2/reference#rest-auth-trades-hist  
 
-| Param | Type | Default |
-| --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
-| start | <code>number</code> | <code></code> |
-| end | <code>number</code> | <code></code> |
-| limit | <code>number</code> | <code></code> |
-| cb | <code>Method</code> |  |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| symbol | <code>string</code> |  | optional, omit/leave empty for all |
+| start | <code>number</code> | <code></code> |  |
+| end | <code>number</code> | <code></code> |  |
+| limit | <code>number</code> | <code></code> |  |
+| sort | <code>number</code> | <code></code> | if 1, sorts results oldest first |
+| cb | <code>Method</code> |  |  |
 
 <a name="RESTv2+userInfo"></a>
 
@@ -185,22 +254,7 @@ Instantiate a new REST v2 transport.
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> |
-
-<a name="RESTv2+ledgers"></a>
-
-### resTv2.ledgers(symbol, start, end, limit, cb) ⇒ <code>Promise</code>
-**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
-**Returns**: <code>Promise</code> - p  
-**See**: https://docs.bitfinex.com/v2/reference#ledgers  
-
-| Param | Type | Default |
-| --- | --- | --- |
-| symbol | <code>string</code> | <code></code> |
-| start | <code>number</code> | <code></code> |
-| end | <code>number</code> | <code></code> |
-| limit | <code>number</code> | <code></code> |
-| cb | <code>Method</code> |  |
+| cb | <code>Method</code> | 
 
 <a name="RESTv2+activeOrders"></a>
 
@@ -211,7 +265,37 @@ Instantiate a new REST v2 transport.
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> |
+| cb | <code>Method</code> | 
+
+<a name="RESTv2+movements"></a>
+
+### resTv2.movements(ccy, start, end, limit, cb) ⇒ <code>Promise</code>
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#movements  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| ccy | <code>string</code> |  | i.e. ETH |
+| start | <code>number</code> | <code></code> |  |
+| end | <code>number</code> |  |  |
+| limit | <code>number</code> | <code>25</code> | default 25 |
+| cb | <code>Method</code> |  |  |
+
+<a name="RESTv2+ledgers"></a>
+
+### resTv2.ledgers(ccy, start, end, limit, cb) ⇒ <code>Promise</code>
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#ledgers  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| ccy | <code>string</code> |  | i.e. ETH |
+| start | <code>number</code> | <code></code> |  |
+| end | <code>number</code> |  |  |
+| limit | <code>number</code> | <code>25</code> | default 25 |
+| cb | <code>Method</code> |  |  |
 
 <a name="RESTv2+orderHistory"></a>
 
@@ -220,28 +304,13 @@ Instantiate a new REST v2 transport.
 **Returns**: <code>Promise</code> - p  
 **See**: https://docs.bitfinex.com/v2/reference#orders-history  
 
-| Param | Type | Default |
-| --- | --- | --- |
-| symbol | <code>string</code> | <code></code> |
-| start | <code>number</code> | <code></code> |
-| end | <code>number</code> | <code></code> |
-| limit | <code>number</code> | <code></code> |
-| cb | <code>Method</code> |  |
-
-<a name="RESTv2+accountTrades"></a>
-
-### resTv2.accountTrades(symbol, start, end, limit, cb) ⇒ <code>Promise</code>
-**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
-**Returns**: <code>Promise</code> - p  
-**See**: https://docs.bitfinex.com/v2/reference#rest-auth-trades-hist
-
-| Param | Type | Default |
-| --- | --- | --- |
-| symbol | <code>string</code> | <code></code> |
-| start | <code>number</code> | <code></code> |
-| end | <code>number</code> | <code></code> |
-| limit | <code>number</code> | <code></code> |
-| cb | <code>Method</code> |  |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| symbol | <code>string</code> |  | optional, omit/leave empty for all |
+| start | <code>number</code> | <code></code> |  |
+| end | <code>number</code> | <code></code> |  |
+| limit | <code>number</code> | <code></code> |  |
+| cb | <code>Method</code> |  |  |
 
 <a name="RESTv2+orderTrades"></a>
 
@@ -252,12 +321,12 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code></code> |
-| start | <code>number</code> | <code></code> |
-| end | <code>number</code> | <code></code> |
-| limit | <code>number</code> | <code></code> |
-| orderID | <code>number</code> |  |
-| cb | <code>Method</code> |  |
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
+| start | <code>number</code> | <code></code> | 
+| end | <code>number</code> | <code></code> | 
+| limit | <code>number</code> | <code></code> | 
+| orderID | <code>number</code> |  | 
+| cb | <code>Method</code> |  | 
 
 <a name="RESTv2+positions"></a>
 
@@ -268,7 +337,7 @@ Instantiate a new REST v2 transport.
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> |
+| cb | <code>Method</code> | 
 
 <a name="RESTv2+fundingOffers"></a>
 
@@ -279,8 +348,8 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;fUSD&quot;</code> |
-| cb | <code>Method</code> |  |
+| symbol | <code>string</code> | <code>&quot;fUSD&quot;</code> | 
+| cb | <code>Method</code> |  | 
 
 <a name="RESTv2+fundingOfferHistory"></a>
 
@@ -291,11 +360,11 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
-| start | <code>number</code> | <code></code> |
-| end | <code>number</code> | <code></code> |
-| limit | <code>number</code> | <code></code> |
-| cb | <code>Method</code> |  |
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
+| start | <code>number</code> | <code></code> | 
+| end | <code>number</code> | <code></code> | 
+| limit | <code>number</code> | <code></code> | 
+| cb | <code>Method</code> |  | 
 
 <a name="RESTv2+fundingLoans"></a>
 
@@ -306,8 +375,8 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;fUSD&quot;</code> |
-| cb | <code>Method</code> |  |
+| symbol | <code>string</code> | <code>&quot;fUSD&quot;</code> | 
+| cb | <code>Method</code> |  | 
 
 <a name="RESTv2+fundingLoanHistory"></a>
 
@@ -318,11 +387,11 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
-| start | <code>number</code> | <code></code> |
-| end | <code>number</code> | <code></code> |
-| limit | <code>number</code> | <code></code> |
-| cb | <code>Method</code> |  |
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
+| start | <code>number</code> | <code></code> | 
+| end | <code>number</code> | <code></code> | 
+| limit | <code>number</code> | <code></code> | 
+| cb | <code>Method</code> |  | 
 
 <a name="RESTv2+fundingCredits"></a>
 
@@ -333,8 +402,8 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;fUSD&quot;</code> |
-| cb | <code>Method</code> |  |
+| symbol | <code>string</code> | <code>&quot;fUSD&quot;</code> | 
+| cb | <code>Method</code> |  | 
 
 <a name="RESTv2+fundingCreditHistory"></a>
 
@@ -345,11 +414,11 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
-| start | <code>number</code> | <code></code> |
-| end | <code>number</code> | <code></code> |
-| limit | <code>number</code> | <code></code> |
-| cb | <code>Method</code> |  |
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
+| start | <code>number</code> | <code></code> | 
+| end | <code>number</code> | <code></code> | 
+| limit | <code>number</code> | <code></code> | 
+| cb | <code>Method</code> |  | 
 
 <a name="RESTv2+fundingTrades"></a>
 
@@ -360,11 +429,11 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
-| start | <code>number</code> | <code></code> |
-| end | <code>number</code> | <code></code> |
-| limit | <code>number</code> | <code></code> |
-| cb | <code>Method</code> |  |
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
+| start | <code>number</code> | <code></code> | 
+| end | <code>number</code> | <code></code> | 
+| limit | <code>number</code> | <code></code> | 
+| cb | <code>Method</code> |  | 
 
 <a name="RESTv2+marginInfo"></a>
 
@@ -375,8 +444,8 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| key | <code>string</code> | <code>&quot;base&quot;</code> |
-| cb | <code>Method</code> |  |
+| key | <code>string</code> | <code>&quot;base&quot;</code> | 
+| cb | <code>Method</code> |  | 
 
 <a name="RESTv2+fundingInfo"></a>
 
@@ -387,8 +456,8 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| key | <code>string</code> | <code>&quot;fUSD&quot;</code> |
-| cb | <code>Method</code> |  |
+| key | <code>string</code> | <code>&quot;fUSD&quot;</code> | 
+| cb | <code>Method</code> |  | 
 
 <a name="RESTv2+performance"></a>
 
@@ -399,7 +468,7 @@ Instantiate a new REST v2 transport.
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> |
+| cb | <code>Method</code> | 
 
 <a name="RESTv2+calcAvailableBalance"></a>
 
@@ -410,11 +479,11 @@ Instantiate a new REST v2 transport.
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
-| dir | <code>string</code> |  |
-| rate | <code>number</code> |  |
-| type | <code>string</code> |  |
-| cb | <code>Method</code> |  |
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
+| dir | <code>string</code> |  | 
+| rate | <code>number</code> |  | 
+| type | <code>string</code> |  | 
+| cb | <code>Method</code> |  | 
 
 <a name="RESTv2+symbols"></a>
 
@@ -427,9 +496,9 @@ Get a list of valid symbol names
 **Returns**: <code>Promise</code> - p  
 **See**: https://docs.bitfinex.com/v1/reference#rest-public-symbols  
 
-| Param | Type |
-| --- | --- |
-| cb | <code>Method</code> |
+| Param | Type | Description |
+| --- | --- | --- |
+| cb | <code>Method</code> | legacy callback |
 
 <a name="RESTv2+symbolDetails"></a>
 
@@ -444,7 +513,7 @@ Get a list of valid symbol names and details
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> |
+| cb | <code>Method</code> | 
 
 <a name="RESTv2+accountInfo"></a>
 
@@ -459,7 +528,7 @@ Request information about your account
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> |
+| cb | <code>Method</code> | 
 
 <a name="RESTv2+accountFees"></a>
 
@@ -474,7 +543,7 @@ Request account withdrawl fees
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> |
+| cb | <code>Method</code> | 
 
 <a name="RESTv2+accountSummary"></a>
 
@@ -490,7 +559,7 @@ funding.
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> |
+| cb | <code>Method</code> | 
 
 <a name="RESTv2+deposit"></a>
 
@@ -582,7 +651,7 @@ Fetch the permissions of the key being used to generate this request
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> |
+| cb | <code>Method</code> | 
 
 <a name="RESTv2+balances"></a>
 
@@ -597,7 +666,7 @@ Request your wallet balances
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> |
+| cb | <code>Method</code> | 
 
 <a name="RESTv2+claimPosition"></a>
 
@@ -610,7 +679,67 @@ Request your wallet balances
 
 | Param | Type |
 | --- | --- |
-| params | <code>Object</code> |
-| params.position_id | <code>number</code> |
-| params.amount | <code>number</code> |
-| cb | <code>Method</code> |
+| params | <code>Object</code> | 
+| params.position_id | <code>number</code> | 
+| params.amount | <code>number</code> | 
+| cb | <code>Method</code> | 
+
+<a name="RESTv2+closePosition"></a>
+
+### ~~resTv2.closePosition(params, cb) ⇒ <code>Promise</code>~~
+***Deprecated***
+
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v1/reference#rest-auth-close-position  
+
+| Param | Type |
+| --- | --- |
+| params | <code>Object</code> | 
+| params.position_id | <code>number</code> | 
+| cb | <code>Method</code> | 
+
+<a name="RESTv2+updateSettings"></a>
+
+### resTv2.updateSettings(settings, cb) ⇒ <code>Promise</code>
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| settings | <code>Object</code> | key:value map |
+| cb | <code>Method</code> |  |
+
+<a name="RESTv2+deleteSettings"></a>
+
+### resTv2.deleteSettings(keys, cb) ⇒ <code>Promise</code>
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+
+| Param | Type |
+| --- | --- |
+| keys | <code>Array.&lt;string&gt;</code> | 
+| cb | <code>Method</code> | 
+
+<a name="RESTv2+getSettings"></a>
+
+### resTv2.getSettings(keys, cb) ⇒ <code>Promise</code>
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+
+| Param | Type |
+| --- | --- |
+| keys | <code>Array.&lt;string&gt;</code> | 
+| cb | <code>Method</code> | 
+
+<a name="RESTv2+exchangeRate"></a>
+
+### resTv2.exchangeRate(ccy1, ccy2) ⇒ <code>Promise</code>
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p - resolves to currenct exchange rate  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ccy1 | <code>string</code> | i.e. BTC |
+| ccy2 | <code>string</code> | i.e. USD |
+
