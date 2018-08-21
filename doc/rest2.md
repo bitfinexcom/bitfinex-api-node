@@ -20,6 +20,8 @@ Communicates with v2 of the Bitfinex HTTP API
     * [.trades(symbol, start, end, limit, sort, cb)](#RESTv2+trades) ⇒ <code>Promise</code>
     * [.accountTrades(symbol, start, end, limit, sort, cb)](#RESTv2+accountTrades) ⇒ <code>Promise</code>
     * [.wallets(cb)](#RESTv2+wallets) ⇒ <code>Promise</code>
+    * [.userInfo(cb)](#RESTv2+userInfo) ⇒ <code>Promise</code>
+    * [.ledgers(symbol, start, end, limit, cb)](#RESTv2+ledgers) ⇒ <code>Promise</code>
     * [.activeOrders(cb)](#RESTv2+activeOrders) ⇒ <code>Promise</code>
     * [.movements(ccy, start, end, limit, cb)](#RESTv2+movements) ⇒ <code>Promise</code>
     * [.ledgers(ccy, start, end, limit, cb)](#RESTv2+ledgers) ⇒ <code>Promise</code>
@@ -231,6 +233,17 @@ See _makePublicLegacyRequest
 | limit | <code>number</code> | <code></code> |  |
 | sort | <code>number</code> | <code></code> | if 1, sorts results oldest first |
 | cb | <code>Method</code> |  |  |
+
+<a name="RESTv2+userInfo"></a>
+
+### resTv2.userInfo(cb) ⇒ <code>Promise</code>
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-auth-user  
+
+| Param | Type |
+| --- | --- |
+| cb | <code>Method</code> |
 
 <a name="RESTv2+wallets"></a>
 
