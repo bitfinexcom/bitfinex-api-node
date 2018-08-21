@@ -16,6 +16,7 @@ Communicates with v2 of the Bitfinex HTTP API
     * [.alertDelete(symbol, price)](#RESTv2+alertDelete) ⇒ <code>Promise</code>
     * [.trades(symbol, start, end, limit, cb)](#RESTv2+trades) ⇒ <code>Promise</code>
     * [.wallets(cb)](#RESTv2+wallets) ⇒ <code>Promise</code>
+    * [.userInfo(cb)](#RESTv2+userInfo) ⇒ <code>Promise</code>
     * [.ledgers(symbol, start, end, limit, cb)](#RESTv2+ledgers) ⇒ <code>Promise</code>
     * [.activeOrders(cb)](#RESTv2+activeOrders) ⇒ <code>Promise</code>
     * [.orderHistory(symbol, start, end, limit, cb)](#RESTv2+orderHistory) ⇒ <code>Promise</code>
@@ -163,6 +164,17 @@ Instantiate a new REST v2 transport.
 | end | <code>number</code> | <code></code> |
 | limit | <code>number</code> | <code></code> |
 | cb | <code>Method</code> |  |
+
+<a name="RESTv2+userInfo"></a>
+
+### resTv2.userInfo(cb) ⇒ <code>Promise</code>
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v2/reference#rest-auth-user  
+
+| Param | Type |
+| --- | --- |
+| cb | <code>Method</code> |
 
 <a name="RESTv2+wallets"></a>
 
