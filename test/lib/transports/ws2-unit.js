@@ -79,13 +79,14 @@ describe('WSv2 utilities', () => {
 
   it('notifyUI: throws error if socket closed or not authenticated', () => {
     const ws = new WSv2()
+    const n = { type: 'info', message: 'test' }
 
-    assert.throws(() => ws.notifyUI('info', 'test'))
+    assert.throws(() => ws.notifyUI(n))
     ws._isOpen = true
-    assert.throws(() => ws.notifyUI('info', 'test'))
+    assert.throws(() => ws.notifyUI(n))
     ws._isAuthenticated = true
     ws.send = () => {}
-    assert.doesNotThrow(() => ws.notifyUI('info', 'test'))
+    assert.doesNotThrow(() => ws.notifyUI(n))
   })
 
   it('notifyUI: sends the correct UCM broadcast notification', (done) => {
@@ -107,7 +108,7 @@ describe('WSv2 utilities', () => {
       done()
     }
 
-    ws.notifyUI('success', '42')
+    ws.notifyUI({ type: 'success', message: '42' })
   })
 })
 
