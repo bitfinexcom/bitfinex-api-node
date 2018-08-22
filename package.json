@@ -48,25 +48,24 @@
   "homepage": "http://bitfinexcom.github.io/bitfinex-api-node/",
   "devDependencies": {
     "bfx-api-mock-srv": "git+https://github.com/bitfinexcom/bfx-api-mock-srv.git",
+    "bfx-api-node-plugin-example": "bitfinexcom/bfx-api-node-plugin-example",
+    "bfx-api-node-plugin-seq-audit": "bitfinexcom/bfx-api-node-plugin-seq-audit",
+    "bfx-api-node-plugin-ob-cs": "bitfinexcom/bfx-api-node-plugin-ob-cs",
+    "bfx-api-node-plugin-wd": "bitfinexcom/bfx-api-node-plugin-wd",
     "chai": "^3.4.1",
-    "cli-table2": "^0.2.0",
     "dotenv": "^4.0.0",
     "istanbul": "^0.4.1",
-    "jsdoc-to-markdown": "^1.3.1",
     "mocha": "^3.4.2",
-    "bfx-api-mock-srv": "git+https://github.com/bitfinexcom/bfx-api-mock-srv.git",
     "socks-proxy-agent": "^3.0.1",
     "standard": "^10.0.2"
   },
   "dependencies": {
-    "bignumber.js": "^6.0.0",
-    "cbq": "0.0.1",
-    "crc-32": "^1.2.0",
     "debug": "^2.2.0",
     "lodash": "^4.17.4",
-    "lodash.throttle": "^4.1.1",
-    "request": "^2.67.0",
-    "request-promise": "^4.2.0",
-    "ws": "^3.0.0"
+    "bfx-api-node-core": "bitfinexcom/bfx-api-node-core",
+    "bfx-api-node-util": "bitfinexcom/bfx-api-node-util",
+    "bfx-api-node-models": "bitfinexcom/bfx-api-node-models",
+    "bfx-api-node-rest": "bitfinexcom/bfx-api-node-rest",
+    "bfx-api-node-ws1": "bitfinexcom/bfx-api-node-ws1"
   }
 }

@@ -1,27 +1,25 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
+process.env.DEBUG = '*' // 'bfx:api:examples:*'
 
-const debug = require('debug')('bfx:examples:ws2_trades')
-const bfx = require('../bfx')
+const debug = require('debug')('bfx:api:examples:ws2:trades')
+const { Manager } = require('bfx-api-node-core')
+const subscribe = require('bfx-api-node-core/lib/ws2/subscribe')
 
-const ws = bfx.ws(2)
+const mgr = new Manager({ transform: true })
 
-ws.on('open', () => {
+mgr.onWS('open', {}, (state = {}) => {
   debug('open')
-  ws.subscribeTrades('tBTCUSD')
+
+  let wsState = state
+  wsState = subscribe(wsState, 'trades', { pair: 'BTCUSD' })
+  return wsState
 })
 
-ws.onTradeEntry({ pair: 'BTCUSD' }, (trade) => {
-  debug('te: %j', trade)
+mgr.onWS('trades', { pair: 'BTCUSD' }, (trades) => {
+  trades.forEach(trade => {
+    debug('recv BTCUSD trade: %j', trade)
+  })
 })
 
-ws.onTradeUpdate({ pair: 'BTCUSD' }, (trade) => {
-  debug('tu: %j', trade)
-})
-
-ws.onTrades({ pair: 'BTCUSD' }, (trades) => {
-  debug('trades: %j', trades)
-})
-
-ws.open()
+mgr.openWS()

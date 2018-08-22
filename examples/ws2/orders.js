@@ -1,70 +1,46 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
+process.env.DEBUG = '*' // 'bfx:api:examples:*'
 
-const debug = require('debug')('bfx:examples:ws2_orders')
-const { Order } = require('../../lib/models')
-const bfx = require('../bfx')
-const ws = bfx.ws(2)
+const debug = require('debug')('bfx:api:examples:ws2:orders')
+const { Manager, submitOrder, authWS } = require('bfx-api-node-core')
+const { Order } = require('bfx-api-node-models')
+const SeqAuditPlugin = require('bfx-api-node-plugin-seq-audit')
 
-ws.on('error', (err) => {
-  console.log(err)
+const managerArgs = require('../manager_args')
+
+const mgr = new Manager({
+  ...managerArgs,
+  plugins: [SeqAuditPlugin()],
+  transform: true,
 })
 
-ws.on('open', () => {
+// Build new order
+const o = new Order({
+  cid: Date.now(),
+  symbol: 'tBTCUSD',
+  price: 30000,
+  amount: -0.02,
+  type: Order.type.EXCHANGE_LIMIT
+})
+
+mgr.onWS('open', {}, (state = {}) => {
+  const { ev } = state
+
   debug('open')
-  ws.auth()
+  authWS(state)
+
+  ev.on('event:auth:success', async () => {
+    try {
+      const on = await submitOrder(state, o)
+
+      debug('submitted order: %j', on)
+    } catch (e) {
+      debug('error: %s', e)
+    }
+  })
+
+  return state
 })
 
-ws.once('auth', () => {
-  debug('authenticated')
-
-  // Build new order
-  const o = new Order({
-    cid: Date.now(),
-    symbol: 'tBTCUSD',
-    price: 589.10,
-    amount: -0.02,
-    type: Order.type.EXCHANGE_LIMIT
-  }, ws)
-
-  let closed = false
-
-  // Enable automatic updates
-  o.registerListeners()
-
-  o.on('update', () => {
-    debug('order updated: %j', o.serialize())
-  })
-
-  o.on('close', () => {
-    debug('order closed: %s', o.status)
-    closed = true
-  })
-
-  debug('submitting order %d', o.cid)
-
-  o.submit().then(() => {
-    debug('got submit confirmation for order %d [%d]', o.cid, o.id)
-
-    // wait a bit...
-    setTimeout(() => {
-      if (closed) return
-
-      debug('canceling...')
-
-      o.cancel().then(() => {
-        debug('got cancel confirmation for order %d', o.cid)
-        ws.close()
-      }).catch((err) => {
-        debug('error cancelling order: %j', err)
-        ws.close()
-      })
-    }, 2000)
-  }).catch((err) => {
-    console.log(err)
-    ws.close()
-  })
-})
-
-ws.open()
+mgr.openWS()
