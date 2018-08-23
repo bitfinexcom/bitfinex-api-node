@@ -36,15 +36,6 @@ rest.symbolDetails().then(details => {
 
       m.onCandle({ key }, (candles) => {
         debug('recv %d candles on channel %s', candles.length, key)
-
-        /*
-        candles.forEach(c => {
-          debug(`%s %s open: %f, high: %f, low: %f, close: %f, volume: %f`,
-            key, new Date(c.mts).toLocaleTimeString(),
-            c.open, c.high, c.low, c.close, c.volume
-          )
-        })
-        */
       })
     })
 
