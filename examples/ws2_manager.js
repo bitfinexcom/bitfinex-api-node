@@ -19,7 +19,6 @@ rest.symbolDetails().then(details => {
   }))
 
   const m = new Manager({
-    transform: true,
     url: bfx.args.wsURL,
     ...bfx.args
   })
@@ -33,17 +32,37 @@ rest.symbolDetails().then(details => {
 
     keys.forEach(key => {
       m.subscribeCandles(key)
-
       m.onCandle({ key }, (candles) => {
         debug('recv %d candles on channel %s', candles.length, key)
       })
     })
 
-    setTimeout(() => {
+    symbols.forEach(symbol => {
+      m.subscribeTrades(symbol)
+      m.onTrades({ symbol }, (trades) => {
+        debug('recv %d trades on channel %s', trades.length, symbol)
+      })
+    })
+
+    symbols.forEach(symbol => {
+      m.subscribeTicker(symbol)
+      m.onTicker({ symbol }, (ticker) => {
+        debug('recv ticker on channel %s: %j', symbol, ticker)
+      })
+    })
+
+    symbols.forEach(symbol => {
+      m.subscribeOrderBook(symbol)
+      m.onOrderBook({ symbol }, (update) => {
+        debug('recv book update on channel %s: %j', symbol, update)
+      })
+    })
+
+    setInterval(() => {
       debug('num keys: %d', keys.length)
       debug('num sockets: %d', m.getNumSockets())
       debug('socket info: %j', m.getSocketInfo())
-    }, 6000)
+    }, 5000)
   })
 
   m.openSocket()
