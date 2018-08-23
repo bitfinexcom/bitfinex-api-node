@@ -21,7 +21,7 @@ rest.symbolDetails().then(details => {
   const m = new Manager({
     transform: true,
     url: bfx.args.wsURL,
-    ...bfx.args,
+    ...bfx.args
   })
 
   m.on('error', (err) => {

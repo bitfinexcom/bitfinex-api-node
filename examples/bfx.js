@@ -29,5 +29,5 @@ module.exports.args = {
   apiSecret: API_SECRET,
   wsURL: WS_URL,
   restURL: REST_URL,
-  agent,
+  agent
 }
