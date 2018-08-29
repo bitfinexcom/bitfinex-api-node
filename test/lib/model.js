@@ -22,7 +22,7 @@ describe('unserialize', () => {
       ['fieldA', 'fieldB', 'boolC', 'boolD']
     )
 
-    assert.deepEqual(out, {
+    assert.deepStrictEqual(out, {
       fieldA: 'first',
       fieldB: 'second',
       boolC: true,
@@ -43,7 +43,7 @@ describe('unserialize', () => {
       ['fieldA', 'fieldB', 'boolC', 'boolD']
     )
 
-    assert.deepEqual(out, {
+    assert.deepStrictEqual(out, {
       fieldA: 'first',
       fieldB: 'second',
       boolC: true,
