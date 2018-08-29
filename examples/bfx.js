@@ -24,3 +24,10 @@ const bfx = new BFX({
 })
 
 module.exports = bfx
+module.exports.args = {
+  apiKey: API_KEY,
+  apiSecret: API_SECRET,
+  wsURL: WS_URL,
+  restURL: REST_URL,
+  agent
+}
