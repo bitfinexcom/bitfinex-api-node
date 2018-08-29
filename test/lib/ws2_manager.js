@@ -92,6 +92,16 @@ describe('WS2Manager', () => {
       const s = m.openSocket()
       assert.deepEqual(m._sockets[0], s)
     })
+
+    it('binds \'unsubscribe\' listener to remove channel from pending unsubs', () => {
+      const m = new WS2Manager()
+      const s = m.openSocket()
+
+      s.pendingUnsubscriptions.push(42)
+      s.ws.emit('unsubscribed', { chanId: 42 })
+
+      assert.equal(s.pendingUnsubscriptions.length, 0)
+    })
   })
 
   describe('getFreeDataSocket', () => {
