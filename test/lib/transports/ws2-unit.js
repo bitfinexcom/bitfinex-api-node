@@ -1424,6 +1424,7 @@ describe('WSv2 packet watch-dog', () => {
 
     setTimeout(() => {
       clearInterval(sendInterval)
+      clearTimeout(ws._packetWDTimeout)
       done()
     }, 200)
   })
