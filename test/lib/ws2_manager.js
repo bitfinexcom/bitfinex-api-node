@@ -102,6 +102,21 @@ describe('WS2Manager', () => {
 
       assert.equal(s.pendingUnsubscriptions.length, 0)
     })
+
+    it('binds \'subscribed\' listener to remove channel from pending subs', () => {
+      const m = new WS2Manager()
+      const s = m.openSocket()
+
+      s.pendingSubscriptions.push(['book', { symbol: 'tBTCUSD', prec: 'R0' }])
+      s.ws.emit('subscribed', {
+        channel: 'book',
+        symbol: 'tBTCUSD',
+        prec: 'R0',
+        len: '25'
+      })
+
+      assert.equal(s.pendingSubscriptions.length, 0)
+    })
   })
 
   describe('getFreeDataSocket', () => {
