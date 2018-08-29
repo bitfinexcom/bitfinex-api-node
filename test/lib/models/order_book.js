@@ -68,6 +68,15 @@ describe('OrderBook model', () => {
     assert.equal(ob.checksum(), CRC.str('100:1:102:-3:101:2:103:-4'))
   })
 
+  it('checksum: converts exp prices to fixed', () => {
+    const ob = new OrderBook({
+      bids: [[6000, 1, 1], [1.7e-8, 1, 2]],
+      asks: [[6100, 1, -3], [6200, 1, -4]]
+    })
+
+    assert.equal(ob.checksum(), CRC.str('6000:1:6100:-3:0.000000017:2:6200:-4'))
+  })
+
   it('checksumArr: returns expected value for normal OB', () => {
     const ob = [
       [6000, 1, 1],
@@ -79,6 +88,20 @@ describe('OrderBook model', () => {
     assert.equal(
       OrderBook.checksumArr(ob),
       CRC.str('6000:1:6100:-3:5900:2:6200:-4')
+    )
+  })
+
+  it('checksumArr: converts exp prices to fixed', () => {
+    const ob = [
+      [6000, 1, 1],
+      [1.7e-8, 1, 2],
+      [6100, 1, -3],
+      [6200, 1, -4]
+    ]
+
+    assert.equal(
+      OrderBook.checksumArr(ob),
+      CRC.str('6000:1:6100:-3:0.000000017:2:6200:-4')
     )
   })
 
@@ -442,90 +465,90 @@ describe('OrderBook model', () => {
     assert(OrderBook.updateArrayOBWith(ob, [121, 3, 14]))
     assert(OrderBook.updateArrayOBWith(ob, [300, 1, -4]))
     assert.deepEqual(ob, [
-      [300, 1, -4],
-      [200, 7, -42],
       [150, 1, 16],
-      [121, 3, 14]
+      [121, 3, 14],
+      [200, 7, -42],
+      [300, 1, -4]
     ])
 
     assert(OrderBook.updateArrayOBWith(ob, [130, 1, 10])) // add middle bid
     assert.deepEqual(ob, [
-      [300, 1, -4],
-      [200, 7, -42],
       [150, 1, 16],
       [130, 1, 10],
-      [121, 3, 14]
+      [121, 3, 14],
+      [200, 7, -42],
+      [300, 1, -4]
     ])
 
     assert(OrderBook.updateArrayOBWith(ob, [140, 1, 20])) // add another bid
     assert.deepEqual(ob, [
-      [300, 1, -4],
-      [200, 7, -42],
       [150, 1, 16],
       [140, 1, 20],
       [130, 1, 10],
-      [121, 3, 14]
+      [121, 3, 14],
+      [200, 7, -42],
+      [300, 1, -4]
     ])
 
     assert(OrderBook.updateArrayOBWith(ob, [140, 1, 42])) // update the new bid
     assert.deepEqual(ob, [
-      [300, 1, -4],
-      [200, 7, -42],
       [150, 1, 16],
       [140, 1, 42],
       [130, 1, 10],
-      [121, 3, 14]
+      [121, 3, 14],
+      [200, 7, -42],
+      [300, 1, -4]
     ])
 
     assert(OrderBook.updateArrayOBWith(ob, [130, 0, 42])) // remove a bid
     assert.deepEqual(ob, [
-      [300, 1, -4],
-      [200, 7, -42],
       [150, 1, 16],
       [140, 1, 42],
-      [121, 3, 14]
+      [121, 3, 14],
+      [200, 7, -42],
+      [300, 1, -4]
     ])
 
     assert(OrderBook.updateArrayOBWith(ob, [250, 1, -10])) // add middle ask
     assert.deepEqual(ob, [
-      [300, 1, -4],
-      [250, 1, -10],
-      [200, 7, -42],
       [150, 1, 16],
       [140, 1, 42],
-      [121, 3, 14]
+      [121, 3, 14],
+      [200, 7, -42],
+      [250, 1, -10],
+      [300, 1, -4]
     ])
 
     assert(OrderBook.updateArrayOBWith(ob, [220, 1, -20])) // add another ask
     assert.deepEqual(ob, [
-      [300, 1, -4],
-      [250, 1, -10],
-      [220, 1, -20],
-      [200, 7, -42],
       [150, 1, 16],
       [140, 1, 42],
-      [121, 3, 14]
+      [121, 3, 14],
+      [200, 7, -42],
+      [220, 1, -20],
+      [250, 1, -10],
+      [300, 1, -4]
     ])
 
     assert(OrderBook.updateArrayOBWith(ob, [220, 1, -42])) // update the new ask
     assert.deepEqual(ob, [
-      [300, 1, -4],
-      [250, 1, -10],
-      [220, 1, -42],
-      [200, 7, -42],
       [150, 1, 16],
       [140, 1, 42],
-      [121, 3, 14]
+      [121, 3, 14],
+      [200, 7, -42],
+      [220, 1, -42],
+      [250, 1, -10],
+      [300, 1, -4]
     ])
 
     assert(OrderBook.updateArrayOBWith(ob, [300, 0, -4])) // remove an ask
     assert.deepEqual(ob, [
-      [250, 1, -10],
-      [220, 1, -42],
-      [200, 7, -42],
       [150, 1, 16],
       [140, 1, 42],
-      [121, 3, 14]
+      [121, 3, 14],
+      [200, 7, -42],
+      [220, 1, -42],
+      [250, 1, -10]
     ])
   })
 
@@ -549,94 +572,94 @@ describe('OrderBook model', () => {
     assert(OrderBook.updateArrayOBWith(ob, [idBidC, 121, 14], true))
     assert(OrderBook.updateArrayOBWith(ob, [idAskB, 300, -4], true))
     assert.deepEqual(ob, [
-      [idAskB, 300, -4],
-      [idAskA, 200, -42],
       [idBidB, 150, 16],
-      [idBidC, 121, 14]
+      [idBidC, 121, 14],
+      [idAskA, 200, -42],
+      [idAskB, 300, -4]
     ])
 
     const idBidD = id()
     assert(OrderBook.updateArrayOBWith(ob, [idBidD, 130, 10], true)) // add middle bid
     assert.deepEqual(ob, [
-      [idAskB, 300, -4],
-      [idAskA, 200, -42],
       [idBidB, 150, 16],
       [idBidD, 130, 10],
-      [idBidC, 121, 14]
+      [idBidC, 121, 14],
+      [idAskA, 200, -42],
+      [idAskB, 300, -4]
     ])
 
     const idBidE = id()
     assert(OrderBook.updateArrayOBWith(ob, [idBidE, 140, 20], true)) // add another bid
     assert.deepEqual(ob, [
-      [idAskB, 300, -4],
-      [idAskA, 200, -42],
       [idBidB, 150, 16],
       [idBidE, 140, 20],
       [idBidD, 130, 10],
-      [idBidC, 121, 14]
+      [idBidC, 121, 14],
+      [idAskA, 200, -42],
+      [idAskB, 300, -4]
     ])
 
     assert(OrderBook.updateArrayOBWith(ob, [idBidE, 140, 42], true)) // update the new bid
     assert.deepEqual(ob, [
-      [idAskB, 300, -4],
-      [idAskA, 200, -42],
       [idBidB, 150, 16],
       [idBidE, 140, 42],
       [idBidD, 130, 10],
-      [idBidC, 121, 14]
+      [idBidC, 121, 14],
+      [idAskA, 200, -42],
+      [idAskB, 300, -4]
     ])
 
     assert(OrderBook.updateArrayOBWith(ob, [idBidD, 0, 42], true)) // remove a bid
     assert.deepEqual(ob, [
-      [idAskB, 300, -4],
-      [idAskA, 200, -42],
       [idBidB, 150, 16],
       [idBidE, 140, 42],
-      [idBidC, 121, 14]
+      [idBidC, 121, 14],
+      [idAskA, 200, -42],
+      [idAskB, 300, -4]
     ])
 
     const idAskC = id()
     assert(OrderBook.updateArrayOBWith(ob, [idAskC, 250, -10], true)) // add middle ask
     assert.deepEqual(ob, [
-      [idAskB, 300, -4],
-      [idAskC, 250, -10],
-      [idAskA, 200, -42],
       [idBidB, 150, 16],
       [idBidE, 140, 42],
-      [idBidC, 121, 14]
+      [idBidC, 121, 14],
+      [idAskA, 200, -42],
+      [idAskC, 250, -10],
+      [idAskB, 300, -4]
     ])
 
     const idAskD = id()
     assert(OrderBook.updateArrayOBWith(ob, [idAskD, 220, -20], true)) // add another ask
     assert.deepEqual(ob, [
-      [idAskB, 300, -4],
-      [idAskC, 250, -10],
-      [idAskD, 220, -20],
-      [idAskA, 200, -42],
       [idBidB, 150, 16],
       [idBidE, 140, 42],
-      [idBidC, 121, 14]
+      [idBidC, 121, 14],
+      [idAskA, 200, -42],
+      [idAskD, 220, -20],
+      [idAskC, 250, -10],
+      [idAskB, 300, -4]
     ])
 
     assert(OrderBook.updateArrayOBWith(ob, [idAskD, 220, -42], true)) // update the new ask
     assert.deepEqual(ob, [
-      [idAskB, 300, -4],
-      [idAskC, 250, -10],
-      [idAskD, 220, -42],
-      [idAskA, 200, -42],
       [idBidB, 150, 16],
       [idBidE, 140, 42],
-      [idBidC, 121, 14]
+      [idBidC, 121, 14],
+      [idAskA, 200, -42],
+      [idAskD, 220, -42],
+      [idAskC, 250, -10],
+      [idAskB, 300, -4]
     ])
 
     assert(OrderBook.updateArrayOBWith(ob, [idAskB, 0, -4], true)) // remove an ask
     assert.deepEqual(ob, [
-      [idAskC, 250, -10],
-      [idAskD, 220, -42],
-      [idAskA, 200, -42],
       [idBidB, 150, 16],
       [idBidE, 140, 42],
-      [idBidC, 121, 14]
+      [idBidC, 121, 14],
+      [idAskA, 200, -42],
+      [idAskD, 220, -42],
+      [idAskC, 250, -10]
     ])
   })
 
