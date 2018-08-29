@@ -1479,3 +1479,63 @@ describe('WSv2 message sending', () => {
     ws.send({ a: 42 })
   })
 })
+
+describe('WSv2 seq audit: _validateMessageSeq', () => {
+  it('returns an error on invalid pub seq', () => {
+    const ws = new WSv2()
+
+    ws._seqAudit = true
+    ws._lastPubSeq = 0
+
+    assert.equal(ws._validateMessageSeq([243, [252.12, 2, -1], 1]), null)
+    assert.equal(ws._validateMessageSeq([243, [252.12, 2, -1], 2]), null)
+
+    const err = ws._validateMessageSeq([243, [252.12, 2, -1], 5])
+    assert(err instanceof Error)
+  })
+
+  it('returns an error on invalid auth seq', () => {
+    const ws = new WSv2()
+
+    ws._seqAudit = true
+    ws._lastPubSeq = 0
+    ws._lastAuthSeq = 0
+
+    assert.equal(ws._validateMessageSeq([0, [252.12, 2, -1], 1, 1]), null)
+    assert.equal(ws._validateMessageSeq([0, [252.12, 2, -1], 2, 2]), null)
+
+    const err = ws._validateMessageSeq([0, [252.12, 2, -1], 3, 5])
+    assert(err instanceof Error)
+  })
+
+  it('ignores heartbeats', () => {
+    const ws = new WSv2()
+
+    ws._seqAudit = true
+    ws._lastPubSeq = 0
+
+    assert.equal(ws._validateMessageSeq([243, [252.12, 2, -1], 1]), null)
+    assert.equal(ws._validateMessageSeq([243, [252.12, 2, -1], 2]), null)
+    assert.equal(ws._validateMessageSeq([243, 'hb']), null)
+    assert.equal(ws._validateMessageSeq([243, 'hb']), null)
+    assert.equal(ws._validateMessageSeq([243, [252.12, 2, -1], 3]), null)
+    assert.equal(ws._validateMessageSeq([243, [252.12, 2, -1], 4]), null)
+  })
+
+  it('skips auth seq for error notifications', () => {
+    const ws = new WSv2()
+
+    ws._seqAudit = true
+    ws._lastPubSeq = 0
+    ws._lastAuthSeq = 0
+
+    const nSuccess = [null, null, null, null, null, null, 'SUCCESS']
+    const nError = [null, null, null, null, null, null, 'ERROR']
+
+    assert.equal(ws._validateMessageSeq([0, 'n', nSuccess, 1, 1]), null)
+    assert.equal(ws._validateMessageSeq([0, 'n', nSuccess, 2, 2]), null)
+    assert.equal(ws._validateMessageSeq([0, 'n', nError, 3]), null)
+    assert.equal(ws._validateMessageSeq([0, 'n', nSuccess, 4, 3]), null)
+    assert.equal(ws._validateMessageSeq([0, 'n', nSuccess, 5, 4]), null)
+  })
+})
