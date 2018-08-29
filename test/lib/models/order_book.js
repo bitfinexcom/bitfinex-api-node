@@ -68,6 +68,15 @@ describe('OrderBook model', () => {
     assert.equal(ob.checksum(), CRC.str('100:1:102:-3:101:2:103:-4'))
   })
 
+  it('checksum: converts exp prices to fixed', () => {
+    const ob = new OrderBook({
+      bids: [[6000, 1, 1], [1.7e-8, 1, 2]],
+      asks: [[6100, 1, -3], [6200, 1, -4]]
+    })
+
+    assert.equal(ob.checksum(), CRC.str('6000:1:6100:-3:0.000000017:2:6200:-4'))
+  })
+
   it('checksumArr: returns expected value for normal OB', () => {
     const ob = [
       [6000, 1, 1],
@@ -79,6 +88,20 @@ describe('OrderBook model', () => {
     assert.equal(
       OrderBook.checksumArr(ob),
       CRC.str('6000:1:6100:-3:5900:2:6200:-4')
+    )
+  })
+
+  it('checksumArr: converts exp prices to fixed', () => {
+    const ob = [
+      [6000, 1, 1],
+      [1.7e-8, 1, 2],
+      [6100, 1, -3],
+      [6200, 1, -4]
+    ]
+
+    assert.equal(
+      OrderBook.checksumArr(ob),
+      CRC.str('6000:1:6100:-3:0.000000017:2:6200:-4')
     )
   })
 
