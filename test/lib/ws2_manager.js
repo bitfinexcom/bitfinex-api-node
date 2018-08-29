@@ -93,7 +93,7 @@ describe('WS2Manager', () => {
       assert.deepEqual(m._sockets[0], s)
     })
 
-    it('binds \'unsubscribe\' listener to remove channel from pending unsubs', () => {
+    it('binds \'unsubscribed\' listener to remove channel from pending unsubs', () => {
       const m = new WS2Manager()
       const s = m.openSocket()
 
