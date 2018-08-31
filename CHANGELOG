@@ -1,3 +1,29 @@
+2.0.0
+
+- added CLI commands (971e8bf)
+- added TradingTicker model (1099273)
+- added model class transform support to RESTv2 (1099273)
+- added ability to unserialize objects in Model.unserialize() (b23a576)
+- added ledgers & movements examples (176d5a9)
+- filled in FundingInfo model (268ecc9)
+- updated MarginInfo model indices (268ecc9)
+- increased max WSv2 listener limit to 1k (5ade818)
+- REST API v2: fix calc balances API path (5e2f834)
+- WS API v2: added notifyUI helper to generate broadcasts (22cb5bc)
+- WS API v2: added support for DMS flag in auth (11e57b1)
+- WS API v2: added socket manager for auto multiplexing (f693bb9)
+- WS API v2: fixed error notification seq # tracking (1b1c1f3)
+- WS API v2: fixed trades event name resolution w/ seq numbers (46af211)
+- REST API v2: added ability to auth via token (07f8756)
+- REST API v2: added ability to fetch order history for all symbols (57f8c7b)
+- REST API v2: added ability to fetch account trades for all symbols (14b13c1)
+- REST API v2: added user info endpoint & associated model (36c0079)
+- OrderBook: fixed unserialization for raw books (01b5ce4)
+- OrderBook: removal of unknown entries no longer raises an error (7bd5bc2)
+- OrderBook: array sort is maintained on update (520a9a0)
+- OrderBook: converts exp notation numbers to fixed for checksum (2c8487c)
+- and more!
+
 2.0.0-beta.1
 
 - refactored general model handling (broke out field indexes) (c616696)

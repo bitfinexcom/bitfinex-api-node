@@ -124,8 +124,8 @@ describe('WS2Manager', () => {
       const m = new WS2Manager()
 
       m._sockets[0] = {
-        ws: { getDataChannelCount: () => 35 },
-        pendingSubscriptions: new Array(30),
+        ws: { getDataChannelCount: () => 200 },
+        pendingSubscriptions: new Array(70),
         pendingUnsubscriptions: new Array(10)
       }
 
@@ -295,7 +295,7 @@ describe('WS2Manager', () => {
         pendingSubscriptions: [],
         pendingUnsubscriptions: [],
         ws: {
-          getDataChannelCount: () => 55
+          getDataChannelCount: () => 255
         }
       }
 
