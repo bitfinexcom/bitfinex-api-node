@@ -17,8 +17,12 @@ ws.on('open', () => {
 
 ws.once('auth', () => {
   debug('authenticated')
-  debug('generating notification')
-  ws.notifyUI('success', 'This is a test notification sent via the WSv2 API')
+
+  ws.notifyUI({
+    type: 'success',
+    message: 'This is a test notification sent via the WSv2 API'
+  })
+
   debug('notification sent')
 
   ws.close()

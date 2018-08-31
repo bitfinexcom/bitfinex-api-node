@@ -79,13 +79,14 @@ describe('WSv2 utilities', () => {
 
   it('notifyUI: throws error if socket closed or not authenticated', () => {
     const ws = new WSv2()
+    const n = { type: 'info', message: 'test' }
 
-    assert.throws(() => ws.notifyUI('info', 'test'))
+    assert.throws(() => ws.notifyUI(n))
     ws._isOpen = true
-    assert.throws(() => ws.notifyUI('info', 'test'))
+    assert.throws(() => ws.notifyUI(n))
     ws._isAuthenticated = true
     ws.send = () => {}
-    assert.doesNotThrow(() => ws.notifyUI('info', 'test'))
+    assert.doesNotThrow(() => ws.notifyUI(n))
   })
 
   it('notifyUI: sends the correct UCM broadcast notification', (done) => {
@@ -107,7 +108,7 @@ describe('WSv2 utilities', () => {
       done()
     }
 
-    ws.notifyUI('success', '42')
+    ws.notifyUI({ type: 'success', message: '42' })
   })
 })
 
@@ -873,7 +874,7 @@ describe('WSv2 channel msg handling', () => {
     ws._handleOBMessage([42, [[100, 2, 3]]], ws._channelMap[42])
   })
 
-  it('_updateManagedOB: returns an error on rm non-existent entry', () => {
+  it('_updateManagedOB: does nothing on rm non-existent entry', () => {
     const ws = new WSv2()
     ws._orderBooks.tBTCUSD = [
       [100, 1, 1],
@@ -881,8 +882,11 @@ describe('WSv2 channel msg handling', () => {
     ]
 
     const err = ws._updateManagedOB('tBTCUSD', [150, 0, -1])
-    assert(err)
-    assert(err instanceof Error)
+    assert.equal(err, null)
+    assert.deepEqual(ws._orderBooks.tBTCUSD, [
+      [100, 1, 1],
+      [200, 2, 1]
+    ])
   })
 
   it('_updateManagedOB: correctly maintains transformed OBs', () => {
@@ -1420,7 +1424,141 @@ describe('WSv2 packet watch-dog', () => {
 
     setTimeout(() => {
       clearInterval(sendInterval)
+      clearTimeout(ws._packetWDTimeout)
       done()
     }, 200)
+  })
+})
+
+describe('WSv2 message sending', () => {
+  it('emits error if no client available or open', (done) => {
+    const ws = new WSv2()
+
+    ws.on('error', (e) => {
+      if (e.message.indexOf('no ws client') === -1) {
+        done(new Error('received unexpected error'))
+      } else {
+        done()
+      }
+    })
+
+    ws.send({})
+  })
+
+  it('emits error if connection is closing', (done) => {
+    const ws = new WSv2()
+
+    ws._ws = true
+    ws._isOpen = true
+    ws._isClosing = true
+
+    ws.on('error', (e) => {
+      if (e.message.indexOf('currently closing') === -1) {
+        done(new Error('received unexpected error'))
+      } else {
+        done()
+      }
+    })
+
+    ws.send({})
+  })
+
+  it('sends stringified payload', (done) => {
+    const ws = new WSv2()
+
+    ws._isOpen = true
+    ws._isClosing = false
+    ws._ws = {
+      send: (json) => {
+        const msg = JSON.parse(json)
+
+        assert.equal(msg.a, 42)
+        done()
+      }
+    }
+
+    ws.send({ a: 42 })
+  })
+})
+
+describe('WSv2 seq audit: _validateMessageSeq', () => {
+  it('returns an error on invalid pub seq', () => {
+    const ws = new WSv2()
+
+    ws._seqAudit = true
+    ws._lastPubSeq = 0
+
+    assert.equal(ws._validateMessageSeq([243, [252.12, 2, -1], 1]), null)
+    assert.equal(ws._validateMessageSeq([243, [252.12, 2, -1], 2]), null)
+
+    const err = ws._validateMessageSeq([243, [252.12, 2, -1], 5])
+    assert(err instanceof Error)
+  })
+
+  it('returns an error on invalid auth seq', () => {
+    const ws = new WSv2()
+
+    ws._seqAudit = true
+    ws._lastPubSeq = 0
+    ws._lastAuthSeq = 0
+
+    assert.equal(ws._validateMessageSeq([0, [252.12, 2, -1], 1, 1]), null)
+    assert.equal(ws._validateMessageSeq([0, [252.12, 2, -1], 2, 2]), null)
+
+    const err = ws._validateMessageSeq([0, [252.12, 2, -1], 3, 5])
+    assert(err instanceof Error)
+  })
+
+  it('ignores heartbeats', () => {
+    const ws = new WSv2()
+
+    ws._seqAudit = true
+    ws._lastPubSeq = 0
+
+    assert.equal(ws._validateMessageSeq([243, [252.12, 2, -1], 1]), null)
+    assert.equal(ws._validateMessageSeq([243, [252.12, 2, -1], 2]), null)
+    assert.equal(ws._validateMessageSeq([243, 'hb']), null)
+    assert.equal(ws._validateMessageSeq([243, 'hb']), null)
+    assert.equal(ws._validateMessageSeq([243, [252.12, 2, -1], 3]), null)
+    assert.equal(ws._validateMessageSeq([243, [252.12, 2, -1], 4]), null)
+  })
+
+  it('skips auth seq for error notifications', () => {
+    const ws = new WSv2()
+
+    ws._seqAudit = true
+    ws._lastPubSeq = 0
+    ws._lastAuthSeq = 0
+
+    const nSuccess = [null, null, null, null, null, null, 'SUCCESS']
+    const nError = [null, null, null, null, null, null, 'ERROR']
+
+    assert.equal(ws._validateMessageSeq([0, 'n', nSuccess, 1, 1]), null)
+    assert.equal(ws._validateMessageSeq([0, 'n', nSuccess, 2, 2]), null)
+    assert.equal(ws._validateMessageSeq([0, 'n', nError, 3]), null)
+    assert.equal(ws._validateMessageSeq([0, 'n', nSuccess, 4, 3]), null)
+    assert.equal(ws._validateMessageSeq([0, 'n', nSuccess, 5, 4]), null)
+  })
+})
+
+describe('_handleTradeMessage', () => {
+  it('correctly forwards payloads w/ seq numbers', (done) => {
+    const ws = new WSv2()
+    const payload = [
+      [286614318, 1535531325604, 0.05, 7073.51178714],
+      [286614249, 1535531321436, 0.0215938, 7073.6],
+      [286614248, 1535531321430, 0.0284062, 7073.51178714]
+    ]
+    const msg = [1710, payload, 1]
+
+    ws.onTrades({ pair: 'tBTCUSD' }, (data) => {
+      assert.deepStrictEqual(data, payload)
+      done()
+    })
+
+    ws._handleTradeMessage(msg, {
+      channel: 'trades',
+      pair: 'tBTCUSD'
+    })
   })
 })

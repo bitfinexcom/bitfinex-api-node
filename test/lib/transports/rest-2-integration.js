@@ -103,9 +103,11 @@ describe('RESTv2 integration (mock server) tests', () => {
     ['alertSet', 'alert_set.type.symbol.price', ['type', 'symbol', 'price']],
     ['alertDelete', 'alert_del.symbol.price', ['symbol', 'price']],
     ['accountTrades', 'trades.BTCUSD.0.10.50.1', ['BTCUSD', 0, 10, 50, 1]],
+    ['accountTrades', 'trades.0.10.50.1', ['', 0, 10, 50, 1]],
     ['wallets', 'wallets'],
     ['activeOrders', 'active_orders'],
     ['orderHistory', 'orders.sym.start.end.limit', ['sym', 'start', 'end', 'limit']],
+    ['orderHistory', 'orders.start.end.limit', ['', 'start', 'end', 'limit']],
     ['positions'],
     ['fundingOffers', 'f_offers.sym', ['sym']],
     ['fundingOfferHistory', 'f_offer_hist.sym.start.end.limit', ['sym', 'start', 'end', 'limit']],
@@ -124,22 +126,74 @@ describe('RESTv2 integration (mock server) tests', () => {
     const name = m[0]
     const dataKey = m[1] || m[0]
     const args = m[2] || []
+    let n = Date.now()
 
     it(`${name}: fetches expected data`, (done) => {
       const srv = new MockRESTv2Server({ listen: true })
       const r = getTestREST2()
-      srv.setResponse(dataKey, [42])
+      const nn = n++
+
+      srv.setResponse(dataKey, [nn])
 
       args.push((err, res) => {
         if (err) {
           return srv.close().then(() => done(err)).catch(done)
         }
 
-        assert.deepEqual(res, [42])
+        assert.deepEqual(res, [nn])
         srv.close().then(done).catch(done)
       })
 
       r[name].apply(r, args)
+    })
+  })
+
+  it('calls can not be made on missing atuh arguments (Keys or Token)', (done) => {
+    const args = {
+      url: 'http://localhost:9999',
+      transform: true
+    }
+    const rest = new RESTv2(args)
+    rest.wallets((err, data) => {
+      assert.strictEqual(err.toString(), 'Error: missing api key or secret')
+      done()
+    })
+  })
+
+  it('calls can be done with apiKey and apiSecret (Keys)', (done) => {
+    const args = {
+      apiKey: 'fake',
+      apiSecret: 'fake',
+      url: 'http://localhost:9999',
+      transform: true
+    }
+    const srv = new MockRESTv2Server({ listen: true })
+    srv.setResponse('wallets', [ 'wallets' ])
+    const rest = new RESTv2(args)
+    rest.wallets((err, data) => {
+      if (err) {
+        return srv.close().then(() => done(err)).catch(done)
+      }
+      assert.ok(data)
+      srv.close().then(done).catch(done)
+    })
+  })
+
+  it('calls can be done with authToken', (done) => {
+    const args = {
+      authToken: 'fake',
+      url: 'http://localhost:9999',
+      transform: true
+    }
+    const srv = new MockRESTv2Server({ listen: true })
+    srv.setResponse('wallets', [ 'wallets' ])
+    const rest = new RESTv2(args)
+    rest.wallets((err, data) => {
+      if (err) {
+        return srv.close().then(() => done(err)).catch(done)
+      }
+      assert.ok(data)
+      srv.close().then(done).catch(done)
     })
   })
 

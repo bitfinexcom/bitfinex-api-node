@@ -14,6 +14,7 @@ class BFX {
    * @param {Object} opts
    * @param {string} opts.apiKey
    * @param {string} opts.apiSecret
+   * @param {string} opts.authToken - optional auth option
    * @param {string} opts.transform - if true, packets are converted to models
    * @param {string} opts.nonceGenerator - optional
    * @param {string} opts.ws - ws transport options
@@ -22,6 +23,7 @@ class BFX {
   constructor (opts = {
     apiKey: '',
     apiSecret: '',
+    authToken: '',
     transform: false,
     ws: {},
     rest: {}
@@ -35,6 +37,7 @@ class BFX {
 
     this._apiKey = opts.apiKey || ''
     this._apiSecret = opts.apiSecret || ''
+    this._authToken = opts.authToken || ''
     this._transform = opts.transform === true
     this._wsArgs = opts.ws || {}
     this._restArgs = opts.rest || {}
@@ -48,6 +51,7 @@ class BFX {
     return Object.assign({
       apiKey: this._apiKey,
       apiSecret: this._apiSecret,
+      authToken: this._authToken,
       transform: this._transform
     }, extraOpts)
   }
