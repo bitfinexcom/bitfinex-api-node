@@ -98,9 +98,9 @@ See _makePublicLegacyRequest
 
 | Param | Type |
 | --- | --- |
-| method | <code>string</code> | 
-| params | <code>Object</code> | 
-| cb | <code>Method</code> | 
+| method | <code>string</code> |
+| params | <code>Object</code> |
+| cb | <code>Method</code> |
 
 <a name="RESTv2+status"></a>
 
@@ -111,7 +111,7 @@ See _makePublicLegacyRequest
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> | 
+| cb | <code>Method</code> |
 
 <a name="RESTv2+ticker"></a>
 
@@ -122,8 +122,8 @@ See _makePublicLegacyRequest
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
-| cb | <code>Method</code> |  | 
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+tickers"></a>
 
@@ -134,8 +134,8 @@ See _makePublicLegacyRequest
 
 | Param | Type |
 | --- | --- |
-| symbols | <code>Array.&lt;string&gt;</code> | 
-| cb | <code>Method</code> | 
+| symbols | <code>Array.&lt;string&gt;</code> |
+| cb | <code>Method</code> |
 
 <a name="RESTv2+stats"></a>
 
@@ -146,9 +146,9 @@ See _makePublicLegacyRequest
 
 | Param | Type | Default |
 | --- | --- | --- |
-| key | <code>string</code> | <code>&quot;pos.size:1m:tBTCUSD:long&quot;</code> | 
-| context | <code>string</code> | <code>&quot;hist&quot;</code> | 
-| cb | <code>Method</code> |  | 
+| key | <code>string</code> | <code>&quot;pos.size:1m:tBTCUSD:long&quot;</code> |
+| context | <code>string</code> | <code>&quot;hist&quot;</code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+candles"></a>
 
@@ -174,8 +174,8 @@ See _makePublicLegacyRequest
 
 | Param | Type | Default |
 | --- | --- | --- |
-| type | <code>string</code> | <code>&quot;price&quot;</code> | 
-| cb | <code>Method</code> |  | 
+| type | <code>string</code> | <code>&quot;price&quot;</code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+alertSet"></a>
 
@@ -186,9 +186,9 @@ See _makePublicLegacyRequest
 
 | Param | Type | Default |
 | --- | --- | --- |
-| type | <code>string</code> | <code>&quot;price&quot;</code> | 
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
-| price | <code>number</code> | <code>0</code> | 
+| type | <code>string</code> | <code>&quot;price&quot;</code> |
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
+| price | <code>number</code> | <code>0</code> |
 
 <a name="RESTv2+alertDelete"></a>
 
@@ -199,8 +199,8 @@ See _makePublicLegacyRequest
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
-| price | <code>number</code> | <code>0</code> | 
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
+| price | <code>number</code> | <code>0</code> |
 
 <a name="RESTv2+trades"></a>
 
@@ -254,7 +254,7 @@ See _makePublicLegacyRequest
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> | 
+| cb | <code>Method</code> |
 
 <a name="RESTv2+activeOrders"></a>
 
@@ -265,7 +265,7 @@ See _makePublicLegacyRequest
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> | 
+| cb | <code>Method</code> |
 
 <a name="RESTv2+movements"></a>
 
@@ -321,12 +321,12 @@ See _makePublicLegacyRequest
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
-| start | <code>number</code> | <code></code> | 
-| end | <code>number</code> | <code></code> | 
-| limit | <code>number</code> | <code></code> | 
-| orderID | <code>number</code> |  | 
-| cb | <code>Method</code> |  | 
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
+| start | <code>number</code> | <code></code> |
+| end | <code>number</code> | <code></code> |
+| limit | <code>number</code> | <code></code> |
+| orderID | <code>number</code> |  |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+positions"></a>
 
@@ -337,7 +337,7 @@ See _makePublicLegacyRequest
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> | 
+| cb | <code>Method</code> |
 
 <a name="RESTv2+fundingOffers"></a>
 
@@ -348,8 +348,8 @@ See _makePublicLegacyRequest
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;fUSD&quot;</code> | 
-| cb | <code>Method</code> |  | 
+| symbol | <code>string</code> | <code>&quot;fUSD&quot;</code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+fundingOfferHistory"></a>
 
@@ -360,11 +360,11 @@ See _makePublicLegacyRequest
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
-| start | <code>number</code> | <code></code> | 
-| end | <code>number</code> | <code></code> | 
-| limit | <code>number</code> | <code></code> | 
-| cb | <code>Method</code> |  | 
+| symbol | <code>string</code> | optional, omit/leave empty for all |
+| start | <code>number</code> | <code></code> |
+| end | <code>number</code> | <code></code> |
+| limit | <code>number</code> | <code></code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+fundingLoans"></a>
 
@@ -375,8 +375,8 @@ See _makePublicLegacyRequest
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;fUSD&quot;</code> | 
-| cb | <code>Method</code> |  | 
+| symbol | <code>string</code> | <code>&quot;fUSD&quot;</code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+fundingLoanHistory"></a>
 
@@ -387,11 +387,11 @@ See _makePublicLegacyRequest
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
-| start | <code>number</code> | <code></code> | 
-| end | <code>number</code> | <code></code> | 
-| limit | <code>number</code> | <code></code> | 
-| cb | <code>Method</code> |  | 
+| symbol | <code>string</code> | optional, omit/leave empty for all |
+| start | <code>number</code> | <code></code> |
+| end | <code>number</code> | <code></code> |
+| limit | <code>number</code> | <code></code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+fundingCredits"></a>
 
@@ -402,8 +402,8 @@ See _makePublicLegacyRequest
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;fUSD&quot;</code> | 
-| cb | <code>Method</code> |  | 
+| symbol | <code>string</code> | <code>&quot;fUSD&quot;</code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+fundingCreditHistory"></a>
 
@@ -414,11 +414,11 @@ See _makePublicLegacyRequest
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
-| start | <code>number</code> | <code></code> | 
-| end | <code>number</code> | <code></code> | 
-| limit | <code>number</code> | <code></code> | 
-| cb | <code>Method</code> |  | 
+| symbol | <code>string</code> | optional, omit/leave empty for all | 
+| start | <code>number</code> | <code></code> |
+| end | <code>number</code> | <code></code> |
+| limit | <code>number</code> | <code></code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+fundingTrades"></a>
 
@@ -429,11 +429,11 @@ See _makePublicLegacyRequest
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
-| start | <code>number</code> | <code></code> | 
-| end | <code>number</code> | <code></code> | 
-| limit | <code>number</code> | <code></code> | 
-| cb | <code>Method</code> |  | 
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
+| start | <code>number</code> | <code></code> |
+| end | <code>number</code> | <code></code> |
+| limit | <code>number</code> | <code></code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+marginInfo"></a>
 
@@ -444,8 +444,8 @@ See _makePublicLegacyRequest
 
 | Param | Type | Default |
 | --- | --- | --- |
-| key | <code>string</code> | <code>&quot;base&quot;</code> | 
-| cb | <code>Method</code> |  | 
+| key | <code>string</code> | <code>&quot;base&quot;</code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+fundingInfo"></a>
 
@@ -456,8 +456,8 @@ See _makePublicLegacyRequest
 
 | Param | Type | Default |
 | --- | --- | --- |
-| key | <code>string</code> | <code>&quot;fUSD&quot;</code> | 
-| cb | <code>Method</code> |  | 
+| key | <code>string</code> | <code>&quot;fUSD&quot;</code> |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+performance"></a>
 
@@ -468,7 +468,7 @@ See _makePublicLegacyRequest
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> | 
+| cb | <code>Method</code> |
 
 <a name="RESTv2+calcAvailableBalance"></a>
 
@@ -479,11 +479,11 @@ See _makePublicLegacyRequest
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> | 
-| dir | <code>string</code> |  | 
-| rate | <code>number</code> |  | 
-| type | <code>string</code> |  | 
-| cb | <code>Method</code> |  | 
+| symbol | <code>string</code> | <code>&quot;tBTCUSD&quot;</code> |
+| dir | <code>string</code> |  |
+| rate | <code>number</code> |  |
+| type | <code>string</code> |  |
+| cb | <code>Method</code> |  |
 
 <a name="RESTv2+symbols"></a>
 
@@ -513,7 +513,7 @@ Get a list of valid symbol names and details
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> | 
+| cb | <code>Method</code> |
 
 <a name="RESTv2+accountInfo"></a>
 
@@ -528,7 +528,7 @@ Request information about your account
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> | 
+| cb | <code>Method</code> |
 
 <a name="RESTv2+accountFees"></a>
 
@@ -543,7 +543,7 @@ Request account withdrawl fees
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> | 
+| cb | <code>Method</code> |
 
 <a name="RESTv2+accountSummary"></a>
 
@@ -559,7 +559,7 @@ funding.
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> | 
+| cb | <code>Method</code> |
 
 <a name="RESTv2+deposit"></a>
 
@@ -651,7 +651,7 @@ Fetch the permissions of the key being used to generate this request
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> | 
+| cb | <code>Method</code> |
 
 <a name="RESTv2+balances"></a>
 
@@ -666,7 +666,7 @@ Request your wallet balances
 
 | Param | Type |
 | --- | --- |
-| cb | <code>Method</code> | 
+| cb | <code>Method</code> |
 
 <a name="RESTv2+claimPosition"></a>
 
@@ -679,10 +679,10 @@ Request your wallet balances
 
 | Param | Type |
 | --- | --- |
-| params | <code>Object</code> | 
-| params.position_id | <code>number</code> | 
-| params.amount | <code>number</code> | 
-| cb | <code>Method</code> | 
+| params | <code>Object</code> |
+| params.position_id | <code>number</code> |
+| params.amount | <code>number</code> |
+| cb | <code>Method</code> |
 
 <a name="RESTv2+closePosition"></a>
 
@@ -695,9 +695,9 @@ Request your wallet balances
 
 | Param | Type |
 | --- | --- |
-| params | <code>Object</code> | 
-| params.position_id | <code>number</code> | 
-| cb | <code>Method</code> | 
+| params | <code>Object</code> |
+| params.position_id | <code>number</code> |
+| cb | <code>Method</code> |
 
 <a name="RESTv2+updateSettings"></a>
 
@@ -718,8 +718,8 @@ Request your wallet balances
 
 | Param | Type |
 | --- | --- |
-| keys | <code>Array.&lt;string&gt;</code> | 
-| cb | <code>Method</code> | 
+| keys | <code>Array.&lt;string&gt;</code> |
+| cb | <code>Method</code> |
 
 <a name="RESTv2+getSettings"></a>
 
@@ -729,8 +729,8 @@ Request your wallet balances
 
 | Param | Type |
 | --- | --- |
-| keys | <code>Array.&lt;string&gt;</code> | 
-| cb | <code>Method</code> | 
+| keys | <code>Array.&lt;string&gt;</code> |
+| cb | <code>Method</code> |
 
 <a name="RESTv2+exchangeRate"></a>
 
@@ -742,4 +742,3 @@ Request your wallet balances
 | --- | --- | --- |
 | ccy1 | <code>string</code> | i.e. BTC |
 | ccy2 | <code>string</code> | i.e. USD |
-
