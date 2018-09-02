@@ -4,7 +4,7 @@ process.env.DEBUG = '*'
 
 const _flatten = require('lodash/flatten')
 const debug = require('debug')('bfx:examples:channels')
-const bfx = require('../legacy_ws2/bfx')
+const bfx = require('../legacy_bfx')
 
 const ws = bfx.ws(2, { transform: true })
 const rest = bfx.rest(2, { transform: true })
