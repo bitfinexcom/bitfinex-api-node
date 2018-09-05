@@ -1562,3 +1562,49 @@ describe('_handleTradeMessage', () => {
     })
   })
 })
+
+describe('resubscribePreviousChannels', () => {
+  it('resubscribes to channels in prev channel map', () => {
+    const ws = new WSv2()
+    let subTicker = false
+    let subTrades = false
+    let subBook = false
+    let subCandles = false
+
+    ws._prevChannelMap = {
+      123: { channel: 'ticker', symbol: 'tBTCUSD' },
+      456: { channel: 'trades', symbol: 'tBTCUSD' },
+      789: { channel: 'candles', key: 'trade:1m:tBTCUSD' },
+      42: { channel: 'book', symbol: 'tBTCUSD', prec: 'R0', len: '25' }
+    }
+
+    ws.subscribeTicker = (sym) => {
+      assert.equal(sym, 'tBTCUSD')
+      subTicker = true
+    }
+
+    ws.subscribeTrades = (sym) => {
+      assert.equal(sym, 'tBTCUSD')
+      subTrades = true
+    }
+
+    ws.subscribeCandles = (key) => {
+      assert.equal(key, 'trade:1m:tBTCUSD')
+      subCandles = true
+    }
+
+    ws.subscribeOrderBook = (sym, prec, len) => {
+      assert.equal(sym, 'tBTCUSD')
+      assert.equal(prec, 'R0')
+      assert.equal(len, '25')
+      subBook = true
+    }
+
+    ws.resubscribePreviousChannels()
+
+    assert(subTicker)
+    assert(subTrades)
+    assert(subCandles)
+    assert(subBook)
+  })
+})
