@@ -212,13 +212,13 @@ describe('WSv2 listeners', () => {
     ws._channelMap = { 0: { channel: 'auth' } }
 
     let updatesSeen = 0
-    ws.onTradeUpdate({ pair: 'tBTCUSD', cbGID: 10 }, () => updatesSeen++)
+    ws.onAccountTradeUpdate({ pair: 'BTCUSD', cbGID: 10 }, () => updatesSeen++)
     ws.onOrderUpdate({ symbol: 'tBTCUSD', cbGID: 10 }, () => updatesSeen++)
 
-    ws._handleChannelMessage([0, 'tu', ['tBTCUSD']])
+    ws._handleChannelMessage([0, 'tu', [123, 'tBTCUSD']])
     ws._handleChannelMessage([0, 'ou', [0, 0, 0, 'tBTCUSD']])
     ws.removeListeners(10)
-    ws._handleChannelMessage([0, 'tu', ['tBTCUSD']])
+    ws._handleChannelMessage([0, 'tu', [123, 'tBTCUSD']])
     ws._handleChannelMessage([0, 'ou', [0, 0, 0, 'tBTCUSD']])
 
     assert.equal(updatesSeen, 2)
