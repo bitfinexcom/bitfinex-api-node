@@ -9,19 +9,24 @@ const ws = bfx.ws(2)
 
 ws.on('open', () => {
   debug('open')
-  ws.subscribeTrades('tBTCUSD')
+  ws.subscribeTrades('tEOSUSD')
+  ws.auth()
 })
 
-ws.onTradeEntry({ pair: 'BTCUSD' }, (trade) => {
+ws.onTradeEntry({ pair: 'EOSUSD' }, (trade) => {
   debug('te: %j', trade)
 })
 
-ws.onTradeUpdate({ pair: 'BTCUSD' }, (trade) => {
-  debug('tu: %j', trade)
+ws.onTrades({ pair: 'EOSUSD' }, (trades) => {
+  debug('trades: %j', trades)
 })
 
-ws.onTrades({ pair: 'BTCUSD' }, (trades) => {
-  debug('trades: %j', trades)
+ws.onAccountTradeEntry({ symbol: 'tEOSUSD' }, (trade) => {
+  debug('account te: %j', trade)
+})
+
+ws.onAccountTradeUpdate({ symbol: 'tEOSUSD' }, (trade) => {
+  debug('account tu: %j', trade)
 })
 
 ws.open()

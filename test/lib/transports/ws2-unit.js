@@ -564,24 +564,24 @@ describe('WSv2 channel msg handling', () => {
     let calls = 0
     let btcListenerCalled = false
 
-    ws.onTradeEntry({ pair: 'tBTCUSD' }, () => {
+    ws.onAccountTradeEntry({ symbol: 'tBTCUSD' }, () => {
       assert(!btcListenerCalled)
       btcListenerCalled = true
 
       if (++calls === 7) done()
     })
 
-    ws.onTradeEntry({}, () => {
+    ws.onAccountTradeEntry({}, () => {
       if (++calls === 7) done()
     })
 
-    ws.onTradeEntry({}, () => {
+    ws.onAccountTradeEntry({}, () => {
       if (++calls === 7) done()
     })
 
-    ws._handleChannelMessage([0, 'te', ['tETHUSD']])
-    ws._handleChannelMessage([0, 'te', ['tETHUSD']])
-    ws._handleChannelMessage([0, 'te', ['tBTCUSD']])
+    ws._handleChannelMessage([0, 'te', [123, 'tETHUSD']])
+    ws._handleChannelMessage([0, 'te', [123, 'tETHUSD']])
+    ws._handleChannelMessage([0, 'te', [123, 'tBTCUSD']])
   }
 
   it('_handleChannelMessage: filters messages if listeners require it (transform)', (done) => {
@@ -604,14 +604,14 @@ describe('WSv2 channel msg handling', () => {
       0, 'tBTCUSD', Date.now(), 0, 0.1, 1, 'type', 1, 1, 0.001, 'USD'
     ]
 
-    wsNoTransform.onTradeUpdate({}, (trade) => {
+    wsNoTransform.onAccountTradeUpdate({}, (trade) => {
       assert.equal(trade.constructor.name, 'Array')
       assert.deepEqual(trade, tradeData)
 
       if (calls++ === 1) done()
     })
 
-    wsTransform.onTradeUpdate({}, (trade) => {
+    wsTransform.onAccountTradeUpdate({}, (trade) => {
       assert.equal(trade.constructor.name, 'Trade')
       assert.equal(trade.id, tradeData[0])
       assert.equal(trade.pair, tradeData[1])
@@ -699,11 +699,11 @@ describe('WSv2 channel msg handling', () => {
     const ws = new WSv2()
     ws._channelMap = { 0: { channel: 'auth' } }
 
-    ws.onTradeEntry({ pair: 'tBTCUSD' }, () => {
+    ws.onAccountTradeEntry({ symbol: 'tBTCUSD' }, () => {
       done()
     })
 
-    ws._propagateMessageToListeners([0, 'te', ['tBTCUSD']])
+    ws._propagateMessageToListeners([0, 'auth-te', [123, 'tBTCUSD']])
   })
 
   it('_notifyCatchAllListeners: passes data to all listeners on the empty \'\' event', () => {
