@@ -345,4 +345,20 @@ describe('WS2Manager', () => {
       assert(unsubCalled)
     })
   })
+
+  describe('withAllSockets', () => {
+    it('calls the provided cb with all internal sockets', () => {
+      const m = new WS2Manager()
+      const socketsSeen = {}
+
+      m._sockets = ['a', 'b', 'c']
+      m.withAllSockets((sock) => {
+        socketsSeen[sock] = true
+      })
+
+      assert(socketsSeen.a)
+      assert(socketsSeen.b)
+      assert(socketsSeen.c)
+    })
+  })
 })
