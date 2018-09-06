@@ -614,7 +614,7 @@ describe('WSv2 channel msg handling', () => {
     wsTransform.onAccountTradeUpdate({}, (trade) => {
       assert.equal(trade.constructor.name, 'Trade')
       assert.equal(trade.id, tradeData[0])
-      assert.equal(trade.pair, tradeData[1])
+      assert.equal(trade.symbol, tradeData[1])
       assert.equal(trade.mtsCreate, tradeData[2])
       assert.equal(trade.orderID, tradeData[3])
       assert.equal(trade.execAmount, tradeData[4])
