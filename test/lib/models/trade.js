@@ -9,7 +9,7 @@ describe('Trade model', () => {
     model: Trade,
     boolFields: ['maker'],
     orderedFields: [
-      'id', 'pair', 'mtsCreate', 'orderID', 'execAmount', 'execPrice',
+      'id', 'symbol', 'mtsCreate', 'orderID', 'execAmount', 'execPrice',
       'orderType', 'orderPrice', 'maker', 'fee', 'feeCurrency'
     ]
   })
