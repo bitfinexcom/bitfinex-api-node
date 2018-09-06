@@ -1,13 +1,15 @@
 'use strict'
 
-process.env.DEBUG = '*'
+process.env.DEBUG = 'bfx:examples:*'
 
 const _flatten = require('lodash/flatten')
 const debug = require('debug')('bfx:examples:channels')
-const bfx = require('../legacy_bfx')
+const { Manager, subscribe } = require('bfx-api-node-core')
+const { RESTv2 } = require('bfx-api-node-rest')
+const managerArgs = require('../manager_args')
 
-const ws = bfx.ws(2, { transform: true })
-const rest = bfx.rest(2, { transform: true })
+const mgr = new Manager({ ...managerArgs })
+const rest = new RESTv2()
 
 debug('fetching symbol details...')
 
@@ -18,34 +20,26 @@ rest.symbolDetails().then(details => {
     return timeFrames.map(tf => `trade:${tf}:${s}`)
   }))
 
-  ws.once('open', () => {
+  mgr.onceWS('open', {}, (state = {}) => {
     debug('open')
+    debug('subscribing to %d channels', keys.length)
 
-    keys.forEach(k => {
-      ws.subscribeCandles(k)
+    let nextState = state
+
+    keys.forEach(key => {
+      nextState = subscribe(nextState, 'candles', { key })
     })
 
-    /*
-    setTimeout(() => {
-      ws.unsubscribeCandles(CANDLE_KEY)
-    }, 3000)
-    */
+    return nextState
   })
 
   keys.forEach(key => {
-    ws.onCandle({ key }, (candles) => {
+    mgr.onWS('candles', { key }, (candles) => {
       debug('recv %d candles on channel %s', candles.length, key)
-
-      /*
-      candles.forEach(c => {
-        debug(`%s %s open: %f, high: %f, low: %f, close: %f, volume: %f`,
-          key, new Date(c.mts).toLocaleTimeString(),
-          c.open, c.high, c.low, c.close, c.volume
-        )
-      })
-      */
     })
   })
 
-  ws.open()
+  debug('opening socket...')
+
+  mgr.openWS()
 })

@@ -1,12 +1,10 @@
 'use strict'
 
-process.env.DEBUG = '*' // 'bfx:api:examples:*'
+process.env.DEBUG = 'bfx:api:example-plugin,bfx:api:examples:*'
 
 const debug = require('debug')('bfx:api:examples:ws2:plugin_ob_cs')
-const subscribe = require('bfx-api-node-core/lib/ws2/subscribe')
 const ExamplePlugin = require('bfx-api-node-plugin-example')
-const { Manager, authWS } = require('bfx-api-node-core')
-
+const { Manager, subscribe } = require('bfx-api-node-core')
 const managerArgs = require('../manager_args')
 
 const mgr = new Manager({
@@ -18,7 +16,6 @@ const mgr = new Manager({
 
 mgr.onWS('open', {}, (state = {}) => {
   debug('open')
-  authWS(state)
 })
 
 mgr.onWS('auth', {}, (state = {}) => {
@@ -30,5 +27,7 @@ mgr.onWS('auth', {}, (state = {}) => {
   wsState = subscribe(wsState, 'candles', { key: 'trade:5m:tBTCUSD' })
   return wsState
 })
+
+debug('opening socket...')
 
 mgr.openWS()

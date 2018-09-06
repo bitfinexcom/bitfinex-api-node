@@ -1,19 +1,27 @@
 'use strict'
 
-process.env.DEBUG = '*' // 'bfx:api:examples:*'
+process.env.DEBUG = 'bfx:api:examples:*'
 
+const SocksProxyAgent = require('socks-proxy-agent')
 const debug = require('debug')('bfx:api:examples:ws2:trades')
-const { Manager } = require('bfx-api-node-core')
-const subscribe = require('bfx-api-node-core/lib/ws2/subscribe')
+const SeqAuditPlugin = require('bfx-api-node-plugin-seq-audit')
+const { Manager, subscribe } = require('bfx-api-node-core')
+const managerArgs = require('../manager_args')
 
-const mgr = new Manager({ transform: true })
+const mgr = new Manager({
+  plugins: [SeqAuditPlugin()],
+  ...managerArgs
+})
 
-mgr.onWS('open', {}, (state = {}) => {
+mgr.onceWS('open', {}, (state = {}) => {
   debug('open')
 
-  let wsState = state
-  wsState = subscribe(wsState, 'trades', { pair: 'BTCUSD' })
-  return wsState
+  const { ev } = state
+  ev.on('event:auth:success', () => {
+    debug('authenticated')
+  })
+
+  return subscribe(state, 'trades', { pair: 'BTCUSD' })
 })
 
 mgr.onWS('trades', { pair: 'BTCUSD' }, (trades) => {
@@ -21,5 +29,15 @@ mgr.onWS('trades', { pair: 'BTCUSD' }, (trades) => {
     debug('recv BTCUSD trade: %j', trade)
   })
 })
+
+mgr.onWS('auth:te', { pair: 'tBTCUSD' }, (trade) => {
+  debug('recv account BTCUSD te: %j', trade)
+})
+
+mgr.onWS('auth:tu', { pair: 'tBTCUSD' }, (trade) => {
+  debug('recv account BTCUSD tu: %j', trade)
+})
+
+debug('opening socket...')
 
 mgr.openWS()

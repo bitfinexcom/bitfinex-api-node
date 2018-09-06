@@ -1,27 +1,24 @@
 'use strict'
 
-process.env.DEBUG = '*' // 'bfx:api:examples:*'
+process.env.DEBUG = 'bfx:api:plugins:*,bfx:api:examples:*'
 
 const debug = require('debug')('bfx:api:examples:ws2:plugin-wd')
-const { Manager } = require('bfx-api-node-core')
-const subscribe = require('bfx-api-node-core/lib/ws2/subscribe')
+const { Manager, subscribe } = require('bfx-api-node-core')
 
 const {
   Config, enableFlag, disableFlag, isFlagEnabled,
 } = require('bfx-api-node-core')
 const WDPlugin = require('bfx-api-node-plugin-wd')
+const managerArgs = require('../manager_args')
 
 const mgr = new Manager({
   transform: true,
-  plugins: [WDPlugin()]
+  plugins: [WDPlugin()],
+  ...managerArgs
 })
 
 mgr.onWS('open', {}, (state = {}) => {
   debug('open')
-
-  let wsState = state
-  // wsState = subscribe(wsState, 'book', { symbol: 'tBTCUSD' })
-  return wsState
 })
 
 mgr.openWS()

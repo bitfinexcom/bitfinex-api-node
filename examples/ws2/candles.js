@@ -1,20 +1,22 @@
 'use strict'
 
-process.env.DEBUG = '*' // 'bfx:api:examples:*'
+process.env.DEBUG = 'bfx:api:examples:*'
 
 const debug = require('debug')('bfx:api:examples:ws2:candles')
-const { Manager } = require('bfx-api-node-core')
-const subscribe = require('bfx-api-node-core/lib/ws2/subscribe')
+const { Manager, subscribe } = require('bfx-api-node-core')
+const managerArgs = require('../manager_args')
 
 const CANDLE_KEY = 'trade:5m:tBTCUSD'
-const mgr = new Manager({ transform: true })
+const mgr = new Manager({
+  transform: true,
+  ...managerArgs
+})
 
-mgr.onWS('open', {}, (state = {}) => {
+mgr.onceWS('open', {}, (state = {}) => {
   debug('open')
 
-  let wsState = state
-  wsState = subscribe(wsState, 'candles', { key: CANDLE_KEY })
-  return wsState
+  // Returns next socket state
+  return subscribe(state, 'candles', { key: CANDLE_KEY })
 })
 
 mgr.onWS('candles', { key: CANDLE_KEY }, (candles) => {
@@ -22,5 +24,7 @@ mgr.onWS('candles', { key: CANDLE_KEY }, (candles) => {
     debug('recv BTCUSD candle: %j', candle)
   })
 })
+
+debug('opening socket...')
 
 mgr.openWS()

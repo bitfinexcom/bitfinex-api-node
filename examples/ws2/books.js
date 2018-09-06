@@ -1,23 +1,24 @@
 'use strict'
 
-process.env.DEBUG = '*' // 'bfx:api:examples:*'
+process.env.DEBUG = 'bfx:api:examples:*'
 
 const debug = require('debug')('bfx:api:examples:ws2:books')
-const { Manager } = require('bfx-api-node-core')
-const subscribe = require('bfx-api-node-core/lib/ws2/subscribe')
+const { Manager, subscribe } = require('bfx-api-node-core')
+const managerArgs = require('../manager_args')
 
-const mgr = new Manager({ transform: true })
+const mgr = new Manager({ ...managerArgs })
 
-mgr.onWS('open', {}, (state = {}) => {
+mgr.onceWS('open', {}, (state = {}) => {
   debug('open')
 
-  let wsState = state
-  wsState = subscribe(wsState, 'book', { symbol: 'tBTCUSD' })
-  return wsState
+  // Returns next socket state
+  return subscribe(state, 'book', { symbol: 'tBTCUSD' })
 })
 
 mgr.onWS('book', { symbol: 'tBTCUSD' }, (ob) => {
-  debug('%j', ob.toJS())
+  debug('snapshot or update: %j', ob)
 })
+
+debug('opening socket...')
 
 mgr.openWS()

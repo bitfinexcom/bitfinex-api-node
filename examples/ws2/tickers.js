@@ -1,14 +1,17 @@
 'use strict'
 
-process.env.DEBUG = '*' // 'bfx:api:examples:*'
+process.env.DEBUG = 'bfx:api:examples:*'
 
 const debug = require('debug')('bfx:api:examples:ws2:tickers')
-const { Manager } = require('bfx-api-node-core')
-const subscribe = require('bfx-api-node-core/lib/ws2/subscribe')
+const { Manager, subscribe } = require('bfx-api-node-core')
+const managerArgs = require('../manager_args')
 
-const mgr = new Manager({ transform: true })
+const mgr = new Manager({
+  transform: true,
+  ...managerArgs
+})
 
-mgr.onWS('open', {}, (state = {}) => {
+mgr.onceWS('open', {}, (state = {}) => {
   debug('open')
 
   let wsState = state
@@ -24,5 +27,7 @@ mgr.onWS('ticker', { symbol: 'tETHUSD' }, (ticker) => {
 mgr.onWS('ticker', { symbol: 'fUSD' }, (ticker) => {
   debug('fUSD ticker: %j', ticker.toJS())
 })
+
+debug('opening socket...')
 
 mgr.openWS()

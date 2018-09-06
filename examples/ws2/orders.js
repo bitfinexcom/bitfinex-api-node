@@ -3,16 +3,15 @@
 process.env.DEBUG = '*' // 'bfx:api:examples:*'
 
 const debug = require('debug')('bfx:api:examples:ws2:orders')
-const { Manager, submitOrder, authWS } = require('bfx-api-node-core')
+const { Manager, submitOrder } = require('bfx-api-node-core')
 const { Order } = require('bfx-api-node-models')
 const SeqAuditPlugin = require('bfx-api-node-plugin-seq-audit')
-
 const managerArgs = require('../manager_args')
 
 const mgr = new Manager({
-  ...managerArgs,
   plugins: [SeqAuditPlugin()],
   transform: true,
+  ...managerArgs
 })
 
 // Build new order
@@ -24,12 +23,10 @@ const o = new Order({
   type: Order.type.EXCHANGE_LIMIT
 })
 
-mgr.onWS('open', {}, (state = {}) => {
-  const { ev } = state
-
+mgr.onceWS('open', {}, (state = {}) => {
   debug('open')
-  authWS(state)
 
+  const { ev } = state
   ev.on('event:auth:success', async () => {
     try {
       const on = await submitOrder(state, o)
@@ -42,5 +39,7 @@ mgr.onWS('open', {}, (state = {}) => {
 
   return state
 })
+
+debug('opening socket...')
 
 mgr.openWS()
