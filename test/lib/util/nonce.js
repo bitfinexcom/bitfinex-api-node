@@ -11,7 +11,7 @@ describe('nonce', () => {
   })
 
   it('is strictly increasing', () => {
-    assert.equal(nonce(), nonce() - 1)
+    assert(nonce() < nonce())
   })
 
   it('is large enough', () => {
