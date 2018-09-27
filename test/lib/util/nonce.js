@@ -15,6 +15,6 @@ describe('nonce', () => {
   })
 
   it('is large enough', () => {
-    assert(nonce() > 1000000000000000)
+    assert(nonce() > 1000000000000)
   })
 })
