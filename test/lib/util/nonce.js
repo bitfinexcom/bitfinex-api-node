@@ -11,10 +11,10 @@ describe('nonce', () => {
   })
 
   it('is strictly increasing', () => {
-    assert.equal(nonce(), nonce() - 1)
+    assert(nonce() < nonce())
   })
 
   it('is large enough', () => {
-    assert(nonce() > 1000000000000000)
+    assert(nonce() > 1000000000000)
   })
 })
