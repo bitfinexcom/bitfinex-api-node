@@ -41,6 +41,7 @@ Communicates with v2 of the Bitfinex HTTP API
     * [.calcAvailableBalance(symbol, dir, rate, type, cb)](#RESTv2+calcAvailableBalance) ⇒ <code>Promise</code>
     * ~~[.symbols(cb)](#RESTv2+symbols) ⇒ <code>Promise</code>~~
     * ~~[.symbolDetails(cb)](#RESTv2+symbolDetails) ⇒ <code>Promise</code>~~
+    * ~~[.currencies(cb)](#RESTv2+currencies) ⇒ <code>Promise</code>~~
     * ~~[.accountInfo(cb)](#RESTv2+accountInfo) ⇒ <code>Promise</code>~~
     * ~~[.accountFees(cb)](#RESTv2+accountFees) ⇒ <code>Promise</code>~~
     * ~~[.accountSummary(cb)](#RESTv2+accountSummary) ⇒ <code>Promise</code>~~
@@ -414,7 +415,7 @@ See _makePublicLegacyRequest
 
 | Param | Type | Default |
 | --- | --- | --- |
-| symbol | <code>string</code> | optional, omit/leave empty for all | 
+| symbol | <code>string</code> | optional, omit/leave empty for all |
 | start | <code>number</code> | <code></code> |
 | end | <code>number</code> | <code></code> |
 | limit | <code>number</code> | <code></code> |
@@ -514,6 +515,21 @@ Get a list of valid symbol names and details
 | Param | Type |
 | --- | --- |
 | cb | <code>Method</code> |
+
+<a name="RESTv2+currencies"></a>
+
+### ~~resTv2.currencies(cb) ⇒ <code>Promise</code>~~
+***Deprecated***
+
+Get a list of valid valid currencies ids and full names
+
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v1/reference#rest-public-currencies  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| cb | <code>Method</code> | legacy callback |
 
 <a name="RESTv2+accountInfo"></a>
 
