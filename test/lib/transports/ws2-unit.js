@@ -743,8 +743,8 @@ describe('WSv2 channel msg handling', () => {
     assert.equal(ob.bids.length, 1)
     assert.deepEqual(ob.bids, [[300, 1, 3]])
     assert.equal(ob.asks.length, 2)
-    assert.deepEqual(ob.getEntry(100), { price: 100, count: 2, amount: -4 })
-    assert.deepEqual(ob.getEntry(200), { price: 200, count: 4, amount: -8 })
+    assert.deepEqual(ob.getEntry(100), { price: 100, count: 2, amount: -4, funding: false })
+    assert.deepEqual(ob.getEntry(200), { price: 200, count: 4, amount: -8, funding: false })
 
     ws._handleOBMessage([42, [300, 0, 1]], ws._channelMap[42])
     ob = ws.getOB('tBTCUSD')

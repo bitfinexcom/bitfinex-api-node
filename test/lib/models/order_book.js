@@ -425,8 +425,8 @@ describe('OrderBook model', () => {
     const obA = new OrderBook(entriesA)
     const obB = new OrderBook(entriesB)
 
-    assert.deepEqual(obA.getEntry(100), { price: 100, count: 2, amount: 10 })
-    assert.deepEqual(obB.getEntry(200), { price: 200, count: 2, amount: -10 })
+    assert.deepEqual(obA.getEntry(100), { price: 100, count: 2, amount: 10, funding: false })
+    assert.deepEqual(obB.getEntry(200), { price: 200, count: 2, amount: -10, funding: false })
   })
 
   it('getEntry: unserializes entry before returning', () => {
@@ -672,8 +672,8 @@ describe('OrderBook model', () => {
     const ob = OrderBook.unserialize(obData)
     assert.equal(typeof ob, 'object')
     assert.equal(Object.keys(ob).length, 2)
-    assert.deepEqual(ob.bids, [{ price: 100, count: 2, amount: 10 }])
-    assert.deepEqual(ob.asks, [{ price: 200, count: 2, amount: -10 }])
+    assert.deepEqual(ob.bids, [{ price: 100, count: 2, amount: 10, funding: false }])
+    assert.deepEqual(ob.asks, [{ price: 200, count: 2, amount: -10, funding: false }])
   })
 
   it('unserialize: returns map for entries', () => {
@@ -682,7 +682,8 @@ describe('OrderBook model', () => {
     assert.deepEqual(entry, {
       price: 150,
       count: 0,
-      amount: -1
+      amount: -1,
+      funding: false
     })
   })
 
@@ -693,12 +694,14 @@ describe('OrderBook model', () => {
       asks: [{
         orderID: 1337,
         price: 150,
-        amount: -1
+        amount: -1,
+        funding: false
       }],
       bids: [{
         orderID: 1338,
         price: 151,
-        amount: 1
+        amount: 1,
+        funding: false
       }]
     }
     assert.deepEqual(entry, exp)
