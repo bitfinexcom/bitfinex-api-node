@@ -726,29 +726,49 @@ describe('WSv2 channel msg handling', () => {
       transform: true
     })
 
-    ws._channelMap = { 42: {
+    ws._channelMapA = { 42: {
       channel: 'orderbook',
       symbol: 'tBTCUSD'
+    }}
+    ws._channelMapB = { 43: {
+      channel: 'orderbook',
+      symbol: 'fUSD'
     }}
 
     ws._handleOBMessage([42, [
       [100, 2, -4],
       [200, 4, -8],
       [300, 1, 3]
-    ]], ws._channelMap[42])
+    ]], ws._channelMapA[42])
+    ws._handleOBMessage([43, [
+      [0.0008, 2, 5, 200],
+      [0.00045, 30, 4, -300],
+      [0.0004, 30, 3, -600]
+    ]], ws._channelMapB[43])
 
-    let ob = ws.getOB('tBTCUSD')
-    assert(ob !== null)
+    let obA = ws.getOB('tBTCUSD')
+    let obB = ws.getOB('fUSD')
 
-    assert.equal(ob.bids.length, 1)
-    assert.deepEqual(ob.bids, [[300, 1, 3]])
-    assert.equal(ob.asks.length, 2)
-    assert.deepEqual(ob.getEntry(100), { price: 100, count: 2, amount: -4, funding: false })
-    assert.deepEqual(ob.getEntry(200), { price: 200, count: 4, amount: -8, funding: false })
+    assert(obA !== null)
+    assert(obB !== null)
 
-    ws._handleOBMessage([42, [300, 0, 1]], ws._channelMap[42])
-    ob = ws.getOB('tBTCUSD')
-    assert.equal(ob.bids.length, 0)
+    assert.equal(obA.bids.length, 1)
+    assert.equal(obB.bids.length, 2)
+    assert.deepEqual(obA.bids, [[300, 1, 3]])
+    assert.deepEqual(obB.bids, [[0.00045, 30, 4, -300], [0.0004, 30, 3, -600]])
+    assert.equal(obA.asks.length, 2)
+    assert.equal(obB.asks.length, 1)
+    assert.deepEqual(obA.getEntry(100), { price: 100, count: 2, amount: -4, funding: false })
+    assert.deepEqual(obA.getEntry(200), { price: 200, count: 4, amount: -8, funding: false })
+    assert.deepEqual(obB.getEntry(0.00045), { price: 0.00045, count: 4, amount: -300, funding: true })
+    assert.deepEqual(obB.getEntry(0.0008), { price: 0.0008, count: 5, amount: 200, funding: true })
+
+    ws._handleOBMessage([42, [300, 0, 1]], ws._channelMapA[42])
+    obA = ws.getOB('tBTCUSD')
+    assert.equal(obA.bids.length, 0)
+    ws._handleOBMessage([43, [0.0008, 2, 0, 1]], ws._channelMapB[43])
+    obB = ws.getOB('fUSD')
+    assert.equal(obB.asks.length, 0)
   })
 
   it('_handleOBMessage: emits error on internal OB update failure', (done) => {

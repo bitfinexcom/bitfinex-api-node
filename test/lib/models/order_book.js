@@ -421,12 +421,18 @@ describe('OrderBook model', () => {
   it('getEntry: returns entry even with only one OB side', () => {
     const entriesA = [[100, 2, 10]]
     const entriesB = [[200, 2, -10]]
+    const entriesC = [[0.00018942, 2, 11, 173094.48801557]]
+    const entriesD = [[0.0001921, 30, 1, -5000]]
 
     const obA = new OrderBook(entriesA)
     const obB = new OrderBook(entriesB)
+    const obC = new OrderBook(entriesC)
+    const obD = new OrderBook(entriesD)
 
     assert.deepEqual(obA.getEntry(100), { price: 100, count: 2, amount: 10, funding: false })
     assert.deepEqual(obB.getEntry(200), { price: 200, count: 2, amount: -10, funding: false })
+    assert.deepEqual(obC.getEntry(0.00018942), { price: 0.00018942, count: 11, amount: 173094.48801557, funding: true })
+    assert.deepEqual(obD.getEntry(0.0001921), { price: 0.0001921, count: 1, amount: -5000, funding: true })
   })
 
   it('getEntry: unserializes entry before returning', () => {
@@ -664,33 +670,50 @@ describe('OrderBook model', () => {
   })
 
   it('unserialize: returns bid/asks map for snapshots', () => {
-    const obData = [
+    const obAData = [
       [100, 2, 10],
       [200, 2, -10]
     ]
+    const obBData = [
+      [0.0005, 30, 1, -5000],
+      [0.0008, 2, 5, 2000]
+    ]
 
-    const ob = OrderBook.unserialize(obData)
-    assert.equal(typeof ob, 'object')
-    assert.equal(Object.keys(ob).length, 2)
-    assert.deepEqual(ob.bids, [{ price: 100, count: 2, amount: 10, funding: false }])
-    assert.deepEqual(ob.asks, [{ price: 200, count: 2, amount: -10, funding: false }])
+    const obA = OrderBook.unserialize(obAData)
+    const obB = OrderBook.unserialize(obBData)
+    assert.equal(typeof obA, 'object')
+    assert.equal(typeof obB, 'object')
+    assert.equal(Object.keys(obA).length, 2)
+    assert.equal(Object.keys(obB).length, 2)
+    assert.deepEqual(obA.bids, [{ price: 100, count: 2, amount: 10, funding: false }])
+    assert.deepEqual(obA.asks, [{ price: 200, count: 2, amount: -10, funding: false }])
+    assert.deepEqual(obB.bids, [{ price: 0.0005, count: 1, amount: -5000, funding: true }])
+    assert.deepEqual(obB.asks, [{ price: 0.0008, count: 5, amount: 2000, funding: true }])
   })
 
   it('unserialize: returns map for entries', () => {
-    const entry = OrderBook.unserialize([150, 0, -1])
+    const entryA = OrderBook.unserialize([150, 0, -1])
+    const entryB = OrderBook.unserialize([0.0008, 2, 0, 1])
 
-    assert.deepEqual(entry, {
+    assert.deepEqual(entryA, {
       price: 150,
       count: 0,
       amount: -1,
       funding: false
     })
+    assert.deepEqual(entryB, {
+      price: 0.0008,
+      count: 0,
+      amount: 1,
+      funding: true
+    })
   })
 
   it('unserialize: supports raw books', () => {
-    const entry = OrderBook.unserialize([[1337, 150, -1], [1338, 151, 1]], true)
+    const entryA = OrderBook.unserialize([[1337, 150, -1], [1338, 151, 1]], true)
+    const entryB = OrderBook.unserialize([[1539, 2, 0.0008, 350], [1540, 30, 0.0004, -500]], true)
 
-    const exp = {
+    const expA = {
       asks: [{
         orderID: 1337,
         price: 150,
@@ -704,6 +727,22 @@ describe('OrderBook model', () => {
         funding: false
       }]
     }
-    assert.deepEqual(entry, exp)
+    const expB = {
+      asks: [{
+        orderID: 1539,
+        price: 0.0008,
+        amount: 350,
+        funding: true
+      }],
+      bids: [{
+        orderID: 1540,
+        price: 0.0004,
+        amount: -500,
+        funding: true
+      }]
+    }
+
+    assert.deepEqual(entryA, expA)
+    assert.deepEqual(entryB, expB)
   })
 })
