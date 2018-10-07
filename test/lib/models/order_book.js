@@ -429,10 +429,10 @@ describe('OrderBook model', () => {
     const obC = new OrderBook(entriesC)
     const obD = new OrderBook(entriesD)
 
-    assert.deepEqual(obA.getEntry(100), { price: 100, count: 2, amount: 10, funding: false })
-    assert.deepEqual(obB.getEntry(200), { price: 200, count: 2, amount: -10, funding: false })
-    assert.deepEqual(obC.getEntry(0.00018942), { price: 0.00018942, count: 11, amount: 173094.48801557, funding: true })
-    assert.deepEqual(obD.getEntry(0.0001921), { price: 0.0001921, count: 1, amount: -5000, funding: true })
+    assert.deepEqual(obA.getEntry(100), { price: 100, count: 2, amount: 10 })
+    assert.deepEqual(obB.getEntry(200), { price: 200, count: 2, amount: -10 })
+    assert.deepEqual(obC.getEntry(0.00018942), { rate: 0.00018942, count: 11, amount: 173094.48801557, period: 2 })
+    assert.deepEqual(obD.getEntry(0.0001921), { rate: 0.0001921, count: 1, amount: -5000, period: 30 })
   })
 
   it('getEntry: unserializes entry before returning', () => {
@@ -685,10 +685,10 @@ describe('OrderBook model', () => {
     assert.equal(typeof obB, 'object')
     assert.equal(Object.keys(obA).length, 2)
     assert.equal(Object.keys(obB).length, 2)
-    assert.deepEqual(obA.bids, [{ price: 100, count: 2, amount: 10, funding: false }])
-    assert.deepEqual(obA.asks, [{ price: 200, count: 2, amount: -10, funding: false }])
-    assert.deepEqual(obB.bids, [{ price: 0.0005, count: 1, amount: -5000, funding: true }])
-    assert.deepEqual(obB.asks, [{ price: 0.0008, count: 5, amount: 2000, funding: true }])
+    assert.deepEqual(obA.bids, [{ price: 100, count: 2, amount: 10 }])
+    assert.deepEqual(obA.asks, [{ price: 200, count: 2, amount: -10 }])
+    assert.deepEqual(obB.bids, [{ rate: 0.0005, count: 1, amount: -5000, period: 30 }])
+    assert.deepEqual(obB.asks, [{ rate: 0.0008, count: 5, amount: 2000, period: 2 }])
   })
 
   it('unserialize: returns map for entries', () => {
@@ -698,14 +698,13 @@ describe('OrderBook model', () => {
     assert.deepEqual(entryA, {
       price: 150,
       count: 0,
-      amount: -1,
-      funding: false
+      amount: -1
     })
     assert.deepEqual(entryB, {
-      price: 0.0008,
+      rate: 0.0008,
       count: 0,
       amount: 1,
-      funding: true
+      period: 2
     })
   })
 
@@ -717,28 +716,26 @@ describe('OrderBook model', () => {
       asks: [{
         orderID: 1337,
         price: 150,
-        amount: -1,
-        funding: false
+        amount: -1
       }],
       bids: [{
         orderID: 1338,
         price: 151,
-        amount: 1,
-        funding: false
+        amount: 1
       }]
     }
     const expB = {
       asks: [{
         orderID: 1539,
-        price: 0.0008,
+        rate: 0.0008,
         amount: 350,
-        funding: true
+        period: 2
       }],
       bids: [{
         orderID: 1540,
-        price: 0.0004,
+        rate: 0.0004,
         amount: -500,
-        funding: true
+        period: 30
       }]
     }
 
