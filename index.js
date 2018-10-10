@@ -24,6 +24,7 @@ class BFX {
     apiKey: '',
     apiSecret: '',
     authToken: '',
+    company: '',
     transform: false,
     ws: {},
     rest: {}
@@ -38,6 +39,7 @@ class BFX {
     this._apiKey = opts.apiKey || ''
     this._apiSecret = opts.apiSecret || ''
     this._authToken = opts.authToken || ''
+    this._company = opts.company || ''
     this._transform = opts.transform === true
     this._wsArgs = opts.ws || {}
     this._restArgs = opts.rest || {}
@@ -52,6 +54,7 @@ class BFX {
       apiKey: this._apiKey,
       apiSecret: this._apiSecret,
       authToken: this._authToken,
+      company: this._company,
       transform: this._transform
     }, extraOpts)
   }
