@@ -1,10 +1,8 @@
 'use strict'
 
-const Models = require('./lib/models')
-const RESTv1 = require('./lib/transports/rest.js')
-const WSv1 = require('./lib/transports/ws.js')
-const RESTv2 = require('./lib/transports/rest2.js')
-const WSv2 = require('./lib/transports/ws2.js')
+const { RESTv1, RESTv2 } = require('bfx-api-node-rest')
+const WSv1 = require('bfx-api-node-ws1')
+const WSv2 = require('./lib/transports/ws2')
 
 /**
  * Provides access to versions 1 & 2 of the HTTP & WebSocket Bitfinex APIs
@@ -117,4 +115,3 @@ module.exports.RESTv1 = RESTv1
 module.exports.RESTv2 = RESTv2
 module.exports.WSv1 = WSv1
 module.exports.WSv2 = WSv2
-module.exports.Models = Models

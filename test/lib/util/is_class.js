@@ -2,7 +2,7 @@
 'use strict'
 
 const assert = require('assert')
-const { TradingTicker } = require('../../../lib/models')
+const { TradingTicker } = require('bfx-api-node-models')
 const { isClass } = require('../../../lib/util')
 
 describe('isClass', () => {
