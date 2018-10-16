@@ -3,7 +3,7 @@
 process.env.DEBUG = 'bfx:examples:*'
 
 const debug = require('debug')('bfx:examples:ws2_orders')
-const { Order } = require('../../lib/models')
+const { Order } = require('bfx-api-node-models')
 const bfx = require('../bfx')
 const ws = bfx.ws(2)
 
