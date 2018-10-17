@@ -13,7 +13,10 @@ const mgr = new Manager({
   ...managerArgs
 })
 
-mgr.onWS('open', {}, (state = {}) => {
+// We only need to subscribe once, since the manager will automatically
+// re-subscribe when the connection re-opens. If this was 'onWS' here, the
+// subscribe call would occur twice causing a dup subscription error.
+mgr.onceWS('open', {}, (state = {}) => {
   debug('open')
 
   return subscribe(state, 'candles', { key: 'trade:5m:tBTCUSD' })
