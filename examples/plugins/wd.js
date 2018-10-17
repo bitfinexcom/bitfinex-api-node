@@ -15,6 +15,8 @@ const mgr = new Manager({
 
 mgr.onWS('open', {}, (state = {}) => {
   debug('open')
+
+  return subscribe(state, 'candles', { key: 'trade:5m:tBTCUSD' })
 })
 
 mgr.openWS()
