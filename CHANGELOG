@@ -1,3 +1,16 @@
+2.0.1
+
+- extract most logic into external libraries (13edff8)
+- add support for all currencies in funding offer/loan/credit history (e39f360)
+- add automatic re-subscribe on reconnect (e4f65ec)
+- add withAllSockets method to manager (90c7fd5)
+- split trades listeners between public and private trades (3a428a6)
+- allow multiple nonce consumers (2a51dcd)
+- REST API v2: add currencies method (122648a)
+- OrderBook: add funding support (d8572a6)
+- LedgerEntry: add wallet (e5b91c5)
+- and more!
+
 2.0.0
 
 - added CLI commands (971e8bf)
