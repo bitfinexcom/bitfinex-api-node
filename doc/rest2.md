@@ -21,6 +21,7 @@ Communicates with v2 of the Bitfinex HTTP API
     * [.accountTrades(symbol, start, end, limit, sort, cb)](#RESTv2+accountTrades) ⇒ <code>Promise</code>
     * [.wallets(cb)](#RESTv2+wallets) ⇒ <code>Promise</code>
     * [.userInfo(cb)](#RESTv2+userInfo) ⇒ <code>Promise</code>
+    * [.currencies(cb)](#RESTv2+currencies) ⇒ <code>Promise</code>
     * [.ledgers(symbol, start, end, limit, cb)](#RESTv2+ledgers) ⇒ <code>Promise</code>
     * [.activeOrders(cb)](#RESTv2+activeOrders) ⇒ <code>Promise</code>
     * [.movements(ccy, start, end, limit, cb)](#RESTv2+movements) ⇒ <code>Promise</code>
@@ -234,6 +235,18 @@ See _makePublicLegacyRequest
 | limit | <code>number</code> | <code></code> |  |
 | sort | <code>number</code> | <code></code> | if 1, sorts results oldest first |
 | cb | <code>Method</code> |  |  |
+
+### resTv2.currencies(cb) ⇒ <code>Promise</code>
+
+Get a list of valid valid currencies ids, full names, pool and explorers
+
+**Kind**: instance method of <code>[RESTv2](#RESTv2)</code>  
+**Returns**: <code>Promise</code> - p  
+**See**: https://docs.bitfinex.com/v1/reference#rest-public-currencies  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| cb | <code>Method</code> | legacy callback |
 
 <a name="RESTv2+userInfo"></a>
 
