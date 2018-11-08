@@ -1,3 +1,8 @@
+2.0.2
+
+- improve logging (ceddd87, 404bd7a)
+- export WS2Manager class (afcdefe)
+
 2.0.1
 
 - extract most logic into external libraries (13edff8)
