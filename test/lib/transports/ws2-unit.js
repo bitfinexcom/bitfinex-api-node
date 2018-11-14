@@ -1543,7 +1543,7 @@ describe('WSv2 seq audit: _validateMessageSeq', () => {
     assert.strictEqual(ws._validateMessageSeq([243, [252.12, 2, -1], 4]), null)
   })
 
-  it('skips auth seq for error notifications', () => {
+  it('ignores auth seq for notifications', () => {
     const ws = new WSv2()
 
     ws._seqAudit = true
