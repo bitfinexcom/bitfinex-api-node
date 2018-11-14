@@ -134,14 +134,11 @@ ws.on('open', () => {
   ws.subscribeTrades('BTCUSD')
 })
 
-ws.onTrades({ pair: 'BTCUSD' }, (trades) => {
+ws.onTrades({ symbol: 'BTCUSD' }, (trades) => {
   console.log(`trades: ${JSON.stringify(trades)}`)
 })
-ws.onTradeEntry({ pair: 'BTCUSD' }, (trades) => {
+ws.onTradeEntry({ symbol: 'BTCUSD' }, (trades) => {
   console.log(`te: ${JSON.stringify(trades)}`)
-})
-ws.onTradeUpdate({ pair: 'BTCUSD' }, (trades) => {
-  console.log(`tu: ${JSON.stringify(trades)}`)
 })
 
 ws.open()
