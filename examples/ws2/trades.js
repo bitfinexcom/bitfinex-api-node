@@ -13,11 +13,11 @@ ws.on('open', () => {
   ws.auth()
 })
 
-ws.onTradeEntry({ symbol: 'EOSUSD' }, (trade) => {
+ws.onTradeEntry({ symbol: 'tEOSUSD' }, (trade) => {
   debug('te: %j', trade)
 })
 
-ws.onTrades({ symbol: 'EOSUSD' }, (trades) => {
+ws.onTrades({ symbol: 'tEOSUSD' }, (trades) => {
   debug('trades: %j', trades)
 })
 
