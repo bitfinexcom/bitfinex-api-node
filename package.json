@@ -1,6 +1,6 @@
 {
   "name": "bitfinex-api-node",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Node reference library for Bitfinex API",
   "engines": {
     "node": ">=7"
@@ -37,6 +37,7 @@
     "BTC"
   ],
   "contributors": [
+    "Ezequiel Wernicke <ezequiel.wernicke@bitfinex.com> (https://www.bitfinex.com)",
     "Josh Rossi <josh@bitfinex.com> (https://www.bitfinex.com)",
     "Cris Mihalache <cris.m@bitfinex.com> (https://www.bitfinex.com)",
     "Robert Kowalski <robert@bitfinex.com> (https://www.bitfinex.com)",
