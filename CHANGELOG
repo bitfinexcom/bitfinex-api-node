@@ -1,3 +1,13 @@
+2.0.4
+
+- add symbols back into ws2 ticker messages [models updated] (1f4a7eb)
+
+2.0.3
+
+- add browser builds (e651496)
+- add errors in case of missing chan sub filters (4607154)
+- remove symbols from ws2 ticker messages (06b0e13)
+
 2.0.2
 
 - improve logging (ceddd87, 404bd7a)
