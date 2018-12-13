@@ -333,7 +333,7 @@ describe('WSv2 auto reconnect', () => {
 
     ws.on('open', ws.auth.bind(ws))
     ws.once('auth', () => {
-      ws.reconnect = () => done()
+      ws.reconnectAfterClose = () => done()
       wss.close() // trigger reconnect
     })
 
@@ -351,7 +351,7 @@ describe('WSv2 auto reconnect', () => {
     ws.once('auth', () => {
       let now = Date.now()
 
-      ws.reconnect = () => {
+      ws.reconnectAfterClose = () => {
         assert((Date.now() - now) >= 70)
         done()
       }
