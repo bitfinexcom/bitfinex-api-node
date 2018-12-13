@@ -328,12 +328,13 @@ describe('WSv2 auto reconnect', () => {
   it('reconnects on close if autoReconnect is enabled', (done) => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance({
-      autoReconnect: true
+      autoReconnect: true,
+      reconnectDelay: 1000
     })
 
     ws.on('open', ws.auth.bind(ws))
     ws.once('auth', () => {
-      ws.reconnect = () => done()
+      ws.reconnectAfterClose = () => done()
       wss.close() // trigger reconnect
     })
 
