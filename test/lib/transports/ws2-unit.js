@@ -328,8 +328,7 @@ describe('WSv2 auto reconnect', () => {
   it('reconnects on close if autoReconnect is enabled', (done) => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance({
-      autoReconnect: true,
-      reconnectDelay: 1000
+      autoReconnect: true
     })
 
     ws.on('open', ws.auth.bind(ws))
@@ -352,7 +351,7 @@ describe('WSv2 auto reconnect', () => {
     ws.once('auth', () => {
       let now = Date.now()
 
-      ws.reconnect = () => {
+      ws.reconnectAfterClose = () => {
         assert((Date.now() - now) >= 70)
         done()
       }
