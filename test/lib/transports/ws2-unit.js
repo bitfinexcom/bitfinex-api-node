@@ -58,15 +58,21 @@ describe('WSv2 utilities', () => {
   })
 
   it('_sendCalc: stringifes payload & passes it to the ws client', (done) => {
-    const ws = new WSv2()
+    const wss = new MockWSv2Server()
+    const ws = createTestWSv2Instance()
 
-    ws._ws = {}
-    ws._ws.send = (data) => {
-      assert.equal(data, '[]')
-      done()
-    }
+    ws.on('open', () => {
 
-    ws._sendCalc([])
+      ws._ws.send = (data) => {
+        wss.close()
+        assert.equal(data, '[]')
+        done()
+      }
+
+      ws._sendCalc([])
+    })
+
+    ws.open()
   })
 
   it('notifyUI: throws error if supplied invalid arguments', () => {
