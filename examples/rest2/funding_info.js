@@ -8,7 +8,7 @@ const rest = bfx.rest(2)
 
 debug('fetching funding info...')
 
-rest.fundingInfo('fETH').then(fiu => {
+rest.fundingInfo('fUSD').then(fiu => {
   fiu.forEach(fl => {
     debug('fl: %j', fl)
   })
