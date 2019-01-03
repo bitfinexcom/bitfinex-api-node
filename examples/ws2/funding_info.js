@@ -16,9 +16,9 @@ ws.on('open', () => {
 ws.once('auth', () => {
   setTimeout(() => {
     ws.requestCalc([
-      `funding_sym_${symbol}`,
+      `funding_sym_${symbol}`
     ])
-  })    
+  })
 })
 
 ws.onFundingInfoUpdate({}, fiu => {
