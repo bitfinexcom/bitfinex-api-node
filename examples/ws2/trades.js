@@ -10,7 +10,16 @@ const ws = bfx.ws(2)
 ws.on('open', () => {
   debug('open')
   ws.subscribeTrades('tEOSUSD')
+  ws.subscribeTrades('fUSD')
   ws.auth()
+})
+
+ws.onFundingTradeEntry({ symbol: 'fUSD' }, (trade) => {
+  debug('fte: %j', trade)
+})
+
+ws.onFundingTradeUpdate({ symbol: 'fUSD' }, (trade) => {
+  debug('ftu: %j', trade)
 })
 
 ws.onTradeEntry({ symbol: 'tEOSUSD' }, (trade) => {
@@ -18,7 +27,11 @@ ws.onTradeEntry({ symbol: 'tEOSUSD' }, (trade) => {
 })
 
 ws.onTrades({ symbol: 'tEOSUSD' }, (trades) => {
-  debug('trades: %j', trades)
+  debug('tEOSUSD trades: %j', trades)
+})
+
+ws.onTrades({ symbol: 'fUSD' }, (trades) => {
+  debug('fUSD trades: %j', trades)
 })
 
 ws.onAccountTradeEntry({ symbol: 'tEOSUSD' }, (trade) => {
