@@ -22,6 +22,7 @@
     "positions": "node examples/rest2/positions.js",
     "balances": "node examples/rest2/balances.js",
     "orders": "node examples/rest2/orders.js",
+    "close-positions": "node examples/rest2/close_positions.js",
     "cancel-orders": "node examples/ws2/cancel_all.js",
     "ledgers": "node examples/rest2/ledgers.js",
     "movements": "node examples/rest2/movements.js",
@@ -75,6 +76,7 @@
     "debug": "^2.2.0",
     "lodash": "^4.17.4",
     "lodash.throttle": "^4.1.1",
+    "p-iteration": "^1.1.8",
     "request": "^2.67.0",
     "request-promise": "^4.2.0",
     "ws": "^3.0.0"
