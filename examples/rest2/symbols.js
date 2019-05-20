@@ -4,7 +4,7 @@ process.env.DEBUG = 'bfx:examples:*'
 
 const debug = require('debug')('bfx:examples:rest2_symbols')
 const bfx = require('../bfx')
-const rest = bfx.rest(2)
+const rest = bfx.rest(2, { transform: true })
 
 debug('fetching symbol list...')
 
