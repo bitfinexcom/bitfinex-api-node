@@ -1,3 +1,11 @@
+2.0.5
+
+- WSv2: improve reconnect functionality courtesy of cwolters (950105d)
+- WSv2: add funding info example (b597c4d)
+- WSv2: add order creation w/ TIF example (f25df58)
+- bump dep versions (5e4d439, d72d56f)
+- mv babel deps to dev-deps (a576c57)
+
 2.0.4
 
 - add symbols back into ws2 ticker messages [models updated] (1f4a7eb)
