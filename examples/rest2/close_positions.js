@@ -20,7 +20,7 @@ const example = async () => {
     symbol,
     type: 'MARKET',
     amount: amount * -1,
-    flags: Order.flags.REDUCE_ONLY | Order.flags.POS_CLOSE,
+    flags: Order.flags.REDUCE_ONLY | Order.flags.POS_CLOSE
   }))
 
   orders.forEach(o => (
