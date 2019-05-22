@@ -32,7 +32,7 @@ ws.onOrderBook({ symbol: 'tBTCUSD' }, (ob) => {
       midPrice, ob.bids[0][0], ob.asks[0][0]
     )
   }
-  
+
   lastMidPrice = midPrice
 })
 
