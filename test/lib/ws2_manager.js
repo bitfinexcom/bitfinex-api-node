@@ -22,8 +22,8 @@ describe('WS2Manager', () => {
 
       const count = WS2Manager.getDataChannelCount(s)
 
-      assert.equal(s.ws.getDataChannelCount(), 2)
-      assert.equal(count, 3)
+      assert.strictEqual(s.ws.getDataChannelCount(), 2)
+      assert.strictEqual(count, 3)
     })
   })
 
@@ -32,16 +32,16 @@ describe('WS2Manager', () => {
       const m = new WS2Manager({ apiKey: 'x', apiSecret: 'x' })
 
       m.auth({ apiKey: '42', apiSecret: '43' })
-      assert.equal(m._socketArgs.apiKey, 'x')
-      assert.equal(m._socketArgs.apiSecret, 'x')
+      assert.strictEqual(m._socketArgs.apiKey, 'x')
+      assert.strictEqual(m._socketArgs.apiSecret, 'x')
     })
 
     it('saves auth args', () => {
       const m = new WS2Manager()
 
       m.auth({ calc: 1, dms: 4 })
-      assert.equal(m._authArgs.calc, 1)
-      assert.equal(m._authArgs.dms, 4)
+      assert.strictEqual(m._authArgs.calc, 1)
+      assert.strictEqual(m._authArgs.dms, 4)
     })
 
     it('calls auth on existing unauthenticated sockets', (done) => {
@@ -53,9 +53,9 @@ describe('WS2Manager', () => {
           isAuthenticated: () => false,
           setAuthCredentials: (key, secret) => { cred = `${key}:${secret}` },
           auth: ({ calc, dms }) => {
-            assert.equal(calc, 1)
-            assert.equal(dms, 4)
-            assert.equal(cred, '41:42')
+            assert.strictEqual(calc, 1)
+            assert.strictEqual(dms, 4)
+            assert.strictEqual(cred, '41:42')
             done()
           }
         }
@@ -90,7 +90,7 @@ describe('WS2Manager', () => {
     it('saves socket state', () => {
       const m = new WS2Manager()
       const s = m.openSocket()
-      assert.deepEqual(m._sockets[0], s)
+      assert.deepStrictEqual(m._sockets[0], s)
     })
 
     it('binds \'unsubscribed\' listener to remove channel from pending unsubs', () => {
@@ -100,7 +100,7 @@ describe('WS2Manager', () => {
       s.pendingUnsubscriptions.push(42)
       s.ws.emit('unsubscribed', { chanId: 42 })
 
-      assert.equal(s.pendingUnsubscriptions.length, 0)
+      assert.strictEqual(s.pendingUnsubscriptions.length, 0)
     })
 
     it('binds \'subscribed\' listener to remove channel from pending subs', () => {
@@ -115,7 +115,7 @@ describe('WS2Manager', () => {
         len: '25'
       })
 
-      assert.equal(s.pendingSubscriptions.length, 0)
+      assert.strictEqual(s.pendingSubscriptions.length, 0)
     })
   })
 
@@ -136,7 +136,7 @@ describe('WS2Manager', () => {
       }
 
       const s = m.getFreeDataSocket()
-      assert.deepEqual(s, m._sockets[1])
+      assert.deepStrictEqual(s, m._sockets[1])
     })
   })
 
@@ -150,7 +150,7 @@ describe('WS2Manager', () => {
       }
 
       let s = m.getSocketWithDataChannel('candles', { key: 'test' })
-      assert.deepEqual(s, m._sockets[0])
+      assert.deepStrictEqual(s, m._sockets[0])
 
       /// /
       m._sockets[0] = {
@@ -166,8 +166,8 @@ describe('WS2Manager', () => {
       m._sockets[0] = {
         ws: {
           getDataChannelId: (type, filter) => {
-            assert.equal(type, 'candles')
-            assert.deepEqual(filter, { key: 'test' })
+            assert.strictEqual(type, 'candles')
+            assert.deepStrictEqual(filter, { key: 'test' })
             return 1
           }
         },
@@ -176,14 +176,14 @@ describe('WS2Manager', () => {
       }
 
       s = m.getSocketWithDataChannel('candles', { key: 'test' })
-      assert.deepEqual(s, m._sockets[0])
+      assert.deepStrictEqual(s, m._sockets[0])
 
       /// /
       m._sockets[0] = {
         ws: {
           getDataChannelId: (type, filter) => {
-            assert.equal(type, 'candles')
-            assert.deepEqual(filter, { key: 'test' })
+            assert.strictEqual(type, 'candles')
+            assert.deepStrictEqual(filter, { key: 'test' })
             return 1
           }
         },
@@ -209,7 +209,7 @@ describe('WS2Manager', () => {
       }
 
       let s = m.getSocketWithChannel(42)
-      assert.deepEqual(s, m._sockets[0])
+      assert.deepStrictEqual(s, m._sockets[0])
 
       /// /
       m._sockets[0] = {
@@ -239,7 +239,7 @@ describe('WS2Manager', () => {
           managedSubscribe: () => assert(false),
           isOpen: () => false,
           once: (eName) => {
-            assert.equal(eName, 'open')
+            assert.strictEqual(eName, 'open')
             onceOpenCalled = true
           }
         }
@@ -262,7 +262,7 @@ describe('WS2Manager', () => {
       }
 
       m.subscribe('candles', 'test', { key: 'test' })
-      assert.deepEqual(m._sockets[0].pendingSubscriptions, [
+      assert.deepStrictEqual(m._sockets[0].pendingSubscriptions, [
         ['candles', { key: 'test' }]
       ])
     })
@@ -317,7 +317,7 @@ describe('WS2Manager', () => {
       m.subscribe('candles', 'test', { key: 'test' })
 
       assert(openCalled)
-      assert.equal(m._sockets.length, 2)
+      assert.strictEqual(m._sockets.length, 2)
     })
   })
 
@@ -330,7 +330,7 @@ describe('WS2Manager', () => {
         pendingUnsubscriptions: [],
         ws: {
           unsubscribe: (cid) => {
-            assert.equal(cid, 42)
+            assert.strictEqual(cid, 42)
             unsubCalled = true
           },
 
@@ -341,7 +341,7 @@ describe('WS2Manager', () => {
       }
 
       m.unsubscribe(42)
-      assert.deepEqual(m._sockets[0].pendingUnsubscriptions, [42])
+      assert.deepStrictEqual(m._sockets[0].pendingUnsubscriptions, [42])
       assert(unsubCalled)
     })
   })
