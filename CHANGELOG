@@ -1,3 +1,13 @@
+2.0.6
+
+- WSv2: decrease data chan limit to 25 (6816992)
+- add close-positions script (face1fc)
+- add symbol-details script (708849e)
+- add currencies script (cff1647)
+- add funding info fetch example (337f202)
+- standard --fix (5e6f786, fb5e319, b56b157)
+- fix lastMidPrice in example courtesy of MowgliB (004f904)
+
 2.0.5
 
 - WSv2: improve reconnect functionality courtesy of cwolters (950105d)
