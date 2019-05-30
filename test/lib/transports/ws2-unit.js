@@ -24,29 +24,29 @@ describe('WSv2 utilities', () => {
 
     const { _listeners } = ws
 
-    assert.equal(Object.keys(_listeners).length, 1)
-    assert.equal(Object.keys(_listeners)[0], 42)
-    assert.equal(typeof _listeners[42], 'object')
+    assert.strictEqual(Object.keys(_listeners).length, 1)
+    assert.strictEqual(+Object.keys(_listeners)[0], 42)
+    assert.strictEqual(typeof _listeners[42], 'object')
 
     const listenerSet = _listeners[42]
 
-    assert.equal(Object.keys(listenerSet).length, 1)
-    assert.equal(Object.keys(listenerSet)[0], 'trade')
-    assert.equal(listenerSet.trade.constructor.name, 'Array')
-    assert.equal(listenerSet.trade.length, 1)
+    assert.strictEqual(Object.keys(listenerSet).length, 1)
+    assert.strictEqual(Object.keys(listenerSet)[0], 'trade')
+    assert.strictEqual(listenerSet.trade.constructor.name, 'Array')
+    assert.strictEqual(listenerSet.trade.length, 1)
 
     const listener = listenerSet.trade[0]
 
-    assert.equal(listener.modelClass, Map)
-    assert.deepEqual(listener.filter, { '2': 'tBTCUSD' })
-    assert.equal(typeof listener.cb, 'function')
+    assert.strictEqual(listener.modelClass, Map)
+    assert.deepStrictEqual(listener.filter, { '2': 'tBTCUSD' })
+    assert.strictEqual(typeof listener.cb, 'function')
   })
 
   it('enableSequencing: sends the correct conf flag', (done) => {
     const ws = new WSv2()
     ws.send = (packet) => {
-      assert.equal(packet.event, 'conf')
-      assert.equal(packet.flags, 65536)
+      assert.strictEqual(packet.event, 'conf')
+      assert.strictEqual(packet.flags, 65536)
       done()
     }
     ws.enableSequencing()
@@ -54,7 +54,7 @@ describe('WSv2 utilities', () => {
 
   it('getCandles: returns empty array if no candle set is available', () => {
     const ws = new WSv2()
-    assert.deepEqual(ws.getCandles('i.dont.exist'), [])
+    assert.deepStrictEqual(ws.getCandles('i.dont.exist'), [])
   })
 
   it('_sendCalc: stringifes payload & passes it to the ws client', (done) => {
@@ -62,7 +62,7 @@ describe('WSv2 utilities', () => {
 
     ws._ws = {}
     ws._ws.send = (data) => {
-      assert.equal(data, '[]')
+      assert.strictEqual(data, '[]')
       done()
     }
 
@@ -94,17 +94,17 @@ describe('WSv2 utilities', () => {
     ws._isOpen = true
     ws._isAuthenticated = true
     ws.send = (msg = []) => {
-      assert.deepEqual(msg[0], 0)
-      assert.deepEqual(msg[1], 'n')
-      assert.deepEqual(msg[2], null)
+      assert.deepStrictEqual(msg[0], 0)
+      assert.deepStrictEqual(msg[1], 'n')
+      assert.deepStrictEqual(msg[2], null)
 
       const data = msg[3]
 
       assert(_isObject(data))
-      assert.deepEqual(data.type, 'ucm-notify-ui')
+      assert.deepStrictEqual(data.type, 'ucm-notify-ui')
       assert(_isObject(data.info))
-      assert.deepEqual(data.info.type, 'success')
-      assert.deepEqual(data.info.message, '42')
+      assert.deepStrictEqual(data.info.type, 'success')
+      assert.deepStrictEqual(data.info.message, '42')
       done()
     }
 
@@ -116,8 +116,8 @@ describe('WSv2 lifetime', () => {
   it('starts unopened & unauthenticated', () => {
     const ws = createTestWSv2Instance()
 
-    assert.equal(ws.isOpen(), false)
-    assert.equal(ws.isAuthenticated(), false)
+    assert.strictEqual(ws.isOpen(), false)
+    assert.strictEqual(ws.isAuthenticated(), false)
   })
 
   it('open: fails to open twice', (done) => {
@@ -136,7 +136,7 @@ describe('WSv2 lifetime', () => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
     ws.on('open', () => {
-      assert.equal(ws.isOpen(), true)
+      assert.strictEqual(ws.isOpen(), true)
       wss.close()
       done()
     })
@@ -214,7 +214,7 @@ describe('WSv2 lifetime', () => {
     ws.open()
     ws.on('open', () => {
       ws.send = (data) => {
-        assert.equal(data.calc, 42)
+        assert.strictEqual(data.calc, 42)
         wss.close()
         done()
       }
@@ -229,7 +229,7 @@ describe('WSv2 lifetime', () => {
     ws.open()
     ws.on('open', () => {
       ws.send = (data) => {
-        assert.equal(data.dms, 42)
+        assert.strictEqual(data.dms, 42)
         wss.close()
         done()
       }
@@ -313,14 +313,14 @@ describe('WSv2 lifetime', () => {
 describe('WSv2 constructor', () => {
   it('defaults to production WS url', () => {
     const ws = new WSv2()
-    assert.notEqual(ws._url.indexOf('api.bitfinex.com'), -1)
+    assert.notStrictEqual(ws._url.indexOf('api.bitfinex.com'), -1)
   })
 
   it('defaults to no transform', () => {
     const ws = createTestWSv2Instance()
     const transWS = createTestWSv2Instance({ transform: true })
-    assert.equal(ws._transform, false)
-    assert.equal(transWS._transform, true)
+    assert.strictEqual(ws._transform, false)
+    assert.strictEqual(transWS._transform, true)
   })
 })
 
@@ -434,7 +434,7 @@ describe('WSv2 seq audit', () => {
       ws._onWSMessage(JSON.stringify([42, [], 14]))
       ws._onWSMessage(JSON.stringify([42, [], 15]))
 
-      assert.equal(errorsSeen, 6)
+      assert.strictEqual(errorsSeen, 6)
       wss.close()
       done()
     })
@@ -477,8 +477,8 @@ describe('WSv2 ws event handlers', () => {
     const flags = 'flags'
 
     ws.on('message', (m, f) => {
-      assert.deepEqual(m, msg)
-      assert.equal(flags, 'flags')
+      assert.deepStrictEqual(m, msg)
+      assert.strictEqual(flags, 'flags')
       done()
     })
 
@@ -492,11 +492,11 @@ describe('WSv2 ws event handlers', () => {
     ws._eventCallbacks.push(kNew, (err, order) => {
       assert(!err)
       assert(order)
-      assert.deepEqual(order, [0, 0, 42])
+      assert.deepStrictEqual(order, [0, 0, 42])
 
       ws._eventCallbacks.push(kNew, (err, order) => {
         assert(err)
-        assert.deepEqual(order, [0, 0, 42])
+        assert.deepStrictEqual(order, [0, 0, 42])
         done()
       })
 
@@ -513,11 +513,11 @@ describe('WSv2 ws event handlers', () => {
     ws._eventCallbacks.push(kCancel, (err, order) => {
       assert(!err)
       assert(order)
-      assert.deepEqual(order, [42])
+      assert.deepStrictEqual(order, [42])
 
       ws._eventCallbacks.push(kCancel, (err, order) => {
         assert(err)
-        assert.deepEqual(order, [42])
+        assert.deepStrictEqual(order, [42])
         done()
       })
 
@@ -536,7 +536,7 @@ describe('WSv2 channel msg handling', () => {
       42: { channel: 'meaning' }
     }
     ws.on('meaning', (msg) => {
-      assert.deepEqual(msg, packet)
+      assert.deepStrictEqual(msg, packet)
       done()
     })
 
@@ -605,25 +605,25 @@ describe('WSv2 channel msg handling', () => {
     ]
 
     wsNoTransform.onAccountTradeUpdate({}, (trade) => {
-      assert.equal(trade.constructor.name, 'Array')
-      assert.deepEqual(trade, tradeData)
+      assert.strictEqual(trade.constructor.name, 'Array')
+      assert.deepStrictEqual(trade, tradeData)
 
       if (calls++ === 1) done()
     })
 
     wsTransform.onAccountTradeUpdate({}, (trade) => {
-      assert.equal(trade.constructor.name, 'Trade')
-      assert.equal(trade.id, tradeData[0])
-      assert.equal(trade.symbol, tradeData[1])
-      assert.equal(trade.mtsCreate, tradeData[2])
-      assert.equal(trade.orderID, tradeData[3])
-      assert.equal(trade.execAmount, tradeData[4])
-      assert.equal(trade.execPrice, tradeData[5])
-      assert.equal(trade.orderType, tradeData[6])
-      assert.equal(trade.orderPrice, tradeData[7])
-      assert.equal(trade.maker, tradeData[8])
-      assert.equal(trade.fee, tradeData[9])
-      assert.equal(trade.feeCurrency, tradeData[10])
+      assert.strictEqual(trade.constructor.name, 'Trade')
+      assert.strictEqual(trade.id, tradeData[0])
+      assert.strictEqual(trade.symbol, tradeData[1])
+      assert.strictEqual(trade.mtsCreate, tradeData[2])
+      assert.strictEqual(trade.orderID, tradeData[3])
+      assert.strictEqual(trade.execAmount, tradeData[4])
+      assert.strictEqual(trade.execPrice, tradeData[5])
+      assert.strictEqual(trade.orderType, tradeData[6])
+      assert.strictEqual(trade.orderPrice, tradeData[7])
+      assert.strictEqual(trade.maker, tradeData[8])
+      assert.strictEqual(trade.fee, tradeData[9])
+      assert.strictEqual(trade.feeCurrency, tradeData[10])
 
       if (calls++ === 1) done()
     })
@@ -717,7 +717,7 @@ describe('WSv2 channel msg handling', () => {
     }
 
     WSv2._notifyCatchAllListeners(lg, 5)
-    assert.equal(s, 15)
+    assert.strictEqual(s, 15)
   })
 
   it('_handleOBMessage: maintains internal OB if management is enabled', () => {
@@ -729,11 +729,11 @@ describe('WSv2 channel msg handling', () => {
     ws._channelMapA = { 42: {
       channel: 'orderbook',
       symbol: 'tBTCUSD'
-    }}
+    } }
     ws._channelMapB = { 43: {
       channel: 'orderbook',
       symbol: 'fUSD'
-    }}
+    } }
 
     ws._handleOBMessage([42, [
       [100, 2, -4],
@@ -752,23 +752,23 @@ describe('WSv2 channel msg handling', () => {
     assert(obA !== null)
     assert(obB !== null)
 
-    assert.equal(obA.bids.length, 1)
-    assert.equal(obB.bids.length, 2)
-    assert.deepEqual(obA.bids, [[300, 1, 3]])
-    assert.deepEqual(obB.bids, [[0.00045, 30, 4, -300], [0.0004, 15, 3, -600]])
-    assert.equal(obA.asks.length, 2)
-    assert.equal(obB.asks.length, 1)
-    assert.deepEqual(obA.getEntry(100), { price: 100, count: 2, amount: -4 })
-    assert.deepEqual(obA.getEntry(200), { price: 200, count: 4, amount: -8 })
-    assert.deepEqual(obB.getEntry(0.00045), { rate: 0.00045, count: 4, amount: -300, period: 30 })
-    assert.deepEqual(obB.getEntry(0.0008), { rate: 0.0008, count: 5, amount: 200, period: 2 })
+    assert.strictEqual(obA.bids.length, 1)
+    assert.strictEqual(obB.bids.length, 2)
+    assert.deepStrictEqual(obA.bids, [[300, 1, 3]])
+    assert.deepStrictEqual(obB.bids, [[0.00045, 30, 4, -300], [0.0004, 15, 3, -600]])
+    assert.strictEqual(obA.asks.length, 2)
+    assert.strictEqual(obB.asks.length, 1)
+    assert.deepStrictEqual(obA.getEntry(100), { price: 100, count: 2, amount: -4 })
+    assert.deepStrictEqual(obA.getEntry(200), { price: 200, count: 4, amount: -8 })
+    assert.deepStrictEqual(obB.getEntry(0.00045), { rate: 0.00045, count: 4, amount: -300, period: 30 })
+    assert.deepStrictEqual(obB.getEntry(0.0008), { rate: 0.0008, count: 5, amount: 200, period: 2 })
 
     ws._handleOBMessage([42, [300, 0, 1]], ws._channelMapA[42])
     obA = ws.getOB('tBTCUSD')
-    assert.equal(obA.bids.length, 0)
+    assert.strictEqual(obA.bids.length, 0)
     ws._handleOBMessage([43, [0.0008, 2, 0, 1]], ws._channelMapB[43])
     obB = ws.getOB('fUSD')
-    assert.equal(obB.asks.length, 0)
+    assert.strictEqual(obB.asks.length, 0)
   })
 
   it('_handleOBMessage: emits error on internal OB update failure', (done) => {
@@ -781,7 +781,7 @@ describe('WSv2 channel msg handling', () => {
     wsNoTransform._channelMap = { 42: {
       channel: 'orderbook',
       symbol: 'tBTCUSD'
-    }}
+    } }
 
     wsTransform._channelMap = wsNoTransform._channelMap
 
@@ -804,16 +804,16 @@ describe('WSv2 channel msg handling', () => {
     ws._channelMap = { 42: {
       channel: 'orderbook',
       symbol: 'tBTCUSD'
-    }}
+    } }
 
     let seen = 0
     ws.onOrderBook({ symbol: 'tBTCUSD' }, (ob) => {
-      assert.deepEqual(ob, [[100, 2, 3]])
+      assert.deepStrictEqual(ob, [[100, 2, 3]])
       if (++seen === 2) done()
     })
 
     ws.onOrderBook({}, (ob) => {
-      assert.deepEqual(ob, [[100, 2, 3]])
+      assert.deepStrictEqual(ob, [[100, 2, 3]])
       if (++seen === 2) done()
     })
 
@@ -864,11 +864,11 @@ describe('WSv2 channel msg handling', () => {
     ws._channelMap = { 42: {
       channel: 'orderbook',
       symbol: 'tBTCUSD'
-    }}
+    } }
 
     ws.on('orderbook', (symbol, data) => {
-      assert.equal(symbol, 'tBTCUSD')
-      assert.deepEqual(data, [[100, 2, 3]])
+      assert.strictEqual(symbol, 'tBTCUSD')
+      assert.deepStrictEqual(data, [[100, 2, 3]])
       done()
     })
 
@@ -881,13 +881,13 @@ describe('WSv2 channel msg handling', () => {
       chanId: 42,
       channel: 'orderbook',
       symbol: 'tBTCUSD'
-    }}
+    } }
 
     ws.onOrderBook({ symbol: 'tBTCUSD' }, (ob) => {
       assert(ob.asks)
       assert(ob.bids)
-      assert.equal(ob.asks.length, 0)
-      assert.deepEqual(ob.bids, [[100, 2, 3]])
+      assert.strictEqual(ob.asks.length, 0)
+      assert.deepStrictEqual(ob.bids, [[100, 2, 3]])
       done()
     })
 
@@ -902,8 +902,8 @@ describe('WSv2 channel msg handling', () => {
     ]
 
     const err = ws._updateManagedOB('tBTCUSD', [150, 0, -1])
-    assert.equal(err, null)
-    assert.deepEqual(ws._orderBooks.tBTCUSD, [
+    assert.strictEqual(err, null)
+    assert.deepStrictEqual(ws._orderBooks.tBTCUSD, [
       [100, 1, 1],
       [200, 2, 1]
     ])
@@ -919,9 +919,9 @@ describe('WSv2 channel msg handling', () => {
 
     const ob = ws.getOB('tBTCUSD')
 
-    assert.equal(ob.bids.length, 1)
-    assert.equal(ob.asks.length, 0)
-    assert.deepEqual(ob.bids, [[100, 1, 1]])
+    assert.strictEqual(ob.bids.length, 1)
+    assert.strictEqual(ob.asks.length, 0)
+    assert.deepStrictEqual(ob.bids, [[100, 1, 1]])
   })
 
   it('_updateManagedOB: correctly maintains non-transformed OBs', () => {
@@ -934,8 +934,8 @@ describe('WSv2 channel msg handling', () => {
 
     const ob = ws._orderBooks.tBTCUSD
 
-    assert.equal(ob.length, 1)
-    assert.deepEqual(ob, [[100, 1, 1]])
+    assert.strictEqual(ob.length, 1)
+    assert.deepStrictEqual(ob, [[100, 1, 1]])
   })
 
   it('_handleCandleMessage: maintains internal candles if management is enabled', () => {
@@ -943,7 +943,7 @@ describe('WSv2 channel msg handling', () => {
     ws._channelMap = { 64: {
       channel: 'candles',
       key: 'trade:1m:tBTCUSD'
-    }}
+    } }
 
     ws._handleCandleMessage([64, [
       [5, 100, 70, 150, 30, 1000],
@@ -955,11 +955,11 @@ describe('WSv2 channel msg handling', () => {
     const candles = ws._candles['trade:1m:tBTCUSD']
 
     // maintains sort
-    assert.equal(candles.length, 4)
-    assert.equal(candles[0][0], 5)
-    assert.equal(candles[1][0], 4)
-    assert.equal(candles[2][0], 2)
-    assert.equal(candles[3][0], 1)
+    assert.strictEqual(candles.length, 4)
+    assert.strictEqual(candles[0][0], 5)
+    assert.strictEqual(candles[1][0], 4)
+    assert.strictEqual(candles[2][0], 2)
+    assert.strictEqual(candles[3][0], 1)
 
     // updates existing candle
     ws._handleCandleMessage([
@@ -967,7 +967,7 @@ describe('WSv2 channel msg handling', () => {
       [5, 200, 20, 220, 20, 2000]
     ], ws._channelMap[64])
 
-    assert.deepEqual(candles[0], [5, 200, 20, 220, 20, 2000])
+    assert.deepStrictEqual(candles[0], [5, 200, 20, 220, 20, 2000])
 
     // inserts new candle
     ws._handleCandleMessage([
@@ -975,7 +975,7 @@ describe('WSv2 channel msg handling', () => {
       [10, 300, 20, 450, 10, 4000]
     ], ws._channelMap[64])
 
-    assert.deepEqual(candles[0], [10, 300, 20, 450, 10, 4000])
+    assert.deepStrictEqual(candles[0], [10, 300, 20, 450, 10, 4000])
   })
 
   it('_handleCandleMessage: emits error on internal candle update failure', (done) => {
@@ -1018,16 +1018,16 @@ describe('WSv2 channel msg handling', () => {
       chanId: 42,
       channel: 'candles',
       key: 'trade:1m:tBTCUSD'
-    }}
+    } }
 
     let seen = 0
     ws.onCandle({ key: 'trade:1m:tBTCUSD' }, (data) => {
-      assert.deepEqual(data, [[5, 10, 70, 150, 30, 10]])
+      assert.deepStrictEqual(data, [[5, 10, 70, 150, 30, 10]])
       if (++seen === 2) done()
     })
 
     ws.onCandle({}, (data) => {
-      assert.deepEqual(data, [[5, 10, 70, 150, 30, 10]])
+      assert.deepStrictEqual(data, [[5, 10, 70, 150, 30, 10]])
       if (++seen === 2) done()
     })
 
@@ -1042,11 +1042,11 @@ describe('WSv2 channel msg handling', () => {
     ws._channelMap = { 42: {
       channel: 'candles',
       key: 'trade:1m:tBTCUSD'
-    }}
+    } }
 
     ws.on('candle', (data, key) => {
-      assert.equal(key, 'trade:1m:tBTCUSD')
-      assert.deepEqual(data, [[5, 10, 70, 150, 30, 10]])
+      assert.strictEqual(key, 'trade:1m:tBTCUSD')
+      assert.deepStrictEqual(data, [[5, 10, 70, 150, 30, 10]])
       done()
     })
 
@@ -1062,11 +1062,11 @@ describe('WSv2 channel msg handling', () => {
       chanId: 42,
       channel: 'candles',
       key: 'trade:1m:tBTCUSD'
-    }}
+    } }
 
     ws.onCandle({ key: 'trade:1m:tBTCUSD' }, (candles) => {
-      assert.equal(candles.length, 1)
-      assert.deepEqual(candles[0], {
+      assert.strictEqual(candles.length, 1)
+      assert.deepStrictEqual(candles[0], {
         mts: 5,
         open: 10,
         close: 70,
@@ -1114,16 +1114,16 @@ describe('WSv2 channel msg handling', () => {
 
     const candles = ws._candles['trade:1m:tBTCUSD']
 
-    assert.equal(candles.length, 3)
-    assert.deepEqual(candles[0], [
+    assert.strictEqual(candles.length, 3)
+    assert.deepStrictEqual(candles[0], [
       3, 100, 70, 150, 30, 10
     ])
 
-    assert.deepEqual(candles[1], [
+    assert.deepStrictEqual(candles[1], [
       2, 10, 70, 150, 30, 500
     ])
 
-    assert.deepEqual(candles[2], [
+    assert.deepStrictEqual(candles[2], [
       1, 10, 70, 150, 30, 10
     ])
   })
@@ -1146,16 +1146,16 @@ describe('WSv2 channel msg handling', () => {
 
     const candles = ws._candles['trade:1m:tBTCUSD']
 
-    assert.equal(candles.length, 3)
-    assert.deepEqual(candles[0], [
+    assert.strictEqual(candles.length, 3)
+    assert.deepStrictEqual(candles[0], [
       3, 100, 70, 150, 30, 10
     ])
 
-    assert.deepEqual(candles[1], [
+    assert.deepStrictEqual(candles[1], [
       2, 10, 70, 150, 30, 500
     ])
 
-    assert.deepEqual(candles[2], [
+    assert.deepStrictEqual(candles[2], [
       1, 10, 70, 150, 30, 10
     ])
   })
@@ -1198,14 +1198,14 @@ describe('WSv2 event msg handling', () => {
     assert(Object.keys(ws._channelMap).length === 0)
     ws._handleAuthEvent({ chanId: 42, status: 'OK' })
     assert(ws._channelMap[42])
-    assert.equal(ws._channelMap[42].channel, 'auth')
+    assert.strictEqual(ws._channelMap[42].channel, 'auth')
   })
 
   it('_handleAuthEvent: emits auth message', (done) => {
     const ws = new WSv2()
     ws.once('auth', (msg) => {
-      assert.equal(msg.chanId, 0)
-      assert.equal(msg.status, 'OK')
+      assert.strictEqual(msg.chanId, 0)
+      assert.strictEqual(msg.status, 'OK')
       done()
     })
     ws._handleAuthEvent({ chanId: 0, status: 'OK' })
@@ -1216,9 +1216,9 @@ describe('WSv2 event msg handling', () => {
     assert(Object.keys(ws._channelMap).length === 0)
     ws._handleSubscribedEvent({ chanId: 42, channel: 'test', extra: 'stuff' })
     assert(ws._channelMap[42])
-    assert.equal(ws._channelMap[42].chanId, 42)
-    assert.equal(ws._channelMap[42].channel, 'test')
-    assert.equal(ws._channelMap[42].extra, 'stuff')
+    assert.strictEqual(ws._channelMap[42].chanId, 42)
+    assert.strictEqual(ws._channelMap[42].channel, 'test')
+    assert.strictEqual(ws._channelMap[42].extra, 'stuff')
   })
 
   it('_handleUnsubscribedEvent: removes channel from channel map', () => {
@@ -1242,7 +1242,7 @@ describe('WSv2 event msg handling', () => {
 
       ws._handleInfoEvent({ code: 42 })
 
-      assert.equal(n, 3)
+      assert.strictEqual(n, 3)
       wss.close()
       done()
     })
@@ -1260,7 +1260,7 @@ describe('WSv2 event msg handling', () => {
       ws.onInfoMessage(42, () => { n += 2 })
       ws._handleInfoEvent({ code: 42 })
 
-      assert.equal(n, 3)
+      assert.strictEqual(n, 3)
       wss.close()
       done()
     })
@@ -1282,7 +1282,7 @@ describe('WSv2 event msg handling', () => {
       ws._handleInfoEvent({ code: WSv2.info.MAINTENANCE_START })
       ws._handleInfoEvent({ code: WSv2.info.MAINTENANCE_END })
 
-      assert.equal(n, 111)
+      assert.strictEqual(n, 111)
       wss.close()
       done()
     })
@@ -1331,8 +1331,8 @@ describe('WSv2 event msg handling', () => {
     ]
 
     ws.send = (packet) => {
-      assert.equal(packet[1], 'ox_multi')
-      assert.equal(packet[3].length, 4)
+      assert.strictEqual(packet[1], 'ox_multi')
+      assert.strictEqual(packet[3].length, 4)
       done()
     }
 
@@ -1350,7 +1350,7 @@ describe('WSv2 event msg handling', () => {
     }
 
     ws.send = (packet) => {
-      assert.equal(packet[1], 'ox_multi')
+      assert.strictEqual(packet[1], 'ox_multi')
       assert(packet[3].length <= 15)
       seenCount += packet[3].length
 
@@ -1364,7 +1364,7 @@ describe('WSv2 event msg handling', () => {
 describe('WSv2 packet watch-dog', () => {
   it('resets the WD timeout on every websocket message', (done) => {
     const ws = new WSv2({ packetWDDelay: 1000 })
-    assert.equal(ws._packetWDTimeout, null)
+    assert.strictEqual(ws._packetWDTimeout, null)
 
     ws.on('error', () => {}) // ignore json errors
 
@@ -1492,7 +1492,7 @@ describe('WSv2 message sending', () => {
       send: (json) => {
         const msg = JSON.parse(json)
 
-        assert.equal(msg.a, 42)
+        assert.strictEqual(msg.a, 42)
         done()
       }
     }
@@ -1508,8 +1508,8 @@ describe('WSv2 seq audit: _validateMessageSeq', () => {
     ws._seqAudit = true
     ws._lastPubSeq = 0
 
-    assert.equal(ws._validateMessageSeq([243, [252.12, 2, -1], 1]), null)
-    assert.equal(ws._validateMessageSeq([243, [252.12, 2, -1], 2]), null)
+    assert.strictEqual(ws._validateMessageSeq([243, [252.12, 2, -1], 1]), null)
+    assert.strictEqual(ws._validateMessageSeq([243, [252.12, 2, -1], 2]), null)
 
     const err = ws._validateMessageSeq([243, [252.12, 2, -1], 5])
     assert(err instanceof Error)
@@ -1522,8 +1522,8 @@ describe('WSv2 seq audit: _validateMessageSeq', () => {
     ws._lastPubSeq = 0
     ws._lastAuthSeq = 0
 
-    assert.equal(ws._validateMessageSeq([0, [252.12, 2, -1], 1, 1]), null)
-    assert.equal(ws._validateMessageSeq([0, [252.12, 2, -1], 2, 2]), null)
+    assert.strictEqual(ws._validateMessageSeq([0, [252.12, 2, -1], 1, 1]), null)
+    assert.strictEqual(ws._validateMessageSeq([0, [252.12, 2, -1], 2, 2]), null)
 
     const err = ws._validateMessageSeq([0, [252.12, 2, -1], 3, 5])
     assert(err instanceof Error)
@@ -1535,12 +1535,12 @@ describe('WSv2 seq audit: _validateMessageSeq', () => {
     ws._seqAudit = true
     ws._lastPubSeq = 0
 
-    assert.equal(ws._validateMessageSeq([243, [252.12, 2, -1], 1]), null)
-    assert.equal(ws._validateMessageSeq([243, [252.12, 2, -1], 2]), null)
-    assert.equal(ws._validateMessageSeq([243, 'hb']), null)
-    assert.equal(ws._validateMessageSeq([243, 'hb']), null)
-    assert.equal(ws._validateMessageSeq([243, [252.12, 2, -1], 3]), null)
-    assert.equal(ws._validateMessageSeq([243, [252.12, 2, -1], 4]), null)
+    assert.strictEqual(ws._validateMessageSeq([243, [252.12, 2, -1], 1]), null)
+    assert.strictEqual(ws._validateMessageSeq([243, [252.12, 2, -1], 2]), null)
+    assert.strictEqual(ws._validateMessageSeq([243, 'hb']), null)
+    assert.strictEqual(ws._validateMessageSeq([243, 'hb']), null)
+    assert.strictEqual(ws._validateMessageSeq([243, [252.12, 2, -1], 3]), null)
+    assert.strictEqual(ws._validateMessageSeq([243, [252.12, 2, -1], 4]), null)
   })
 
   it('skips auth seq for error notifications', () => {
@@ -1553,11 +1553,11 @@ describe('WSv2 seq audit: _validateMessageSeq', () => {
     const nSuccess = [null, null, null, null, null, null, 'SUCCESS']
     const nError = [null, null, null, null, null, null, 'ERROR']
 
-    assert.equal(ws._validateMessageSeq([0, 'n', nSuccess, 1, 1]), null)
-    assert.equal(ws._validateMessageSeq([0, 'n', nSuccess, 2, 2]), null)
-    assert.equal(ws._validateMessageSeq([0, 'n', nError, 3]), null)
-    assert.equal(ws._validateMessageSeq([0, 'n', nSuccess, 4, 3]), null)
-    assert.equal(ws._validateMessageSeq([0, 'n', nSuccess, 5, 4]), null)
+    assert.strictEqual(ws._validateMessageSeq([0, 'n', nSuccess, 1, 1]), null)
+    assert.strictEqual(ws._validateMessageSeq([0, 'n', nSuccess, 2, 2]), null)
+    assert.strictEqual(ws._validateMessageSeq([0, 'n', nError, 3]), null)
+    assert.strictEqual(ws._validateMessageSeq([0, 'n', nSuccess, 4, 3]), null)
+    assert.strictEqual(ws._validateMessageSeq([0, 'n', nSuccess, 5, 4]), null)
   })
 })
 
@@ -1599,24 +1599,24 @@ describe('resubscribePreviousChannels', () => {
     }
 
     ws.subscribeTicker = (sym) => {
-      assert.equal(sym, 'tBTCUSD')
+      assert.strictEqual(sym, 'tBTCUSD')
       subTicker = true
     }
 
     ws.subscribeTrades = (sym) => {
-      assert.equal(sym, 'tBTCUSD')
+      assert.strictEqual(sym, 'tBTCUSD')
       subTrades = true
     }
 
     ws.subscribeCandles = (key) => {
-      assert.equal(key, 'trade:1m:tBTCUSD')
+      assert.strictEqual(key, 'trade:1m:tBTCUSD')
       subCandles = true
     }
 
     ws.subscribeOrderBook = (sym, prec, len) => {
-      assert.equal(sym, 'tBTCUSD')
-      assert.equal(prec, 'R0')
-      assert.equal(len, '25')
+      assert.strictEqual(sym, 'tBTCUSD')
+      assert.strictEqual(prec, 'R0')
+      assert.strictEqual(len, '25')
       subBook = true
     }
 

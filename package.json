@@ -1,6 +1,6 @@
 {
   "name": "bitfinex-api-node",
-  "version": "2.0.5",
+  "version": "2.0.7",
   "description": "Node reference library for Bitfinex API",
   "engines": {
     "node": ">=7"
@@ -16,12 +16,15 @@
     "docs": "npm run ws_docs && npm run rest_docs && npm run order_docs",
     "tickers": "node examples/rest2/tickers.js",
     "symbols": "node examples/rest2/symbols.js",
+    "currencies": "node examples/rest2/currencies.js",
+    "symbol-details": "node examples/rest2/symbol-details.js",
     "status": "node examples/rest2/status.js",
     "order-history": "node examples/rest2/order-history.js",
     "trade-history": "node examples/rest2/trade-history.js",
     "positions": "node examples/rest2/positions.js",
     "balances": "node examples/rest2/balances.js",
     "orders": "node examples/rest2/orders.js",
+    "close-positions": "node examples/rest2/close_positions.js",
     "cancel-orders": "node examples/ws2/cancel_all.js",
     "ledgers": "node examples/rest2/ledgers.js",
     "movements": "node examples/rest2/movements.js",
@@ -75,6 +78,7 @@
     "debug": "^2.2.0",
     "lodash": "^4.17.4",
     "lodash.throttle": "^4.1.1",
+    "p-iteration": "^1.1.8",
     "request": "^2.67.0",
     "request-promise": "^4.2.0",
     "ws": "^3.0.0"

@@ -9,7 +9,7 @@ const WSv2 = require('../lib/transports/ws2')
 
 describe('BFX', () => {
   it('should be loaded', () => {
-    assert.equal(typeof BFX, 'function')
+    assert.strictEqual(typeof BFX, 'function')
   })
 
   describe('constructor', () => {
@@ -50,19 +50,19 @@ describe('BFX', () => {
       const rest1 = bfx.rest(1)
       const rest2 = bfx.rest(2)
 
-      assert.equal(rest1._apiKey, 'k')
-      assert.equal(rest2._apiKey, 'k')
-      assert.equal(rest1._apiSecret, 's')
-      assert.equal(rest2._apiSecret, 's')
-      assert.equal(rest1._url, 'http://')
-      assert.equal(rest2._url, 'http://')
-      assert.equal(rest2._transform, true)
+      assert.strictEqual(rest1._apiKey, 'k')
+      assert.strictEqual(rest2._apiKey, 'k')
+      assert.strictEqual(rest1._apiSecret, 's')
+      assert.strictEqual(rest2._apiSecret, 's')
+      assert.strictEqual(rest1._url, 'http://')
+      assert.strictEqual(rest2._url, 'http://')
+      assert.strictEqual(rest2._transform, true)
     })
 
     it('passes extra options to new transport', () => {
       const bfx = new BFX()
       const rest2 = bfx.rest(2, { url: '/dev/null' })
-      assert.equal(rest2._url, '/dev/null')
+      assert.strictEqual(rest2._url, '/dev/null')
     })
 
     it('returns one instance if called twice for the same version', () => {
@@ -104,19 +104,19 @@ describe('BFX', () => {
       const ws1 = bfx.ws(1)
       const ws2 = bfx.ws(2)
 
-      assert.equal(ws1._apiKey, 'k')
-      assert.equal(ws2._apiKey, 'k')
-      assert.equal(ws1._apiSecret, 's')
-      assert.equal(ws2._apiSecret, 's')
-      assert.equal(ws1._url, 'wss://')
-      assert.equal(ws2._url, 'wss://')
-      assert.equal(ws2._transform, true)
+      assert.strictEqual(ws1._apiKey, 'k')
+      assert.strictEqual(ws2._apiKey, 'k')
+      assert.strictEqual(ws1._apiSecret, 's')
+      assert.strictEqual(ws2._apiSecret, 's')
+      assert.strictEqual(ws1._url, 'wss://')
+      assert.strictEqual(ws2._url, 'wss://')
+      assert.strictEqual(ws2._transform, true)
     })
 
     it('passes extra options to new transport', () => {
       const bfx = new BFX()
       const ws2 = bfx.ws(2, { url: '/dev/null' })
-      assert.equal(ws2._url, '/dev/null')
+      assert.strictEqual(ws2._url, '/dev/null')
     })
 
     it('returns one instance if called twice for the same version', () => {

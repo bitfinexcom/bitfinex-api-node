@@ -26,10 +26,8 @@ ws.once('auth', () => {
     price: 17833.5,
     amount: -0.02,
     type: Order.type.LIMIT,
-    tif: '2019-03-08 15:00:00',
+    tif: '2019-03-08 15:00:00'
   }, ws)
-
-  let closed = false
 
   o.registerListeners()
 
@@ -39,7 +37,6 @@ ws.once('auth', () => {
 
   o.on('close', () => {
     debug('order closed: %s', o.status)
-    closed = true
   })
 
   debug('submitting order %d', o.cid)

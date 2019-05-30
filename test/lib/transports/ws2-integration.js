@@ -66,13 +66,13 @@ describe('WSv2 orders', () => {
         wss.send([0, 'ou', arr])
 
         setTimeout(() => {
-          assert.equal(o.price, 256)
+          assert.strictEqual(o.price, 256)
           arr[16] = 150
 
           wss.send([0, 'oc', arr])
 
           setTimeout(() => {
-            assert.equal(o.price, 150)
+            assert.strictEqual(o.price, 150)
             o.removeListeners()
             wss.close()
             done()
@@ -101,12 +101,12 @@ describe('WSv2 orders', () => {
       wsSingle._ws.send = (msgJSON) => {
         const msg = JSON.parse(msgJSON)
 
-        assert.equal(msg[0], 0)
-        assert.equal(msg[1], 'ou')
+        assert.strictEqual(msg[0], 0)
+        assert.strictEqual(msg[1], 'ou')
         assert(msg[3])
-        assert.equal(msg[3].id, o.id)
-        assert.equal(msg[3].delta, 1)
-        assert.equal(msg[3].price, 200)
+        assert.strictEqual(msg[3].id, o.id)
+        assert.strictEqual(+msg[3].delta, 1)
+        assert.strictEqual(+msg[3].price, 200)
 
         wss.close()
         done()
@@ -144,7 +144,7 @@ describe('WSv2 orders', () => {
 
       wsSingle._ws.send = (msgJSON) => {
         const msg = JSON.parse(msgJSON)
-        assert.equal(msg[1], 'on')
+        assert.strictEqual(msg[1], 'on')
         sendN++
 
         if (sendN === 2) {
@@ -187,10 +187,10 @@ describe('WSv2 orders', () => {
 
       wsMulti._ws.send = (msgJSON) => {
         const msg = JSON.parse(msgJSON)
-        assert.equal(msg[1], 'ox_multi')
+        assert.strictEqual(msg[1], 'ox_multi')
 
         msg[3].forEach((payload) => {
-          assert.equal(payload[0], 'on')
+          assert.strictEqual(payload[0], 'on')
         })
 
         wss.close()
@@ -218,7 +218,7 @@ describe('WSv2 listeners', () => {
     ws._handleChannelMessage([0, 'tu', [123, 'tBTCUSD']])
     ws._handleChannelMessage([0, 'ou', [0, 0, 0, 'tBTCUSD']])
 
-    assert.equal(updatesSeen, 2)
+    assert.strictEqual(updatesSeen, 2)
   })
 
   it('tracks channel refs to auto sub/unsub', (done) => {
@@ -260,8 +260,8 @@ describe('WSv2 listeners', () => {
     })
 
     ws.on('unsubscribed', () => {
-      assert.equal(subs, 1)
-      assert.equal(unsubs, 1)
+      assert.strictEqual(subs, 1)
+      assert.strictEqual(unsubs, 1)
       wss.close()
       done()
     })
