@@ -3,7 +3,7 @@
 - WS2Manager: add managedUnsubscribe()
 - WS2Manager: add close()
 - WS2Manager: add getAuthenticatedSocket()
-- WSv2: add suppport for liduidations feed (status methods)
+- WSv2: add suppport for liquidations feed (status methods)
 - WSv2: add reconnect throttler in case of connection reset w/ many open sockets
 
 2.0.8
