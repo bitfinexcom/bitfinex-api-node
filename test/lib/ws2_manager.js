@@ -97,7 +97,7 @@ describe('WS2Manager', () => {
       const m = new WS2Manager()
       const s = m.openSocket()
 
-      s.pendingUnsubscriptions.push(42)
+      s.pendingUnsubscriptions.push(`${42}`)
       s.ws.emit('unsubscribed', { chanId: 42 })
 
       assert.strictEqual(s.pendingUnsubscriptions.length, 0)

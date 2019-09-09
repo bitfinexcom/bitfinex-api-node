@@ -1,6 +1,6 @@
 {
   "name": "bitfinex-api-node",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "description": "Node reference library for Bitfinex API",
   "engines": {
     "node": ">=7"
@@ -79,6 +79,7 @@
     "lodash": "^4.17.4",
     "lodash.throttle": "^4.1.1",
     "p-iteration": "^1.1.8",
+    "promise-throttle": "^1.0.1",
     "request": "^2.67.0",
     "request-promise": "^4.2.0",
     "ws": "^3.0.0"
