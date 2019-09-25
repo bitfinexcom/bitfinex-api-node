@@ -1555,7 +1555,7 @@ describe('WSv2 seq audit: _validateMessageSeq', () => {
 
     assert.strictEqual(ws._validateMessageSeq([0, 'n', nSuccess, 1, 1]), null)
     assert.strictEqual(ws._validateMessageSeq([0, 'n', nSuccess, 2, 2]), null)
-    assert.strictEqual(ws._validateMessageSeq([0, 'n', nError, 3]), null)
+    assert.strictEqual(ws._validateMessageSeq([0, 'n', nError, 3, 2]), null)
     assert.strictEqual(ws._validateMessageSeq([0, 'n', nSuccess, 4, 3]), null)
     assert.strictEqual(ws._validateMessageSeq([0, 'n', nSuccess, 5, 4]), null)
   })
