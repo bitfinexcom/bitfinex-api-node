@@ -1,3 +1,6 @@
+2.0.10
+- WSv2: ignore notification auth seq numbers (no longer provided by API)
+
 2.0.9
 
 - WS2Manager: add managedUnsubscribe()
