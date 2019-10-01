@@ -1,3 +1,16 @@
+3.0.0
+- Updates function rest2.withdraw to v2 functionality
+- Updates function rest2.transfer to v2 functionality
+- adds function rest2.getDepositAddress
+- adds function rest2.submitAutoFunding
+- adds function rest2.closeFunding
+- adds function rest2.cancelFundingOffer
+- adds function rest2.submitFundingOffer
+- adds function rest2.claimPosition
+- adds function rest2.cancelOrder
+- adds function rest2.updateOrder
+- adds function rest2.submitOrder
+
 2.0.10
 - WSv2: ignore notification auth seq numbers (no longer provided by API)
 
