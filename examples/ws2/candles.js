@@ -24,7 +24,7 @@ ws.onCandle({ key: CANDLE_KEY }, (candles) => {
   if (prevTS === null || candles[0].mts > prevTS) {
     const c = candles[1] // report previous candle
 
-    debug(`%s %s open: %f, high: %f, low: %f, close: %f, volume: %f`,
+    debug('%s %s open: %f, high: %f, low: %f, close: %f, volume: %f',
       CANDLE_KEY, new Date(c.mts).toLocaleTimeString(),
       c.open, c.high, c.low, c.close, c.volume
     )

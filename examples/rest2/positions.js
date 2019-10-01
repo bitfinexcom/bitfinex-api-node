@@ -7,7 +7,6 @@ const debug = require('debug')('bfx:examples:rest2_positions')
 const bfx = require('../bfx')
 const rest = bfx.rest(2, { transform: true })
 
-
 const PL_ENABLED = process.argv[2] === 'pl'
 const tableColWidths = [20, 10, 20, 20, 20]
 const tableHeaders = [
@@ -81,6 +80,5 @@ const example = async () => {
   //   p.claim()
   // })
 }
-
 
 example().catch(debug)

@@ -9,8 +9,8 @@ const rest = bfx.rest(2, { transform: true })
 
 debug('Submitting new order...')
 
- // Build new order
- const fo = new FundingOffer({
+// Build new order
+const fo = new FundingOffer({
   type: 'LIMIT',
   symbol: 'fUSD',
   rate: 0.0120000,
@@ -19,9 +19,9 @@ debug('Submitting new order...')
 }, rest)
 
 fo.submit().then((fo) => {
-  debug("Submitted funding offer", fo.id)
+  debug('Submitted funding offer', fo.id)
 })
-.catch((err) => console.log(err))
+  .catch((err) => console.log(err))
 
 // cancel offer
 
