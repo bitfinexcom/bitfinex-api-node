@@ -9,8 +9,8 @@ const rest = bfx.rest(2)
 
 debug('Submitting new order...')
 
- // Build new order
- const o = new Order({
+// Build new order
+const o = new Order({
   cid: Date.now(),
   symbol: 'tBTCUSD',
   price: 18000,
@@ -25,7 +25,7 @@ o.submit().then(() => {
     o.cid, o.id, o.mtsTIF
   )
 })
-.catch((err) => console.log(err))
+  .catch((err) => console.log(err))
 
 // update order
 
@@ -37,4 +37,4 @@ setTimeout(() => {
 
 setTimeout(() => {
   o.cancel()
-},10000)
+}, 10000)

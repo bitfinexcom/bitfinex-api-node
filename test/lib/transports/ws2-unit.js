@@ -38,7 +38,7 @@ describe('WSv2 utilities', () => {
     const listener = listenerSet.trade[0]
 
     assert.strictEqual(listener.modelClass, Map)
-    assert.deepStrictEqual(listener.filter, { '2': 'tBTCUSD' })
+    assert.deepStrictEqual(listener.filter, { 2: 'tBTCUSD' })
     assert.strictEqual(typeof listener.cb, 'function')
   })
 
@@ -349,7 +349,7 @@ describe('WSv2 auto reconnect', () => {
 
     ws.on('open', ws.auth.bind(ws))
     ws.once('auth', () => {
-      let now = Date.now()
+      const now = Date.now()
 
       ws.reconnectAfterClose = () => {
         assert((Date.now() - now) >= 70)
@@ -674,8 +674,8 @@ describe('WSv2 channel msg handling', () => {
 
     const lg = {
       '': [{ cb: func }],
-      'test': [{ cb: func }],
-      'nope': [{ cb: func }]
+      test: [{ cb: func }],
+      nope: [{ cb: func }]
     }
 
     WSv2._notifyListenerGroup(lg, [0, 'test', [0, 'tu']], false)
@@ -683,7 +683,7 @@ describe('WSv2 channel msg handling', () => {
 
   it('_notifyListenerGroup: doesn\'t fail on missing data if filtering', (done) => {
     const lg = {
-      'test': [{
+      test: [{
         filter: { 1: 'on' },
         cb: () => {
           done(new Error('filter should not have matched'))
@@ -726,14 +726,18 @@ describe('WSv2 channel msg handling', () => {
       transform: true
     })
 
-    ws._channelMapA = { 42: {
-      channel: 'orderbook',
-      symbol: 'tBTCUSD'
-    } }
-    ws._channelMapB = { 43: {
-      channel: 'orderbook',
-      symbol: 'fUSD'
-    } }
+    ws._channelMapA = {
+      42: {
+        channel: 'orderbook',
+        symbol: 'tBTCUSD'
+      }
+    }
+    ws._channelMapB = {
+      43: {
+        channel: 'orderbook',
+        symbol: 'fUSD'
+      }
+    }
 
     ws._handleOBMessage([42, [
       [100, 2, -4],
@@ -778,10 +782,12 @@ describe('WSv2 channel msg handling', () => {
       transform: true
     })
 
-    wsNoTransform._channelMap = { 42: {
-      channel: 'orderbook',
-      symbol: 'tBTCUSD'
-    } }
+    wsNoTransform._channelMap = {
+      42: {
+        channel: 'orderbook',
+        symbol: 'tBTCUSD'
+      }
+    }
 
     wsTransform._channelMap = wsNoTransform._channelMap
 
@@ -801,10 +807,12 @@ describe('WSv2 channel msg handling', () => {
 
   it('_handleOBMessage: forwards managed ob to listeners', (done) => {
     const ws = new WSv2({ manageOrderBooks: true })
-    ws._channelMap = { 42: {
-      channel: 'orderbook',
-      symbol: 'tBTCUSD'
-    } }
+    ws._channelMap = {
+      42: {
+        channel: 'orderbook',
+        symbol: 'tBTCUSD'
+      }
+    }
 
     let seen = 0
     ws.onOrderBook({ symbol: 'tBTCUSD' }, (ob) => {
@@ -861,10 +869,12 @@ describe('WSv2 channel msg handling', () => {
 
   it('_handleOBMessage: emits managed ob', (done) => {
     const ws = new WSv2({ manageOrderBooks: true })
-    ws._channelMap = { 42: {
-      channel: 'orderbook',
-      symbol: 'tBTCUSD'
-    } }
+    ws._channelMap = {
+      42: {
+        channel: 'orderbook',
+        symbol: 'tBTCUSD'
+      }
+    }
 
     ws.on('orderbook', (symbol, data) => {
       assert.strictEqual(symbol, 'tBTCUSD')
@@ -877,11 +887,13 @@ describe('WSv2 channel msg handling', () => {
 
   it('_handleOBMessage: forwards transformed data if transform enabled', (done) => {
     const ws = new WSv2({ transform: true })
-    ws._channelMap = { 42: {
-      chanId: 42,
-      channel: 'orderbook',
-      symbol: 'tBTCUSD'
-    } }
+    ws._channelMap = {
+      42: {
+        chanId: 42,
+        channel: 'orderbook',
+        symbol: 'tBTCUSD'
+      }
+    }
 
     ws.onOrderBook({ symbol: 'tBTCUSD' }, (ob) => {
       assert(ob.asks)
@@ -940,10 +952,12 @@ describe('WSv2 channel msg handling', () => {
 
   it('_handleCandleMessage: maintains internal candles if management is enabled', () => {
     const ws = new WSv2({ manageCandles: true })
-    ws._channelMap = { 64: {
-      channel: 'candles',
-      key: 'trade:1m:tBTCUSD'
-    } }
+    ws._channelMap = {
+      64: {
+        channel: 'candles',
+        key: 'trade:1m:tBTCUSD'
+      }
+    }
 
     ws._handleCandleMessage([64, [
       [5, 100, 70, 150, 30, 1000],
@@ -1014,11 +1028,13 @@ describe('WSv2 channel msg handling', () => {
 
   it('_handleCandleMessage: forwards managed candles to listeners', (done) => {
     const ws = new WSv2({ manageCandles: true })
-    ws._channelMap = { 42: {
-      chanId: 42,
-      channel: 'candles',
-      key: 'trade:1m:tBTCUSD'
-    } }
+    ws._channelMap = {
+      42: {
+        chanId: 42,
+        channel: 'candles',
+        key: 'trade:1m:tBTCUSD'
+      }
+    }
 
     let seen = 0
     ws.onCandle({ key: 'trade:1m:tBTCUSD' }, (data) => {
@@ -1039,10 +1055,12 @@ describe('WSv2 channel msg handling', () => {
 
   it('_handleCandleMessage: emits managed candles', (done) => {
     const ws = new WSv2({ manageCandles: true })
-    ws._channelMap = { 42: {
-      channel: 'candles',
-      key: 'trade:1m:tBTCUSD'
-    } }
+    ws._channelMap = {
+      42: {
+        channel: 'candles',
+        key: 'trade:1m:tBTCUSD'
+      }
+    }
 
     ws.on('candle', (data, key) => {
       assert.strictEqual(key, 'trade:1m:tBTCUSD')
@@ -1058,11 +1076,13 @@ describe('WSv2 channel msg handling', () => {
 
   it('_handleCandleMessage: forwards transformed data if transform enabled', (done) => {
     const ws = new WSv2({ transform: true })
-    ws._channelMap = { 42: {
-      chanId: 42,
-      channel: 'candles',
-      key: 'trade:1m:tBTCUSD'
-    } }
+    ws._channelMap = {
+      42: {
+        chanId: 42,
+        channel: 'candles',
+        key: 'trade:1m:tBTCUSD'
+      }
+    }
 
     ws.onCandle({ key: 'trade:1m:tBTCUSD' }, (candles) => {
       assert.strictEqual(candles.length, 1)
