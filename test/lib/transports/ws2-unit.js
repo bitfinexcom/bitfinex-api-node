@@ -601,7 +601,7 @@ describe('WSv2 channel msg handling', () => {
     wsNoTransform._channelMap = { 0: { channel: 'auth' } }
 
     const tradeData = [
-      0, 'tBTCUSD', Date.now(), 0, 0.1, 1, 'type', 1, 1, 0.001, 'USD'
+      0, 'tBTCUSD', Date.now(), 0, 0.1, 1, 'type', 1, false, 0.001, 'USD'
     ]
 
     wsNoTransform.onAccountTradeUpdate({}, (trade) => {
