@@ -9,15 +9,19 @@ Communicates with v2 of the Bitfinex WebSocket API
     * [new WSv2()](#new_WSv2_new)
     * [.open()](#WSv2+open) ⇒ <code>Promise</code>
     * [.close(code, reason)](#WSv2+close) ⇒ <code>Promise</code>
-    * [.auth(calc)](#WSv2+auth) ⇒ <code>Promise</code>
+    * [.auth(calc, dms)](#WSv2+auth) ⇒ <code>Promise</code>
     * [.reconnect()](#WSv2+reconnect) ⇒ <code>Promise</code>
+    * [._validateMessageSeq(msg)](#WSv2+_validateMessageSeq) ⇒ <code>Error</code>
+    * [._verifyManagedOBChecksum(symbol, prec, cs)](#WSv2+_verifyManagedOBChecksum) ⇒ <code>Error</code>
     * [.getOB(symbol)](#WSv2+getOB) ⇒ <code>OrderBook</code>
     * [.getCandles(key)](#WSv2+getCandles) ⇒ <code>Array</code>
     * [.managedSubscribe(channel, identifier, payload)](#WSv2+managedSubscribe) ⇒ <code>boolean</code>
     * [.managedUnsubscribe(channel, identifier)](#WSv2+managedUnsubscribe) ⇒ <code>boolean</code>
     * [.getChannelData(opts)](#WSv2+getChannelData) ⇒ <code>Object</code>
     * [.send(msg)](#WSv2+send)
-    * [.enableSequencing(args)](#WSv2+enableSequencing)
+    * [.enableSequencing(args)](#WSv2+enableSequencing) ⇒ <code>Promise</code>
+    * [.enableFlag(flag)](#WSv2+enableFlag) ⇒ <code>Promise</code>
+    * [.isFlagEnabled(flag)](#WSv2+isFlagEnabled) ⇒ <code>boolean</code>
     * [.onServerRestart(cb)](#WSv2+onServerRestart)
     * [.onMaintenanceStart(cb)](#WSv2+onMaintenanceStart)
     * [.onMaintenanceEnd(cb)](#WSv2+onMaintenanceEnd)
@@ -26,24 +30,33 @@ Communicates with v2 of the Bitfinex WebSocket API
     * [.subscribeTrades(symbol)](#WSv2+subscribeTrades) ⇒ <code>boolean</code>
     * [.subscribeOrderBook(symbol, prec, len)](#WSv2+subscribeOrderBook) ⇒ <code>boolean</code>
     * [.subscribeCandles(key)](#WSv2+subscribeCandles) ⇒ <code>boolean</code>
+    * [.subscribeStatus(key)](#WSv2+subscribeStatus) ⇒ <code>boolean</code>
     * [.unsubscribe(chanId)](#WSv2+unsubscribe)
     * [.unsubscribeTicker(symbol)](#WSv2+unsubscribeTicker) ⇒ <code>boolean</code>
     * [.unsubscribeTrades(symbol)](#WSv2+unsubscribeTrades) ⇒ <code>boolean</code>
     * [.unsubscribeOrderBook(symbol, prec, len)](#WSv2+unsubscribeOrderBook) ⇒ <code>boolean</code>
     * [.unsubscribeCandles(symbol, frame)](#WSv2+unsubscribeCandles) ⇒ <code>boolean</code>
+    * [.unsubscribeStatus(key)](#WSv2+unsubscribeStatus) ⇒ <code>boolean</code>
     * [.removeListeners(cbGID)](#WSv2+removeListeners)
     * [.requestCalc(prefixes)](#WSv2+requestCalc)
     * [.submitOrder(order)](#WSv2+submitOrder) ⇒ <code>Promise</code>
+    * [.updateOrder(changes)](#WSv2+updateOrder) ⇒ <code>Promise</code>
     * [.cancelOrder(order)](#WSv2+cancelOrder) ⇒ <code>Promise</code>
     * [.cancelOrders(orders)](#WSv2+cancelOrders) ⇒ <code>Promise</code>
     * [.submitOrderMultiOp(opPayloads)](#WSv2+submitOrderMultiOp) ⇒ <code>Promise</code>
     * [.isAuthenticated()](#WSv2+isAuthenticated) ⇒ <code>boolean</code>
     * [.isOpen()](#WSv2+isOpen) ⇒ <code>boolean</code>
+    * [.isReconnecting()](#WSv2+isReconnecting) ⇒ <code>boolean</code>
+    * [.notifyUI(opts)](#WSv2+notifyUI)
     * [.onInfoMessage(code, cb)](#WSv2+onInfoMessage)
     * [.onMessage(opts, cb)](#WSv2+onMessage)
     * [.onCandle(opts, cb)](#WSv2+onCandle)
     * [.onOrderBook(opts, cb)](#WSv2+onOrderBook)
+    * [.onOrderBookChecksum(opts, cb)](#WSv2+onOrderBookChecksum)
     * [.onTrades(opts, cb)](#WSv2+onTrades)
+    * [.onTradeEntry(opts, cb)](#WSv2+onTradeEntry)
+    * [.onAccountTradeEntry(opts, cb)](#WSv2+onAccountTradeEntry)
+    * [.onAccountTradeUpdate(opts, cb)](#WSv2+onAccountTradeUpdate)
     * [.onTicker(opts, cb)](#WSv2+onTicker)
     * [.onOrderSnapshot(opts, cb)](#WSv2+onOrderSnapshot)
     * [.onOrderNew(opts, cb)](#WSv2+onOrderNew)
@@ -53,8 +66,6 @@ Communicates with v2 of the Bitfinex WebSocket API
     * [.onPositionNew(opts, cb)](#WSv2+onPositionNew)
     * [.onPositionUpdate(opts, cb)](#WSv2+onPositionUpdate)
     * [.onPositionClose(opts, cb)](#WSv2+onPositionClose)
-    * [.onTradeEntry(opts, cb)](#WSv2+onTradeEntry)
-    * [.onTradeUpdate(opts, cb)](#WSv2+onTradeUpdate)
     * [.onFundingOfferSnapshot(opts, cb)](#WSv2+onFundingOfferSnapshot)
     * [.onFundingOfferNew(opts, cb)](#WSv2+onFundingOfferNew)
     * [.onFundingOfferUpdate(opts, cb)](#WSv2+onFundingOfferUpdate)
@@ -95,6 +106,7 @@ Instantiate a new ws2 transport. Does not auto-open
 | opts.seqAudit | <code>boolean</code> | enable sequence numbers & verification |
 | opts.autoReconnect | <code>boolean</code> | if true, we will reconnect on close |
 | opts.reconnectDelay | <code>number</code> | optional, defaults to 1000 (ms) |
+| opts.reconnectThrottler | <code>PromiseThrottle</code> | optional pt to limit reconnect freq |
 | opts.packetWDDelay | <code>number</code> | watch-dog forced reconnection delay |
 
 <a name="WSv2+open"></a>
@@ -103,7 +115,7 @@ Instantiate a new ws2 transport. Does not auto-open
 Opens a connection to the API server. Rejects with an error if a
 connection is already open. Resolves on success
 
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **Returns**: <code>Promise</code> - p  
 <a name="WSv2+close"></a>
 
@@ -111,7 +123,7 @@ connection is already open. Resolves on success
 Closes the active connection. If there is none, rejects with a promise.
 Resolves on success
 
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -120,16 +132,20 @@ Resolves on success
 
 <a name="WSv2+auth"></a>
 
-### wSv2.auth(calc) ⇒ <code>Promise</code>
+### wSv2.auth(calc, dms) ⇒ <code>Promise</code>
 Generates & sends an authentication packet to the server; if already
-authenticated, rejects with an error. Resolves on success
+authenticated, rejects with an error, resolves on success.
 
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+If a DMS flag of 4 is provided, all open orders are cancelled when the
+connection terminates.
+
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **Returns**: <code>Promise</code> - p  
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | calc | <code>number</code> | <code>0</code> | optional, default is 0 |
+| dms | <code>number</code> | <code>0</code> | optional dead man switch flag, active 4 |
 
 <a name="WSv2+reconnect"></a>
 
@@ -137,8 +153,33 @@ authenticated, rejects with an error. Resolves on success
 Utility method to close & re-open the ws connection. Re-authenticates if
 previously authenticated
 
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **Returns**: <code>Promise</code> - p - resolves on completion  
+<a name="WSv2+_validateMessageSeq"></a>
+
+### wSv2.\_validateMessageSeq(msg) ⇒ <code>Error</code>
+Returns an error if the message has an invalid (out of order) sequence #
+The last-seen sequence #s are updated internally.
+
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
+**Returns**: <code>Error</code> - err - null if no error or sequencing not enabled  
+
+| Param | Type |
+| --- | --- |
+| msg | <code>Array</code> | 
+
+<a name="WSv2+_verifyManagedOBChecksum"></a>
+
+### wSv2.\_verifyManagedOBChecksum(symbol, prec, cs) ⇒ <code>Error</code>
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
+**Returns**: <code>Error</code> - err - null if none  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| symbol | <code>string</code> |  |
+| prec | <code>string</code> | precision |
+| cs | <code>number</code> | expected checksum |
+
 <a name="WSv2+getOB"></a>
 
 ### wSv2.getOB(symbol) ⇒ <code>OrderBook</code>
@@ -146,7 +187,7 @@ Returns an up-to-date copy of the order book for the specified symbol, or
 null if no OB is managed for that symbol.
 Set `manageOrderBooks: true` in the constructor to use.
 
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **Returns**: <code>OrderBook</code> - ob - null if not found  
 
 | Param | Type |
@@ -159,7 +200,7 @@ Set `manageOrderBooks: true` in the constructor to use.
 Fetch a reference to the full set of synced candles for the specified key.
 Set `manageCandles: true` in the constructor to use.
 
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **Returns**: <code>Array</code> - candles - empty array if none exist  
 
 | Param | Type |
@@ -172,7 +213,7 @@ Set `manageCandles: true` in the constructor to use.
 Subscribes and tracks subscriptions per channel/identifier pair. If
 already subscribed to the specified pair, nothing happens.
 
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **Returns**: <code>boolean</code> - subSent  
 
 | Param | Type | Description |
@@ -184,7 +225,7 @@ already subscribed to the specified pair, nothing happens.
 <a name="WSv2+managedUnsubscribe"></a>
 
 ### wSv2.managedUnsubscribe(channel, identifier) ⇒ <code>boolean</code>
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **Returns**: <code>boolean</code> - unsubSent  
 
 | Param | Type |
@@ -195,7 +236,7 @@ already subscribed to the specified pair, nothing happens.
 <a name="WSv2+getChannelData"></a>
 
 ### wSv2.getChannelData(opts) ⇒ <code>Object</code>
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **Returns**: <code>Object</code> - chanData - null if not found  
 
 | Param | Type | Description |
@@ -211,7 +252,7 @@ already subscribed to the specified pair, nothing happens.
 ### wSv2.send(msg)
 Send a packet to the WS server
 
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -219,17 +260,43 @@ Send a packet to the WS server
 
 <a name="WSv2+enableSequencing"></a>
 
-### wSv2.enableSequencing(args)
+### wSv2.enableSequencing(args) ⇒ <code>Promise</code>
 Configures the seq flag to enable sequencing (packet number) for this
 connection. When enabled, the seq number will be the last value of
 channel packet arrays.
 
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
+**Returns**: <code>Promise</code> - p  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | args | <code>Object</code> |  |
 | args.audit | <code>boolean</code> | if true, an error is emitted on invalid seq |
+
+<a name="WSv2+enableFlag"></a>
+
+### wSv2.enableFlag(flag) ⇒ <code>Promise</code>
+Enables a configuration flag. See the FLAGS map
+
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
+**Returns**: <code>Promise</code> - p  
+
+| Param | Type |
+| --- | --- |
+| flag | <code>number</code> | 
+
+<a name="WSv2+isFlagEnabled"></a>
+
+### wSv2.isFlagEnabled(flag) ⇒ <code>boolean</code>
+Checks local state, relies on successful server config responses
+
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
+**Returns**: <code>boolean</code> - enabled  
+**See**: enableFlag  
+
+| Param | Type |
+| --- | --- |
+| flag | <code>number</code> | 
 
 <a name="WSv2+onServerRestart"></a>
 
@@ -237,7 +304,7 @@ channel packet arrays.
 Register a callback in case of a ws server restart message; Use this to
 call reconnect() if needed. (code 20051)
 
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 
 | Param | Type |
 | --- | --- |
@@ -249,7 +316,7 @@ call reconnect() if needed. (code 20051)
 Register a callback in case of a 'maintenance started' message from the
 server. This is a good time to pause server packets until maintenance ends
 
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 
 | Param | Type |
 | --- | --- |
@@ -260,7 +327,7 @@ server. This is a good time to pause server packets until maintenance ends
 ### wSv2.onMaintenanceEnd(cb)
 Register a callback to be notified of a maintenance period ending
 
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 
 | Param | Type |
 | --- | --- |
@@ -269,7 +336,7 @@ Register a callback to be notified of a maintenance period ending
 <a name="WSv2+subscribe"></a>
 
 ### wSv2.subscribe(channel, payload)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -279,7 +346,7 @@ Register a callback to be notified of a maintenance period ending
 <a name="WSv2+subscribeTicker"></a>
 
 ### wSv2.subscribeTicker(symbol) ⇒ <code>boolean</code>
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **Returns**: <code>boolean</code> - subscribed  
 
 | Param | Type |
@@ -289,7 +356,7 @@ Register a callback to be notified of a maintenance period ending
 <a name="WSv2+subscribeTrades"></a>
 
 ### wSv2.subscribeTrades(symbol) ⇒ <code>boolean</code>
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **Returns**: <code>boolean</code> - subscribed  
 
 | Param | Type |
@@ -299,7 +366,7 @@ Register a callback to be notified of a maintenance period ending
 <a name="WSv2+subscribeOrderBook"></a>
 
 ### wSv2.subscribeOrderBook(symbol, prec, len) ⇒ <code>boolean</code>
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **Returns**: <code>boolean</code> - subscribed  
 
 | Param | Type | Default | Description |
@@ -311,17 +378,27 @@ Register a callback to be notified of a maintenance period ending
 <a name="WSv2+subscribeCandles"></a>
 
 ### wSv2.subscribeCandles(key) ⇒ <code>boolean</code>
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **Returns**: <code>boolean</code> - subscribed  
 
-| Param | Type |
-| --- | --- |
-| key | <code>string</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| key | <code>string</code> | 'trade:5m:tBTCUSD' |
+
+<a name="WSv2+subscribeStatus"></a>
+
+### wSv2.subscribeStatus(key) ⇒ <code>boolean</code>
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
+**Returns**: <code>boolean</code> - subscribed  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| key | <code>string</code> | 'liq:global' |
 
 <a name="WSv2+unsubscribe"></a>
 
 ### wSv2.unsubscribe(chanId)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 
 | Param | Type |
 | --- | --- |
@@ -330,7 +407,7 @@ Register a callback to be notified of a maintenance period ending
 <a name="WSv2+unsubscribeTicker"></a>
 
 ### wSv2.unsubscribeTicker(symbol) ⇒ <code>boolean</code>
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **Returns**: <code>boolean</code> - unsubscribed  
 
 | Param | Type |
@@ -340,7 +417,7 @@ Register a callback to be notified of a maintenance period ending
 <a name="WSv2+unsubscribeTrades"></a>
 
 ### wSv2.unsubscribeTrades(symbol) ⇒ <code>boolean</code>
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **Returns**: <code>boolean</code> - unsubscribed  
 
 | Param | Type |
@@ -350,7 +427,7 @@ Register a callback to be notified of a maintenance period ending
 <a name="WSv2+unsubscribeOrderBook"></a>
 
 ### wSv2.unsubscribeOrderBook(symbol, prec, len) ⇒ <code>boolean</code>
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **Returns**: <code>boolean</code> - unsubscribed  
 
 | Param | Type | Default | Description |
@@ -362,7 +439,7 @@ Register a callback to be notified of a maintenance period ending
 <a name="WSv2+unsubscribeCandles"></a>
 
 ### wSv2.unsubscribeCandles(symbol, frame) ⇒ <code>boolean</code>
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **Returns**: <code>boolean</code> - unsubscribed  
 
 | Param | Type | Description |
@@ -370,10 +447,20 @@ Register a callback to be notified of a maintenance period ending
 | symbol | <code>string</code> |  |
 | frame | <code>string</code> | time frame |
 
+<a name="WSv2+unsubscribeStatus"></a>
+
+### wSv2.unsubscribeStatus(key) ⇒ <code>boolean</code>
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
+**Returns**: <code>boolean</code> - unsubscribed  
+
+| Param | Type |
+| --- | --- |
+| key | <code>string</code> | 
+
 <a name="WSv2+removeListeners"></a>
 
 ### wSv2.removeListeners(cbGID)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 
 | Param | Type |
 | --- | --- |
@@ -382,7 +469,7 @@ Register a callback to be notified of a maintenance period ending
 <a name="WSv2+requestCalc"></a>
 
 ### wSv2.requestCalc(prefixes)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 
 | Param | Type |
 | --- | --- |
@@ -395,12 +482,26 @@ Sends a new order to the server and resolves the returned promise once the
 order submit is confirmed. Emits an error if not authenticated. The order
 can be either an array, key/value map, or Order object instance.
 
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **Returns**: <code>Promise</code> - p - resolves on submit notification  
 
 | Param | Type |
 | --- | --- |
-| order | <code>Object</code> &#124; <code>Array</code> | 
+| order | <code>Object</code> \| <code>Array</code> | 
+
+<a name="WSv2+updateOrder"></a>
+
+### wSv2.updateOrder(changes) ⇒ <code>Promise</code>
+Send a changeset to update an order in-place while maintaining position in
+the price queue. The changeset must contain the order ID, and supports a
+'delta' key to increase/decrease the total amount.
+
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
+**Returns**: <code>Promise</code> - p - resolves on receival of confirmation notification  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| changes | <code>Object</code> | requires at least an 'id' |
 
 <a name="WSv2+cancelOrder"></a>
 
@@ -409,12 +510,12 @@ Cancels an order by ID and resolves the returned promise once the cancel is
 confirmed. Emits an error if not authenticated. The ID can be passed as a
 number, or taken from an order array/object.
 
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **Returns**: <code>Promise</code> - p  
 
 | Param | Type |
 | --- | --- |
-| order | <code>Object</code> &#124; <code>Array</code> &#124; <code>number</code> | 
+| order | <code>Object</code> \| <code>Array</code> \| <code>number</code> | 
 
 <a name="WSv2+cancelOrders"></a>
 
@@ -422,13 +523,13 @@ number, or taken from an order array/object.
 Cancels multiple orders, returns a promise that resolves once all
 operations are confirmed.
 
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **Returns**: <code>Promise</code> - p  
 **See**: cancelOrder  
 
 | Param | Type |
 | --- | --- |
-| orders | <code>Array.&lt;Object&gt;</code> &#124; <code>Array.&lt;Array&gt;</code> &#124; <code>Array.&lt;number&gt;</code> | 
+| orders | <code>Array.&lt;Object&gt;</code> \| <code>Array.&lt;Array&gt;</code> \| <code>Array.&lt;number&gt;</code> | 
 
 <a name="WSv2+submitOrderMultiOp"></a>
 
@@ -437,7 +538,7 @@ Sends the op payloads to the server as an 'ox_multi' command. A promise is
 returned and resolves immediately if authenticated, as no confirmation is
 available for this message type.
 
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **Returns**: <code>Promise</code> - p - rejects if not authenticated  
 
 | Param | Type |
@@ -447,20 +548,46 @@ available for this message type.
 <a name="WSv2+isAuthenticated"></a>
 
 ### wSv2.isAuthenticated() ⇒ <code>boolean</code>
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **Returns**: <code>boolean</code> - authenticated  
 <a name="WSv2+isOpen"></a>
 
 ### wSv2.isOpen() ⇒ <code>boolean</code>
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **Returns**: <code>boolean</code> - open  
+<a name="WSv2+isReconnecting"></a>
+
+### wSv2.isReconnecting() ⇒ <code>boolean</code>
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
+**Returns**: <code>boolean</code> - reconnecting  
+<a name="WSv2+notifyUI"></a>
+
+### wSv2.notifyUI(opts)
+Sends a broadcast notification, which will be received by any active UI
+websocket connections (at bitfinex.com), triggering a desktop notification.
+
+In the future our mobile app will also support spawning native push
+notifications in response to incoming ucm-notify-ui packets.
+
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
+
+| Param | Type |
+| --- | --- |
+| opts | <code>Object</code> | 
+| opts.message | <code>string</code> | 
+| opts.type | <code>string</code> | 
+| opts.level | <code>string</code> | 
+| opts.image | <code>string</code> | 
+| opts.link | <code>string</code> | 
+| opts.sound | <code>string</code> | 
+
 <a name="WSv2+onInfoMessage"></a>
 
 ### wSv2.onInfoMessage(code, cb)
 Registers a new callback to be called when a matching info message is
 received.
 
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -470,7 +597,7 @@ received.
 <a name="WSv2+onMessage"></a>
 
 ### wSv2.onMessage(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -481,7 +608,7 @@ received.
 <a name="WSv2+onCandle"></a>
 
 ### wSv2.onCandle(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-public-candle  
 
 | Param | Type | Description |
@@ -494,7 +621,22 @@ received.
 <a name="WSv2+onOrderBook"></a>
 
 ### wSv2.onOrderBook(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
+**See**: https://docs.bitfinex.com/v2/reference#ws-public-order-books  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| opts | <code>Object</code> |  |
+| opts.symbol | <code>string</code> |  |
+| opts.prec | <code>string</code> |  |
+| opts.len | <code>string</code> |  |
+| opts.cbGID | <code>string</code> | callback group id |
+| cb | <code>Method</code> |  |
+
+<a name="WSv2+onOrderBookChecksum"></a>
+
+### wSv2.onOrderBookChecksum(opts, cb)
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-public-order-books  
 
 | Param | Type | Description |
@@ -509,7 +651,7 @@ received.
 <a name="WSv2+onTrades"></a>
 
 ### wSv2.onTrades(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-public-trades  
 
 | Param | Type | Description |
@@ -519,10 +661,49 @@ received.
 | opts.cbGID | <code>string</code> | callback group id |
 | cb | <code>Method</code> |  |
 
+<a name="WSv2+onTradeEntry"></a>
+
+### wSv2.onTradeEntry(opts, cb)
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
+**See**: https://docs.bitfinex.com/v2/reference#ws-public-trades  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| opts | <code>Object</code> |  |
+| opts.pair | <code>string</code> |  |
+| opts.cbGID | <code>string</code> | callback group id |
+| cb | <code>Method</code> |  |
+
+<a name="WSv2+onAccountTradeEntry"></a>
+
+### wSv2.onAccountTradeEntry(opts, cb)
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
+**See**: https://docs.bitfinex.com/v2/reference#ws-public-trades  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| opts | <code>Object</code> |  |
+| opts.symbol | <code>string</code> |  |
+| opts.cbGID | <code>string</code> | callback group id |
+| cb | <code>Method</code> |  |
+
+<a name="WSv2+onAccountTradeUpdate"></a>
+
+### wSv2.onAccountTradeUpdate(opts, cb)
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-trades  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| opts | <code>Object</code> |  |
+| opts.symbol | <code>string</code> |  |
+| opts.cbGID | <code>string</code> | callback group id |
+| cb | <code>Method</code> |  |
+
 <a name="WSv2+onTicker"></a>
 
 ### wSv2.onTicker(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-public-ticker  
 
 | Param | Type | Description |
@@ -535,13 +716,15 @@ received.
 <a name="WSv2+onOrderSnapshot"></a>
 
 ### wSv2.onOrderSnapshot(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-orders  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | opts | <code>Object</code> |  |
 | opts.symbol | <code>string</code> |  |
+| opts.id | <code>number</code> |  |
+| opts.cid | <code>number</code> |  |
 | opts.gid | <code>number</code> |  |
 | opts.cbGID | <code>string</code> | callback group id |
 | cb | <code>Method</code> |  |
@@ -549,13 +732,15 @@ received.
 <a name="WSv2+onOrderNew"></a>
 
 ### wSv2.onOrderNew(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-orders  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | opts | <code>Object</code> |  |
 | opts.symbol | <code>string</code> |  |
+| opts.id | <code>number</code> |  |
+| opts.cid | <code>number</code> |  |
 | opts.gid | <code>number</code> |  |
 | opts.cbGID | <code>string</code> | callback group id |
 | cb | <code>Method</code> |  |
@@ -563,13 +748,14 @@ received.
 <a name="WSv2+onOrderUpdate"></a>
 
 ### wSv2.onOrderUpdate(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-orders  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | opts | <code>Object</code> |  |
 | opts.symbol | <code>string</code> |  |
+| opts.id | <code>number</code> |  |
 | opts.gid | <code>number</code> |  |
 | opts.cid | <code>number</code> |  |
 | opts.cbGID | <code>string</code> | callback group id |
@@ -578,13 +764,14 @@ received.
 <a name="WSv2+onOrderClose"></a>
 
 ### wSv2.onOrderClose(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-orders  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | opts | <code>Object</code> |  |
 | opts.symbol | <code>string</code> |  |
+| opts.id | <code>number</code> |  |
 | opts.gid | <code>number</code> |  |
 | opts.cid | <code>number</code> |  |
 | opts.cbGID | <code>string</code> | callback group id |
@@ -593,7 +780,7 @@ received.
 <a name="WSv2+onPositionSnapshot"></a>
 
 ### wSv2.onPositionSnapshot(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-position  
 
 | Param | Type | Description |
@@ -606,7 +793,7 @@ received.
 <a name="WSv2+onPositionNew"></a>
 
 ### wSv2.onPositionNew(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-position  
 
 | Param | Type | Description |
@@ -619,7 +806,7 @@ received.
 <a name="WSv2+onPositionUpdate"></a>
 
 ### wSv2.onPositionUpdate(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-position  
 
 | Param | Type | Description |
@@ -632,7 +819,7 @@ received.
 <a name="WSv2+onPositionClose"></a>
 
 ### wSv2.onPositionClose(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-position  
 
 | Param | Type | Description |
@@ -642,36 +829,10 @@ received.
 | opts.cbGID | <code>string</code> | callback group id |
 | cb | <code>Method</code> |  |
 
-<a name="WSv2+onTradeEntry"></a>
-
-### wSv2.onTradeEntry(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
-**See**: https://docs.bitfinex.com/v2/reference#ws-auth-trades  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| opts | <code>Object</code> |  |
-| opts.pair | <code>string</code> |  |
-| opts.cbGID | <code>string</code> | callback group id |
-| cb | <code>Method</code> |  |
-
-<a name="WSv2+onTradeUpdate"></a>
-
-### wSv2.onTradeUpdate(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
-**See**: https://docs.bitfinex.com/v2/reference#ws-auth-trades  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| opts | <code>Object</code> |  |
-| opts.pair | <code>string</code> |  |
-| opts.cbGID | <code>string</code> | callback group id |
-| cb | <code>Method</code> |  |
-
 <a name="WSv2+onFundingOfferSnapshot"></a>
 
 ### wSv2.onFundingOfferSnapshot(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-offers  
 
 | Param | Type | Description |
@@ -684,7 +845,7 @@ received.
 <a name="WSv2+onFundingOfferNew"></a>
 
 ### wSv2.onFundingOfferNew(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-offers  
 
 | Param | Type | Description |
@@ -697,7 +858,7 @@ received.
 <a name="WSv2+onFundingOfferUpdate"></a>
 
 ### wSv2.onFundingOfferUpdate(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-offers  
 
 | Param | Type | Description |
@@ -710,7 +871,7 @@ received.
 <a name="WSv2+onFundingOfferClose"></a>
 
 ### wSv2.onFundingOfferClose(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-offers  
 
 | Param | Type | Description |
@@ -723,7 +884,7 @@ received.
 <a name="WSv2+onFundingCreditSnapshot"></a>
 
 ### wSv2.onFundingCreditSnapshot(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-credits  
 
 | Param | Type | Description |
@@ -736,7 +897,7 @@ received.
 <a name="WSv2+onFundingCreditNew"></a>
 
 ### wSv2.onFundingCreditNew(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-credits  
 
 | Param | Type | Description |
@@ -749,7 +910,7 @@ received.
 <a name="WSv2+onFundingCreditUpdate"></a>
 
 ### wSv2.onFundingCreditUpdate(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-credits  
 
 | Param | Type | Description |
@@ -762,7 +923,7 @@ received.
 <a name="WSv2+onFundingCreditClose"></a>
 
 ### wSv2.onFundingCreditClose(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-credits  
 
 | Param | Type | Description |
@@ -775,7 +936,7 @@ received.
 <a name="WSv2+onFundingLoanSnapshot"></a>
 
 ### wSv2.onFundingLoanSnapshot(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-loans  
 
 | Param | Type | Description |
@@ -788,7 +949,7 @@ received.
 <a name="WSv2+onFundingLoanNew"></a>
 
 ### wSv2.onFundingLoanNew(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-loans  
 
 | Param | Type | Description |
@@ -801,7 +962,7 @@ received.
 <a name="WSv2+onFundingLoanUpdate"></a>
 
 ### wSv2.onFundingLoanUpdate(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-loans  
 
 | Param | Type | Description |
@@ -814,7 +975,7 @@ received.
 <a name="WSv2+onFundingLoanClose"></a>
 
 ### wSv2.onFundingLoanClose(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-loans  
 
 | Param | Type | Description |
@@ -827,7 +988,7 @@ received.
 <a name="WSv2+onWalletSnapshot"></a>
 
 ### wSv2.onWalletSnapshot(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-wallets  
 
 | Param | Type | Description |
@@ -839,7 +1000,7 @@ received.
 <a name="WSv2+onWalletUpdate"></a>
 
 ### wSv2.onWalletUpdate(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-wallets  
 
 | Param | Type | Description |
@@ -851,7 +1012,7 @@ received.
 <a name="WSv2+onBalanceInfoUpdate"></a>
 
 ### wSv2.onBalanceInfoUpdate(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-balance  
 
 | Param | Type | Description |
@@ -863,7 +1024,7 @@ received.
 <a name="WSv2+onMarginInfoUpdate"></a>
 
 ### wSv2.onMarginInfoUpdate(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-margin  
 
 | Param | Type | Description |
@@ -875,7 +1036,7 @@ received.
 <a name="WSv2+onFundingInfoUpdate"></a>
 
 ### wSv2.onFundingInfoUpdate(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-funding  
 
 | Param | Type | Description |
@@ -887,7 +1048,7 @@ received.
 <a name="WSv2+onFundingTradeEntry"></a>
 
 ### wSv2.onFundingTradeEntry(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-funding-trades  
 
 | Param | Type | Description |
@@ -900,7 +1061,7 @@ received.
 <a name="WSv2+onFundingTradeUpdate"></a>
 
 ### wSv2.onFundingTradeUpdate(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-funding-trades  
 
 | Param | Type | Description |
@@ -913,7 +1074,7 @@ received.
 <a name="WSv2+onNotification"></a>
 
 ### wSv2.onNotification(opts, cb)
-**Kind**: instance method of <code>[WSv2](#WSv2)</code>  
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
 **See**: https://docs.bitfinex.com/v2/reference#ws-auth-notifications  
 
 | Param | Type | Description |

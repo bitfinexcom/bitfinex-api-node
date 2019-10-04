@@ -1,6 +1,6 @@
 {
   "name": "bitfinex-api-node",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Node reference library for Bitfinex API",
   "engines": {
     "node": ">=7"
@@ -10,10 +10,9 @@
     "lint": "standard",
     "test": "npm run lint && npm run unit",
     "unit": "NODE_ENV=test mocha -b --recursive",
-    "ws_docs": "node_modules/jsdoc-to-markdown/bin/cli.js lib/transports/ws2.js > doc/ws2.md",
-    "order_docs": "node_modules/jsdoc-to-markdown/bin/cli.js lib/models/order.js > doc/order.md",
-    "rest_docs": "node_modules/jsdoc-to-markdown/bin/cli.js lib/transports/rest2.js > doc/rest2.md",
-    "docs": "npm run ws_docs && npm run rest_docs && npm run order_docs",
+    "manager_docs": "node_modules/jsdoc-to-markdown/bin/cli.js lib/ws2_manager.js > docs/manager.md",
+    "ws_docs": "node_modules/jsdoc-to-markdown/bin/cli.js lib/transports/ws2.js > docs/ws2.md",
+    "docs": "npm run ws_docs && npm run manager_docs",
     "tickers": "node examples/rest2/tickers.js",
     "symbols": "node examples/rest2/symbols.js",
     "currencies": "node examples/rest2/currencies.js",
@@ -60,7 +59,7 @@
     "chai": "^3.4.1",
     "cli-table2": "^0.2.0",
     "dotenv": "^4.0.0",
-    "jsdoc-to-markdown": "^1.3.1",
+    "jsdoc-to-markdown": "^5.0.1",
     "mocha": "^3.4.2",
     "socks-proxy-agent": "^3.0.1",
     "standard": "^10.0.2"

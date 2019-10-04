@@ -1,68 +1,40 @@
-# Bitfinex Trading API for Node.JS. Bitcoin, Ether and Litecoin trading
+# Bitfinex WSv2 Trading API for Node.JS
 
 [![Build Status](https://travis-ci.org/bitfinexcom/bitfinex-api-node.svg?branch=master)](https://travis-ci.org/bitfinexcom/bitfinex-api-node)
 
 A Node.JS reference implementation of the Bitfinex API
 
+### Features
+
 * Official implementation
 * REST v2 API
 * WebSockets v2 API
+* WebSockets v1 API
 
-Documentation at [https://docs.bitfinex.com/v2/reference](https://docs.bitfinex.com/v2/reference)
 
 ## Installation
 ```bash
-  npm i bitfinex-api-node
+  npm i --save bitfinex-api-node
 ```
 
-See `doc/` for REST2 and WS2 API methods.
-
-## Usage
-
-Version 2.0.0 of `bitfinex-api-node` supports the v2 REST and WebSocket APIs. The clients for v1 of those APIs are maintained for backwards compatibility, but deprecated.
-
-To minimize the data sent over the network the transmitted data is structured in arrays. In order to reconstruct key / value pairs, set `opts.transform` to `true` when creating an interface.
-
-The BFX constructor returns a client manager, which can be used to create clients for v1 & v2 of the REST and WebSocket APIs via `.rest()` and `.ws()`. The options for the clients can be defined here, or passed in later
+### Quickstart
 
 ```js
-const BFX = require('bitfinex-api-node')
+const { WSv2 } = require('bitfinex-api-node')
+const ws = new WSv2({ transform: true })
 
-const bfx = new BFX({
-  apiKey: '...',
-  apiSecret: '...',
-
-  ws: {
-    autoReconnect: true,
-    seqAudit: true,
-    packetWDDelay: 10 * 1000
-  }
-})
+// do something with ws client
 ```
 
-The clients are cached per version/options pair, and default to version 2:
+### Docs
 
-```js
-let ws2 = bfx.ws() //
-ws2 = bfx.ws(2)    // same client
-const ws1 = bfx.ws(1)
+See `docs/ws2.md` for WS2 API methods, and `docs/usage.md` for a basic usage guide. For executable examples, refer to the `examples/` folder.
 
-const rest2 = bfx.rest(2, {
-  // options
-})
-```
+Official API documentation at [https://docs.bitfinex.com/v2/reference](https://docs.bitfinex.com/v2/reference)
 
-The websocket client is recommended for receiving realtime data & notifications
-on completed actions.
+### Examples
 
-For more examples, check the `examples/` folder.
-
-### NOTE: v1 REST and WS clients
-
-Both v1 client classes & server APIs have been deprecated, and will be removed. In the meantime, some methods available via `RESTv1` have been exposed on `RESTv2` to prevent future migration issues. Although the underlying implementation of these methods is likely to change once they are fully ported to v2, the signatures should remain the same.
-
-## WS2 Example: Sending an order & tracking status
-
+Sending an order & tracking status:
 ```js
 const ws = bfx.ws()
 
@@ -100,10 +72,9 @@ ws.once('auth', () => {
 ws.open()
 ```
 
-## WS2 Example: Cancel all open orders
-
+Cancel all open orders
 ```js
-const ws = bfx.ws()
+const ws = bfx.ws(2)
 
 ws.on('error', (err) => console.log(err))
 ws.on('open', ws.auth.bind(ws))
@@ -124,10 +95,9 @@ ws.onOrderSnapshot({}, (orders) => {
 ws.open()
 ```
 
-## WS2 Example: Subscribe to trades by pair
-
+Subscribe to trades by pair
 ```js
-const ws = bfx.ws()
+const ws = bfx.ws(2)
 
 ws.on('error', (err) => console.log(err))
 ws.on('open', () => {
@@ -215,3 +185,11 @@ If you enable sequencing on v2 of the WS API, each incoming packet will have a p
 ### What is the difference between R* and P* order books?
 
 Order books with precision `R0` are considered 'raw' and contain entries for each order submitted to the book, whereas `P*` books contain entries for each price level (which aggregate orders).
+
+### Contributing
+
+1. Fork it
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Add some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create a new Pull Request
