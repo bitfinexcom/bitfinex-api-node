@@ -28,7 +28,7 @@ const ws = new WSv2({ transform: true })
 
 ### Docs
 
-See `docs/ws2.md` for WS2 API methods, and `docs/usage.md` for a basic usage guide. For executable examples, refer to the `examples/` folder.
+[See `docs/ws2.md`](/docs/ws2.md) for WS2 API methods, [and `docs/usage.md`](/docs/usage.md) for a basic usage guide. For executable examples, [refer to the `examples/`](/examples) folder.
 
 Official API documentation at [https://docs.bitfinex.com/v2/reference](https://docs.bitfinex.com/v2/reference)
 
