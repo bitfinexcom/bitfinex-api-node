@@ -27,7 +27,7 @@ getFreeDataSocket(), or create a new WSv2 instance manually
         * [.unsubscribe(chanId)](#WS2Manager+unsubscribe)
         * [.subscribeTicker(symbol)](#WS2Manager+subscribeTicker)
         * [.subscribeTrades(symbol)](#WS2Manager+subscribeTrades)
-        * [.subscribeOrderBook(symbol, prec, len)](#WS2Manager+subscribeOrderBook)
+        * [.subscribeOrderBook(symbol, prec, len, freq)](#WS2Manager+subscribeOrderBook)
         * [.subscribeCandles(key)](#WS2Manager+subscribeCandles)
         * [.onCandle(opts, cb)](#WS2Manager+onCandle)
         * [.onOrderBook(opts, cb)](#WS2Manager+onOrderBook)
@@ -201,7 +201,7 @@ such socket is found.
 
 <a name="WS2Manager+subscribeOrderBook"></a>
 
-### wS2Manager.subscribeOrderBook(symbol, prec, len)
+### wS2Manager.subscribeOrderBook(symbol, prec, len, freq)
 **Kind**: instance method of [<code>WS2Manager</code>](#WS2Manager)  
 
 | Param | Type | Default |
@@ -209,6 +209,7 @@ such socket is found.
 | symbol | <code>string</code> |  | 
 | prec | <code>string</code> | <code>&quot;P0&quot;</code> | 
 | len | <code>string</code> | <code>&quot;25&quot;</code> | 
+| freq | <code>string</code> | <code>&quot;F0&quot;</code> | 
 
 <a name="WS2Manager+subscribeCandles"></a>
 
@@ -244,6 +245,7 @@ such socket is found.
 | opts.symbol | <code>string</code> |  |
 | opts.prec | <code>string</code> |  |
 | opts.len | <code>string</code> |  |
+| opts.freq | <code>string</code> |  |
 | opts.cbGID | <code>string</code> | callback group id |
 | cb | <code>Method</code> |  |
 

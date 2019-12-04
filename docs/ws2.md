@@ -6,7 +6,7 @@ Communicates with v2 of the Bitfinex WebSocket API
 **Kind**: global class  
 
 * [WSv2](#WSv2)
-    * [new WSv2()](#new_WSv2_new)
+    * [new WSv2(opts)](#new_WSv2_new)
     * [.open()](#WSv2+open) ⇒ <code>Promise</code>
     * [.close(code, reason)](#WSv2+close) ⇒ <code>Promise</code>
     * [.auth(calc, dms)](#WSv2+auth) ⇒ <code>Promise</code>
@@ -89,12 +89,14 @@ Communicates with v2 of the Bitfinex WebSocket API
 
 <a name="new_WSv2_new"></a>
 
-### new WSv2()
+### new WSv2(opts)
 Instantiate a new ws2 transport. Does not auto-open
 
 
 | Param | Type | Description |
 | --- | --- | --- |
+| opts | <code>Object</code> |  |
+| opts.affCode | <code>string</code> | affiliate code to be applied to all orders |
 | opts.apiKey | <code>string</code> |  |
 | opts.apiSecret | <code>string</code> |  |
 | opts.url | <code>string</code> | ws connection url |
