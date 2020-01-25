@@ -1,3 +1,6 @@
+4.0.1
+- WSv2: fix fte and ftu event routing
+
 4.0.0
 - include bfx-api-node-rest takeNotification hotfix
 
