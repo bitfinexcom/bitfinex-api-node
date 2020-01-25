@@ -1601,6 +1601,58 @@ describe('_handleTradeMessage', () => {
       pair: 'tBTCUSD'
     })
   })
+
+  it('correctly forwards funding trades', (done) => {
+    const ws = new WSv2()
+    const payload = [
+      [286614318, 1535531325604, 0.05, 7073.51178714],
+      [286614249, 1535531321436, 0.0215938, 7073.6],
+      [286614248, 1535531321430, 0.0284062, 7073.51178714]
+    ]
+    const msg = [1710, payload, 1]
+
+    ws.onTrades({ pair: 'fUSD' }, (data) => {
+      assert.deepStrictEqual(data, payload)
+      done()
+    })
+
+    ws._handleTradeMessage(msg, {
+      channel: 'trades',
+      pair: 'fUSD'
+    })
+  })
+
+  it('correctly routes fte packets', (done) => {
+    const ws = new WSv2()
+    const payload = [636854, 'fUSD', 1575282446000, 41238905, -1000, 0.002, 7, null]
+    const msg = [0, 'fte', payload]
+
+    ws.onFundingTradeEntry({ pair: 'tBTCUSD' }, (data) => {
+      assert.deepStrictEqual(data[0], payload)
+      done()
+    })
+
+    ws._handleTradeMessage(msg, {
+      channel: 'fte',
+      pair: 'tBTCUSD'
+    })
+  })
+
+  it('correctly routes ftu packets', (done) => {
+    const ws = new WSv2()
+    const payload = [636854, 'fUSD', 1575282446000, 41238905, -1000, 0.002, 7, null]
+    const msg = [0, 'ftu', payload]
+
+    ws.onFundingTradeUpdate({ pair: 'tBTCUSD' }, (data) => {
+      assert.deepStrictEqual(data[0], payload)
+      done()
+    })
+
+    ws._handleTradeMessage(msg, {
+      channel: 'ftu',
+      pair: 'tBTCUSD'
+    })
+  })
 })
 
 describe('resubscribePreviousChannels', () => {
