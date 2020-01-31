@@ -2,7 +2,10 @@
 - WSv2: fix fte and ftu event routing
 
 4.0.0
-- include bfx-api-node-rest takeNotification hotfix
+- include bfx-api-node-rest takeNotification hotfix.
+  This pull request changed the schema of data returned from the v2
+  REST functions. See pr https://github.com/bitfinexcom/bfx-api-node-rest/pull/42
+  for more info
 
 3.0.2
 - WSv2: affCode support
