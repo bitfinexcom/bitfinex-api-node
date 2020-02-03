@@ -1,3 +1,6 @@
+4.0.2
+- WS2Manager: add reconnect method
+
 4.0.1
 - WSv2: fix fte and ftu event routing
 
