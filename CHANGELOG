@@ -1,3 +1,8 @@
+4.0.4
+- Orderbook: generate and update book using lossless string format
+  in order to prevent floating point precision checksum errors:
+  https://github.com/bitfinexcom/bitfinex-api-node/issues/511
+
 4.0.3
 - WS2Manager: add setAuthArgs method
 
