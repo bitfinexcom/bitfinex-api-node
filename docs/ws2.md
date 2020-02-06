@@ -14,6 +14,7 @@ Communicates with v2 of the Bitfinex WebSocket API
     * [._validateMessageSeq(msg)](#WSv2+_validateMessageSeq) ⇒ <code>Error</code>
     * [._verifyManagedOBChecksum(symbol, prec, cs)](#WSv2+_verifyManagedOBChecksum) ⇒ <code>Error</code>
     * [.getOB(symbol)](#WSv2+getOB) ⇒ <code>OrderBook</code>
+    * [.getLosslessOB(symbol)](#WSv2+getLosslessOB) ⇒ <code>OrderBook</code>
     * [.getCandles(key)](#WSv2+getCandles) ⇒ <code>Array</code>
     * [.managedSubscribe(channel, identifier, payload)](#WSv2+managedSubscribe) ⇒ <code>boolean</code>
     * [.managedUnsubscribe(channel, identifier)](#WSv2+managedUnsubscribe) ⇒ <code>boolean</code>
@@ -187,6 +188,21 @@ The last-seen sequence #s are updated internally.
 ### wSv2.getOB(symbol) ⇒ <code>OrderBook</code>
 Returns an up-to-date copy of the order book for the specified symbol, or
 null if no OB is managed for that symbol.
+Set `manageOrderBooks: true` in the constructor to use.
+
+**Kind**: instance method of [<code>WSv2</code>](#WSv2)  
+**Returns**: <code>OrderBook</code> - ob - null if not found  
+
+| Param | Type |
+| --- | --- |
+| symbol | <code>string</code> | 
+
+<a name="WSv2+getLosslessOB"></a>
+
+### wSv2.getLosslessOB(symbol) ⇒ <code>OrderBook</code>
+Returns an up-to-date lossless copy of the order book for the specified symbol, or
+null if no OB is managed for that symbol. All amounts and prices are in original
+string format.
 Set `manageOrderBooks: true` in the constructor to use.
 
 **Kind**: instance method of [<code>WSv2</code>](#WSv2)  
@@ -660,6 +676,7 @@ received.
 | --- | --- | --- |
 | opts | <code>Object</code> |  |
 | opts.pair | <code>string</code> |  |
+| opts.symbol | <code>string</code> |  |
 | opts.cbGID | <code>string</code> | callback group id |
 | cb | <code>Method</code> |  |
 
