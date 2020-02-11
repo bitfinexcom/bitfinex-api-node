@@ -739,16 +739,18 @@ describe('WSv2 channel msg handling', () => {
       }
     }
 
-    ws._handleOBMessage([42, [
+    let obMsg = [42, [
       [100, 2, -4],
       [200, 4, -8],
       [300, 1, 3]
-    ]], ws._channelMapA[42])
-    ws._handleOBMessage([43, [
+    ]]
+    ws._handleOBMessage(obMsg, ws._channelMapA[42], JSON.stringify(obMsg))
+    obMsg = [43, [
       [0.0008, 2, 5, 200],
       [0.00045, 30, 4, -300],
       [0.0004, 15, 3, -600]
-    ]], ws._channelMapB[43])
+    ]]
+    ws._handleOBMessage(obMsg, ws._channelMapB[43], JSON.stringify(obMsg))
 
     let obA = ws.getOB('tBTCUSD')
     let obB = ws.getOB('fUSD')
@@ -767,10 +769,12 @@ describe('WSv2 channel msg handling', () => {
     assert.deepStrictEqual(obB.getEntry(0.00045), { rate: 0.00045, count: 4, amount: -300, period: 30 })
     assert.deepStrictEqual(obB.getEntry(0.0008), { rate: 0.0008, count: 5, amount: 200, period: 2 })
 
-    ws._handleOBMessage([42, [300, 0, 1]], ws._channelMapA[42])
+    obMsg = [42, [300, 0, 1]]
+    ws._handleOBMessage(obMsg, ws._channelMapA[42], JSON.stringify(obMsg))
     obA = ws.getOB('tBTCUSD')
     assert.strictEqual(obA.bids.length, 0)
-    ws._handleOBMessage([43, [0.0008, 2, 0, 1]], ws._channelMapB[43])
+    obMsg = [43, [0.0008, 2, 0, 1]]
+    ws._handleOBMessage(obMsg, ws._channelMapB[43], JSON.stringify(obMsg))
     obB = ws.getOB('fUSD')
     assert.strictEqual(obB.asks.length, 0)
   })
@@ -801,8 +805,9 @@ describe('WSv2 channel msg handling', () => {
       if (++errorsSeen === 2) done()
     })
 
-    wsTransform._handleOBMessage([42, [100, 0, 1]], wsTransform._channelMap[42])
-    wsNoTransform._handleOBMessage([42, [100, 0, 1]], wsNoTransform._channelMap[42])
+    let obMsg = [42, [100, 0, 1]]
+    wsTransform._handleOBMessage(obMsg, wsTransform._channelMap[42], JSON.stringify(obMsg))
+    wsNoTransform._handleOBMessage(obMsg, wsNoTransform._channelMap[42], JSON.stringify(obMsg))
   })
 
   it('_handleOBMessage: forwards managed ob to listeners', (done) => {
@@ -825,7 +830,8 @@ describe('WSv2 channel msg handling', () => {
       if (++seen === 2) done()
     })
 
-    ws._handleOBMessage([42, [[100, 2, 3]]], ws._channelMap[42])
+    let obMsg = [42, [[100, 2, 3]]]
+    ws._handleOBMessage(obMsg, ws._channelMap[42], JSON.stringify(obMsg))
   })
 
   it('_handleOBMessage: filters by prec and len', (done) => {
@@ -863,8 +869,9 @@ describe('WSv2 channel msg handling', () => {
       if (++seen === 2) done()
     })
 
-    ws._handleOBMessage([42, [[100, 2, 3]]], ws._channelMap[42])
-    ws._handleOBMessage([42, [100, 2, 3]], ws._channelMap[42])
+    let obMsg = [42, [[100, 2, 3]]]
+    ws._handleOBMessage(obMsg, ws._channelMap[42], JSON.stringify(obMsg))
+    ws._handleOBMessage(obMsg, ws._channelMap[42], JSON.stringify(obMsg))
   })
 
   it('_handleOBMessage: emits managed ob', (done) => {
@@ -882,7 +889,8 @@ describe('WSv2 channel msg handling', () => {
       done()
     })
 
-    ws._handleOBMessage([42, [[100, 2, 3]]], ws._channelMap[42])
+    let obMsg = [42, [[100, 2, 3]]]
+    ws._handleOBMessage(obMsg, ws._channelMap[42], JSON.stringify(obMsg))
   })
 
   it('_handleOBMessage: forwards transformed data if transform enabled', (done) => {
@@ -903,7 +911,8 @@ describe('WSv2 channel msg handling', () => {
       done()
     })
 
-    ws._handleOBMessage([42, [[100, 2, 3]]], ws._channelMap[42])
+    let obMsg = [42, [[100, 2, 3]]]
+    ws._handleOBMessage(obMsg, ws._channelMap[42], obMsg)
   })
 
   it('_updateManagedOB: does nothing on rm non-existent entry', () => {
@@ -912,8 +921,12 @@ describe('WSv2 channel msg handling', () => {
       [100, 1, 1],
       [200, 2, 1]
     ]
+    ws._losslessOrderBooks.tBTCUSD = [
+      ['100', '1', '1'],
+      ['200', '2', '1']
+    ]
 
-    const err = ws._updateManagedOB('tBTCUSD', [150, 0, -1])
+    const err = ws._updateManagedOB('tBTCUSD', [150, 0, -1], false, JSON.stringify([1, [150, 0, -1]]))
     assert.strictEqual(err, null)
     assert.deepStrictEqual(ws._orderBooks.tBTCUSD, [
       [100, 1, 1],
@@ -924,10 +937,12 @@ describe('WSv2 channel msg handling', () => {
   it('_updateManagedOB: correctly maintains transformed OBs', () => {
     const ws = new WSv2({ transform: true })
     ws._orderBooks.tBTCUSD = []
+    ws._losslessOrderBooks.tBTCUSD = []
 
-    assert(!ws._updateManagedOB('tBTCUSD', [100, 1, 1]))
-    assert(!ws._updateManagedOB('tBTCUSD', [200, 1, -1]))
-    assert(!ws._updateManagedOB('tBTCUSD', [200, 0, -1]))
+    // symbol, data, raw, rawMsg
+    assert(!ws._updateManagedOB('tBTCUSD', [100, 1, 1], false, JSON.stringify([1, [100, 1, 1]])))
+    assert(!ws._updateManagedOB('tBTCUSD', [200, 1, -1], false, JSON.stringify([1, [200, 1, -1]])))
+    assert(!ws._updateManagedOB('tBTCUSD', [200, 0, -1], false, JSON.stringify([1, [200, 0, -1]])))
 
     const ob = ws.getOB('tBTCUSD')
 
@@ -939,10 +954,11 @@ describe('WSv2 channel msg handling', () => {
   it('_updateManagedOB: correctly maintains non-transformed OBs', () => {
     const ws = new WSv2()
     ws._orderBooks.tBTCUSD = []
+    ws._losslessOrderBooks.tBTCUSD = []
 
-    assert(!ws._updateManagedOB('tBTCUSD', [100, 1, 1]))
-    assert(!ws._updateManagedOB('tBTCUSD', [200, 1, -1]))
-    assert(!ws._updateManagedOB('tBTCUSD', [200, 0, -1]))
+    assert(!ws._updateManagedOB('tBTCUSD', [100, 1, 1], false, JSON.stringify([1, [100, 1, 1]])))
+    assert(!ws._updateManagedOB('tBTCUSD', [200, 1, -1], false, JSON.stringify([1, [200, 1, -1]])))
+    assert(!ws._updateManagedOB('tBTCUSD', [200, 0, -1], false, JSON.stringify([1, [200, 0, -1]])))
 
     const ob = ws._orderBooks.tBTCUSD
 
