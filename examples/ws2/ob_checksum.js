@@ -6,9 +6,9 @@ const debug = require('debug')('bfx:examples:ws2_ob_checksum')
 const bfx = require('../bfx')
 const WSv2 = require('../../lib/transports/ws2')
 
-const SYMBOL = 'tBTCUSD'
-const PRECISION = 'R0'
-const LENGTH = '100'
+const SYMBOL = 'tXRPBTC'
+const PRECISION = 'P0'
+const LENGTH = '25'
 
 const ws = bfx.ws(2, {
   manageOrderBooks: true // managed OBs are verified against incoming checksums
