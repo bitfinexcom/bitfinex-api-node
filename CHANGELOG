@@ -3,6 +3,7 @@
 - WSv2: add updateAthArgs()
 - WSv2: add getAuthArgs()
 - WS2Manager: fix auth args handling with new methods
+- WS2Manager: rename setAuthCredentials -> setAPICredentials
 
 4.0.4
 - Orderbook: generate and update book using lossless string format
