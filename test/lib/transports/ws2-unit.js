@@ -5,6 +5,7 @@ const assert = require('assert')
 const WSv2 = require('../../../lib/transports/ws2')
 const { MockWSv2Server } = require('bfx-api-mock-srv')
 const _isObject = require('lodash/isObject')
+const _isEmpty = require('lodash/isEmpty')
 
 const API_KEY = 'dummy'
 const API_SECRET = 'dummy'
@@ -805,7 +806,7 @@ describe('WSv2 channel msg handling', () => {
       if (++errorsSeen === 2) done()
     })
 
-    let obMsg = [42, [100, 0, 1]]
+    const obMsg = [42, [100, 0, 1]]
     wsTransform._handleOBMessage(obMsg, wsTransform._channelMap[42], JSON.stringify(obMsg))
     wsNoTransform._handleOBMessage(obMsg, wsNoTransform._channelMap[42], JSON.stringify(obMsg))
   })
@@ -830,7 +831,7 @@ describe('WSv2 channel msg handling', () => {
       if (++seen === 2) done()
     })
 
-    let obMsg = [42, [[100, 2, 3]]]
+    const obMsg = [42, [[100, 2, 3]]]
     ws._handleOBMessage(obMsg, ws._channelMap[42], JSON.stringify(obMsg))
   })
 
@@ -869,7 +870,7 @@ describe('WSv2 channel msg handling', () => {
       if (++seen === 2) done()
     })
 
-    let obMsg = [42, [[100, 2, 3]]]
+    const obMsg = [42, [[100, 2, 3]]]
     ws._handleOBMessage(obMsg, ws._channelMap[42], JSON.stringify(obMsg))
     ws._handleOBMessage(obMsg, ws._channelMap[42], JSON.stringify(obMsg))
   })
@@ -889,7 +890,7 @@ describe('WSv2 channel msg handling', () => {
       done()
     })
 
-    let obMsg = [42, [[100, 2, 3]]]
+    const obMsg = [42, [[100, 2, 3]]]
     ws._handleOBMessage(obMsg, ws._channelMap[42], JSON.stringify(obMsg))
   })
 
@@ -911,7 +912,7 @@ describe('WSv2 channel msg handling', () => {
       done()
     })
 
-    let obMsg = [42, [[100, 2, 3]]]
+    const obMsg = [42, [[100, 2, 3]]]
     ws._handleOBMessage(obMsg, ws._channelMap[42], obMsg)
   })
 
@@ -1714,5 +1715,42 @@ describe('resubscribePreviousChannels', () => {
     assert(subTrades)
     assert(subCandles)
     assert(subBook)
+  })
+})
+
+describe('WSv2 auth args', () => {
+  it('provides getAuthArgs to read args', () => {
+    const ws = new WSv2()
+    ws.updateAuthArgs({ dms: 4 })
+    assert.strictEqual(ws.getAuthArgs().dms, 4)
+  })
+
+  it('initializes to empty args set', () => {
+    const ws = new WSv2()
+    const initAuthArgs = ws.getAuthArgs()
+
+    assert(_isObject(initAuthArgs) && _isEmpty(initAuthArgs))
+  })
+
+  it('updates auth args with setAuthArgs', async () => {
+    const ws = new WSv2()
+    const wss = new MockWSv2Server()
+    let sendCalled = false
+
+    await ws.open()
+
+    ws.updateAuthArgs({ dms: 4 })
+    assert.strictEqual(ws.getAuthArgs().dms, 4)
+
+    ws.send = (payload) => {
+      assert.strictEqual(payload.dms, 4)
+      sendCalled = true
+      ws.emit('auth')
+    }
+
+    await ws.auth()
+    assert(sendCalled)
+
+    wss.close()
   })
 })
