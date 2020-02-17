@@ -51,17 +51,16 @@ describe('WS2Manager', () => {
       m._sockets = [{
         ws: {
           isAuthenticated: () => false,
-          setAuthCredentials: (key, secret) => { cred = `${key}:${secret}` },
-          auth: ({ calc, dms }) => {
-            assert.strictEqual(calc, 1)
-            assert.strictEqual(dms, 4)
+          setAPICredentials: (key, secret) => { cred = `${key}:${secret}` },
+          updateAuthArgs: () => {},
+          auth: () => {
             assert.strictEqual(cred, '41:42')
             done()
           }
         }
       }]
 
-      m.auth({ apiKey: '41', apiSecret: '42', calc: 1, dms: 4 })
+      m.auth({ apiKey: '41', apiSecret: '42' })
     })
   })
 
