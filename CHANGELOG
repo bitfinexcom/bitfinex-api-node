@@ -1,3 +1,7 @@
+4.0.6
+- WSv2: fix error 'invalid pub seq #' after submitting an order
+- docs: fix reference link for onAccountTradeEntry
+
 4.0.5
 - WSv2: add auth arg management (pre-set dms and calc)
 - WSv2: add updateAthArgs()

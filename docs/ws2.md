@@ -697,7 +697,7 @@ received.
 
 ### wSv2.onAccountTradeEntry(opts, cb)
 **Kind**: instance method of [<code>WSv2</code>](#WSv2)  
-**See**: https://docs.bitfinex.com/v2/reference#ws-public-trades  
+**See**: https://docs.bitfinex.com/v2/reference#ws-auth-trades  
 
 | Param | Type | Description |
 | --- | --- | --- |
