@@ -1,3 +1,6 @@
+4.0.8
+- WSv2: fix on trade message handler by prioritising channel data symbol over pair symbol
+
 4.0.7
 - WSv2: refactor to use async/await style where possible
 - WSv2: reconnect() now always resolves on completion
