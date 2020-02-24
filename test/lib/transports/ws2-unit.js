@@ -11,11 +11,12 @@ const API_KEY = 'dummy'
 const API_SECRET = 'dummy'
 
 const createTestWSv2Instance = (params = {}) => {
-  return new WSv2(Object.assign({
+  return new WSv2({
     apiKey: API_KEY,
     apiSecret: API_SECRET,
-    url: 'ws://localhost:9997'
-  }, params))
+    url: 'ws://localhost:9997',
+    ...params
+  })
 }
 
 describe('WSv2 utilities', () => {
@@ -226,23 +227,33 @@ describe('WSv2 lifetime', () => {
     assert(flagsSent)
   })
 
-  it('close: doesn\'t close if not open', (done) => {
+  it('close: doesn\'t close if not open', async () => {
     const ws = createTestWSv2Instance()
-    ws.close().then(() => assert(false)).catch(() => {
-      done()
-    })
+
+    try {
+      await ws.close()
+      assert(false)
+    } catch (e) {}
   })
 
-  it('close: fails to close twice', (done) => {
+  it('close: fails to close twice', async () => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
-    ws.open()
-    ws.on('open', ws.close.bind(ws))
-    ws.on('close', () => {
-      ws.close().then(() => assert(false)).catch(() => {
-        wss.close()
-        done()
+
+    await ws.open()
+
+    return new Promise((resolve, reject) => {
+      ws.on('close', async () => {
+        try {
+          await ws.close()
+          reject(new Error('closed twice'))
+        } catch (e) {
+          wss.close()
+          resolve()
+        }
       })
+
+      return ws.close()
     })
   })
 
@@ -252,39 +263,42 @@ describe('WSv2 lifetime', () => {
     ws._onWSClose = () => {} // disable fallback reset
 
     await ws.open()
+
     assert(ws._ws !== null)
     assert(ws._isOpen)
 
     await ws.close()
+
     assert(ws._ws == null)
     assert(!ws._isOpen)
 
     wss.close()
   })
 
-  it('auth: fails to auth twice', (done) => {
+  it('auth: fails to auth twice', async () => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
-    ws.open()
-    ws.on('open', ws.auth.bind(ws))
-    ws.once('auth', () => {
-      ws.auth().then(() => assert(false)).catch(() => {
-        wss.close()
-        done()
-      })
-    })
+
+    await ws.open()
+    await ws.auth()
+
+    try {
+      await ws.auth()
+      assert(false)
+    } catch (e) {
+      wss.close()
+    }
   })
 
-  it('auth: updates auth flag', (done) => {
+  it('auth: updates auth flag', async () => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
-    ws.open()
-    ws.on('open', ws.auth.bind(ws))
-    ws.once('auth', () => {
-      assert(ws.isAuthenticated())
-      wss.close()
-      done()
-    })
+
+    await ws.open()
+    await ws.auth()
+
+    assert(ws.isAuthenticated())
+    wss.close()
   })
 
   it('auth: forwards calc param', async () => {
@@ -294,14 +308,19 @@ describe('WSv2 lifetime', () => {
 
     await ws.open()
 
+    const send = ws.send
     ws.send = (data) => {
       assert.strictEqual(data.calc, 42)
-      wss.close()
       sentCalc = true
+
+      ws.send = send
+      ws.send(data)
     }
 
-    ws.auth(42) // note promise ignored
+    await ws.auth(42)
+
     assert(sentCalc)
+    wss.close()
   })
 
   it('auth: forwards dms param', async () => {
@@ -311,85 +330,85 @@ describe('WSv2 lifetime', () => {
 
     await ws.open()
 
+    const send = ws.send
     ws.send = (data) => {
       assert.strictEqual(data.dms, 42)
-      wss.close()
       sentDMS = true
+
+      ws.send = send
+      ws.send(data)
     }
 
-    ws.auth(0, 42) // note promise ignored
+    await ws.auth(0, 42)
+
     assert(sentDMS)
+    wss.close()
   })
 
-  it('reconnect: connects if not already connected', (done) => {
+  it('reconnect: connects if not already connected', async () => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
 
-    ws.on('close', () => {
-      assert(false)
-    })
+    let sawClose = false
+    let sawOpen = false
 
-    ws.on('open', () => {
-      wss.close()
-      done()
-    })
+    ws.on('close', () => { sawClose = true })
+    ws.on('open', () => { sawOpen = true })
 
-    ws.reconnect()
+    await ws.reconnect()
+
+    assert(!sawClose)
+    assert(sawOpen)
+
+    wss.close()
   })
 
-  it('reconnect: disconnects & connects back if currently connected', (done) => {
+  it('reconnect: disconnects & connects back if currently connected', async () => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
 
-    let calls = 0
+    await ws.open()
 
-    ws.on('close', () => {
-      if (++calls === 2) {
-        wss.close()
-        done()
-      }
-    })
+    let sawClose = false
+    let sawOpen = false
 
-    ws.once('open', () => {
-      ws.reconnect()
+    ws.on('close', () => { sawClose = true })
+    ws.on('open', () => { sawOpen = true })
 
-      ws.once('open', () => {
-        if (++calls === 2) {
-          wss.close()
-          done()
-        }
-      })
-    })
+    await ws.reconnect()
 
-    ws.open()
+    assert(sawClose)
+    assert(sawOpen)
+    assert(ws.isOpen())
+
+    wss.close()
   })
 
-  it('reconnect: automatically auths on open if previously authenticated', (done) => {
+  it('reconnect: automatically auths on open if previously authenticated', async () => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
 
     let closed = false
     let opened = false
+    let authenticated = false
 
-    ws.on('error', done)
-
-    ws.once('open', ws.auth.bind(ws))
-    ws.once('auth', () => {
-      setTimeout(() => {
-        ws.once('close', () => { closed = true })
-        ws.once('open', () => { opened = true })
-        ws.once('auth', () => {
-          assert(closed)
-          assert(opened)
-          wss.close()
-          done()
-        })
-
-        ws.reconnect()
-      }, 50)
+    ws.on('error', (error) => {
+      throw error
     })
 
-    ws.open()
+    await ws.open()
+    await ws.auth()
+
+    ws.once('close', () => { closed = true })
+    ws.once('open', () => { opened = true })
+    ws.once('auth', () => { authenticated = true })
+
+    await ws.reconnect()
+
+    assert(closed)
+    assert(opened)
+    assert(authenticated)
+    wss.close()
   })
 })
 
@@ -408,61 +427,61 @@ describe('WSv2 constructor', () => {
 })
 
 describe('WSv2 auto reconnect', () => {
-  it('reconnects on close if autoReconnect is enabled', (done) => {
+  it('reconnects on close if autoReconnect is enabled', async () => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance({
       autoReconnect: true
     })
 
-    ws.on('open', ws.auth.bind(ws))
-    ws.once('auth', () => {
-      ws.reconnectAfterClose = () => done()
+    await ws.open()
+    await ws.auth()
+
+    return new Promise((resolve) => {
+      ws.reconnectAfterClose = new Promise(() => resolve())
       wss.close() // trigger reconnect
     })
-
-    ws.open()
   })
 
-  it('respects reconnectDelay', (done) => {
+  it('respects reconnectDelay', async () => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance({
       autoReconnect: true,
       reconnectDelay: 75
     })
 
-    ws.on('open', ws.auth.bind(ws))
-    ws.once('auth', () => {
+    await ws.open()
+    await ws.auth()
+
+    return new Promise((resolve) => {
       const now = Date.now()
 
       ws.reconnectAfterClose = () => {
         assert((Date.now() - now) >= 70)
-        done()
+        return new Promise(() => resolve())
       }
 
       wss.close() // trigger reconnect
     })
-
-    ws.open()
   })
 
-  it('does not auto-reconnect if explicity closed', (done) => {
+  it('does not auto-reconnect if explicity closed', async () => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance({
       autoReconnect: true
     })
 
-    ws.on('open', ws.auth.bind(ws))
-    ws.once('auth', () => {
-      ws.reconnect = () => assert(false)
-      ws.close()
+    await ws.open()
+    await ws.auth()
 
+    ws.reconnect = () => assert(false)
+    ws.close()
+
+    return new Promise((resolve) => {
       setTimeout(() => {
         wss.close()
-        done()
+        resolve()
       }, 50)
     })
-
-    ws.open()
   })
 })
 
@@ -475,7 +494,7 @@ describe('WSv2 seq audit', () => {
     assert(ws.isFlagEnabled(WSv2.flags.SEQ_ALL))
   })
 
-  it('emits error on invalid seq number', (done) => {
+  it('emits error on invalid seq number', async () => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance({
       seqAudit: true
@@ -483,36 +502,33 @@ describe('WSv2 seq audit', () => {
 
     let errorsSeen = 0
 
-    ws.once('open', ws.auth.bind(ws))
+    await ws.open()
+    await ws.auth()
+
     ws.on('error', (err) => {
       if (err.message.indexOf('seq #') !== -1) errorsSeen++
 
       return null
     })
 
-    ws.once('auth', () => {
-      ws._channelMap[42] = { channel: 'trades', chanId: 42 }
+    ws._channelMap[42] = { channel: 'trades', chanId: 42 }
 
-      ws._onWSMessage(JSON.stringify([0, 'tu', [], 0, 0]))
-      ws._onWSMessage(JSON.stringify([0, 'te', [], 1, 0]))
-      ws._onWSMessage(JSON.stringify([0, 'wu', [], 2, 1]))
-      ws._onWSMessage(JSON.stringify([0, 'tu', [], 3, 2])) //
-      ws._onWSMessage(JSON.stringify([0, 'tu', [], 4, 4])) // error
-      ws._onWSMessage(JSON.stringify([0, 'tu', [], 5, 5]))
-      ws._onWSMessage(JSON.stringify([0, 'tu', [], 6, 6]))
-      ws._onWSMessage(JSON.stringify([42, [], 7]))
-      ws._onWSMessage(JSON.stringify([42, [], 8]))
-      ws._onWSMessage(JSON.stringify([42, [], 9])) //
-      ws._onWSMessage(JSON.stringify([42, [], 13])) // error
-      ws._onWSMessage(JSON.stringify([42, [], 14]))
-      ws._onWSMessage(JSON.stringify([42, [], 15]))
+    ws._onWSMessage(JSON.stringify([0, 'tu', [], 0, 0]))
+    ws._onWSMessage(JSON.stringify([0, 'te', [], 1, 0]))
+    ws._onWSMessage(JSON.stringify([0, 'wu', [], 2, 1]))
+    ws._onWSMessage(JSON.stringify([0, 'tu', [], 3, 2])) //
+    ws._onWSMessage(JSON.stringify([0, 'tu', [], 4, 4])) // error
+    ws._onWSMessage(JSON.stringify([0, 'tu', [], 5, 5]))
+    ws._onWSMessage(JSON.stringify([0, 'tu', [], 6, 6]))
+    ws._onWSMessage(JSON.stringify([42, [], 7]))
+    ws._onWSMessage(JSON.stringify([42, [], 8]))
+    ws._onWSMessage(JSON.stringify([42, [], 9])) //
+    ws._onWSMessage(JSON.stringify([42, [], 13])) // error
+    ws._onWSMessage(JSON.stringify([42, [], 14]))
+    ws._onWSMessage(JSON.stringify([42, [], 15]))
 
-      assert.strictEqual(errorsSeen, 6)
-      wss.close()
-      done()
-    })
-
-    ws.open()
+    assert.strictEqual(errorsSeen, 6)
+    wss.close()
   })
 })
 
@@ -1338,85 +1354,79 @@ describe('WSv2 event msg handling', () => {
     assert(Object.keys(ws._channelMap).length === 0)
   })
 
-  it('_handleInfoEvent: passes message to relevant listeners (raw access)', (done) => {
+  it('_handleInfoEvent: passes message to relevant listeners (raw access)', async () => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
-    ws.once('open', () => {
-      let n = 0
 
-      ws._infoListeners[42] = [
-        () => { n += 1 },
-        () => { n += 2 }
-      ]
+    await ws.open()
 
-      ws._handleInfoEvent({ code: 42 })
+    let n = 0
 
-      assert.strictEqual(n, 3)
-      wss.close()
-      done()
-    })
+    ws._infoListeners[42] = [
+      () => { n += 1 },
+      () => { n += 2 }
+    ]
 
-    ws.open()
+    ws._handleInfoEvent({ code: 42 })
+
+    assert.strictEqual(n, 3)
+    wss.close()
   })
 
-  it('_handleInfoEvent: passes message to relevant listeners', (done) => {
+  it('_handleInfoEvent: passes message to relevant listeners', async () => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
-    ws.once('open', () => {
-      let n = 0
 
-      ws.onInfoMessage(42, () => { n += 1 })
-      ws.onInfoMessage(42, () => { n += 2 })
-      ws._handleInfoEvent({ code: 42 })
+    await ws.open()
 
-      assert.strictEqual(n, 3)
-      wss.close()
-      done()
-    })
+    let n = 0
 
-    ws.open()
+    ws.onInfoMessage(42, () => { n += 1 })
+    ws.onInfoMessage(42, () => { n += 2 })
+    ws._handleInfoEvent({ code: 42 })
+
+    assert.strictEqual(n, 3)
+    wss.close()
   })
 
-  it('_handleInfoEvent: passes message to relevant named listeners', (done) => {
+  it('_handleInfoEvent: passes message to relevant named listeners', async () => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
-    ws.once('open', () => {
-      let n = 0
 
-      ws.onServerRestart(() => { n += 1 })
-      ws.onMaintenanceStart(() => { n += 10 })
-      ws.onMaintenanceEnd(() => { n += 100 })
+    await ws.open()
 
-      ws._handleInfoEvent({ code: WSv2.info.SERVER_RESTART })
-      ws._handleInfoEvent({ code: WSv2.info.MAINTENANCE_START })
-      ws._handleInfoEvent({ code: WSv2.info.MAINTENANCE_END })
+    let n = 0
 
-      assert.strictEqual(n, 111)
-      wss.close()
-      done()
-    })
+    ws.onServerRestart(() => { n += 1 })
+    ws.onMaintenanceStart(() => { n += 10 })
+    ws.onMaintenanceEnd(() => { n += 100 })
 
-    ws.open()
+    ws._handleInfoEvent({ code: WSv2.info.SERVER_RESTART })
+    ws._handleInfoEvent({ code: WSv2.info.MAINTENANCE_START })
+    ws._handleInfoEvent({ code: WSv2.info.MAINTENANCE_END })
+
+    assert.strictEqual(n, 111)
+    wss.close()
   })
 
-  it('_handleInfoEvent: closes & emits error if not on api v2', (done) => {
+  it('_handleInfoEvent: closes & emits error if not on api v2', async () => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
-    let seen = 0
 
-    const d = () => {
-      wss.close()
-      done()
-    }
+    await ws.open()
 
-    ws.once('open', () => {
+    return new Promise((resolve) => {
+      let seen = 0
+      const d = () => {
+        wss.close()
+        resolve()
+      }
+
       ws.on('error', () => { if (++seen === 2) { d() } })
       ws.on('close', () => { if (++seen === 2) { d() } })
 
       ws._handleInfoEvent({ version: 3 })
     })
-
-    ws.open()
   })
 
   it('_flushOrderOps: returned promise rejects if not authorised', (done) => {
@@ -1530,11 +1540,14 @@ describe('WSv2 packet watch-dog', () => {
     ws._isOpen = true
 
     ws.on('error', () => {}) // invalid json to prevent message routing
-    ws._triggerPacketWD = () => {
+    ws._triggerPacketWD = function () {
       assert((Date.now() - now) >= 95)
       done()
+
+      return Promise.resolve()
     }
 
+    ws._triggerPacketWD = ws._triggerPacketWD.bind(ws)
     ws._onWSMessage('asdf') // send first packet, init wd
   })
 
@@ -1744,7 +1757,7 @@ describe('_handleTradeMessage', () => {
   })
 })
 
-describe('resubscribePreviousChannels', () => {
+describe('resubscribePreviousChannels', async () => {
   it('resubscribes to channels in prev channel map', () => {
     const ws = new WSv2()
     let subTicker = false
