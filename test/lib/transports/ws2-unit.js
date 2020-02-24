@@ -19,6 +19,59 @@ const createTestWSv2Instance = (params = {}) => {
 }
 
 describe('WSv2 utilities', () => {
+  it('sendEnabledFlags: sends the current flags value to the server', async () => {
+    const ws = new WSv2()
+    const wss = new MockWSv2Server()
+
+    await ws.open()
+
+    ws._enabledFlags = WSv2.flags.CHECKSUM
+    ws.send = (packet) => {
+      assert.strictEqual(packet.event, 'conf')
+      assert.strictEqual(packet.flags, WSv2.flags.CHECKSUM)
+
+      wss.close()
+    }
+
+    ws.sendEnabledFlags()
+  })
+
+  it('enableFlag: saves enabled flag status', () => {
+    const ws = new WSv2()
+
+    assert(!ws.isFlagEnabled(WSv2.flags.SEQ_ALL))
+    assert(!ws.isFlagEnabled(WSv2.flags.CHECKSUM))
+
+    ws.enableFlag(WSv2.flags.SEQ_ALL)
+
+    assert(ws.isFlagEnabled(WSv2.flags.SEQ_ALL))
+    assert(!ws.isFlagEnabled(WSv2.flags.CHECKSUM))
+
+    ws.enableFlag(WSv2.flags.CHECKSUM)
+
+    assert(ws.isFlagEnabled(WSv2.flags.SEQ_ALL))
+    assert(ws.isFlagEnabled(WSv2.flags.CHECKSUM))
+  })
+
+  it('enableFlag: sends conf packet if open', async () => {
+    const ws = new WSv2()
+    const wss = new MockWSv2Server()
+    let confSent = false
+
+    await ws.open()
+
+    ws.send = (packet) => {
+      assert(_isObject(packet))
+      assert.strictEqual(packet.event, 'conf')
+      confSent = true
+
+      wss.close()
+    }
+
+    ws.enableFlag(WSv2.flags.SEQ_ALL)
+    assert(confSent)
+  })
+
   it('_registerListener: correctly adds listener to internal map with cbGID', () => {
     const ws = new WSv2()
     ws._registerListener('trade', { 2: 'tBTCUSD' }, Map, 42, () => {})
@@ -45,12 +98,23 @@ describe('WSv2 utilities', () => {
 
   it('enableSequencing: sends the correct conf flag', (done) => {
     const ws = new WSv2()
-    ws.send = (packet) => {
-      assert.strictEqual(packet.event, 'conf')
-      assert.strictEqual(packet.flags, 65536)
-      done()
-    }
-    ws.enableSequencing()
+    const wss = new MockWSv2Server()
+
+    ws.once('open', () => {
+      setTimeout(() => { // send is used by the open hander
+        ws.send = (packet) => {
+          assert.strictEqual(packet.event, 'conf')
+          assert.strictEqual(packet.flags, 65536)
+
+          wss.close()
+          done()
+        }
+
+        ws.enableSequencing()
+      }, 20)
+    })
+
+    ws.open()
   })
 
   it('getCandles: returns empty array if no candle set is available', () => {
@@ -121,27 +185,45 @@ describe('WSv2 lifetime', () => {
     assert.strictEqual(ws.isAuthenticated(), false)
   })
 
-  it('open: fails to open twice', (done) => {
+  it('open: fails to open twice', async () => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
-    ws.on('open', () => {
-      ws.open().then(() => assert(false)).catch(() => {
-        wss.close()
-        done()
-      })
-    })
-    ws.open()
+
+    await ws.open()
+
+    try {
+      await ws.open()
+      assert(false)
+    } catch (e) {
+      wss.close()
+    }
   })
 
-  it('open: updates open flag', (done) => {
+  it('open: updates open flag', async () => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
-    ws.on('open', () => {
-      assert.strictEqual(ws.isOpen(), true)
+
+    await ws.open()
+
+    assert.strictEqual(ws.isOpen(), true)
+    wss.close()
+  })
+
+  it('open: sends flags value', async () => {
+    const wss = new MockWSv2Server()
+    const ws = createTestWSv2Instance()
+    let flagsSent = false
+
+    ws.enableSequencing()
+    ws.sendEnabledFlags = () => {
+      assert.strictEqual(ws._enabledFlags, WSv2.flags.SEQ_ALL)
+      flagsSent = true
       wss.close()
-      done()
-    })
-    ws.open()
+    }
+
+    await ws.open()
+
+    assert(flagsSent)
   })
 
   it('close: doesn\'t close if not open', (done) => {
@@ -164,24 +246,20 @@ describe('WSv2 lifetime', () => {
     })
   })
 
-  it('close: clears connection state', (done) => {
+  it('close: clears connection state', async () => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
     ws._onWSClose = () => {} // disable fallback reset
 
-    ws.open()
-    ws.on('open', () => {
-      assert(ws._ws !== null)
-      assert(ws._isOpen)
+    await ws.open()
+    assert(ws._ws !== null)
+    assert(ws._isOpen)
 
-      ws.close().then(() => {
-        assert(ws._ws == null)
-        assert(!ws._isOpen)
+    await ws.close()
+    assert(ws._ws == null)
+    assert(!ws._isOpen)
 
-        wss.close()
-        done()
-      })
-    })
+    wss.close()
   })
 
   it('auth: fails to auth twice', (done) => {
@@ -209,34 +287,38 @@ describe('WSv2 lifetime', () => {
     })
   })
 
-  it('auth: forwards calc param', (done) => {
+  it('auth: forwards calc param', async () => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
-    ws.open()
-    ws.on('open', () => {
-      ws.send = (data) => {
-        assert.strictEqual(data.calc, 42)
-        wss.close()
-        done()
-      }
+    let sentCalc = false
 
-      ws.auth(42)
-    })
+    await ws.open()
+
+    ws.send = (data) => {
+      assert.strictEqual(data.calc, 42)
+      wss.close()
+      sentCalc = true
+    }
+
+    ws.auth(42) // note promise ignored
+    assert(sentCalc)
   })
 
-  it('auth: forwards dms param', (done) => {
+  it('auth: forwards dms param', async () => {
     const wss = new MockWSv2Server()
     const ws = createTestWSv2Instance()
-    ws.open()
-    ws.on('open', () => {
-      ws.send = (data) => {
-        assert.strictEqual(data.dms, 42)
-        wss.close()
-        done()
-      }
+    let sentDMS = false
 
-      ws.auth(0, 42)
-    })
+    await ws.open()
+
+    ws.send = (data) => {
+      assert.strictEqual(data.dms, 42)
+      wss.close()
+      sentDMS = true
+    }
+
+    ws.auth(0, 42) // note promise ignored
+    assert(sentDMS)
   })
 
   it('reconnect: connects if not already connected', (done) => {
@@ -385,22 +467,12 @@ describe('WSv2 auto reconnect', () => {
 })
 
 describe('WSv2 seq audit', () => {
-  it('automatically enables sequencing if seqAudit is true in constructor', (done) => {
-    const wss = new MockWSv2Server()
+  it('automatically enables sequencing if seqAudit is true in constructor', () => {
     const ws = createTestWSv2Instance({
       seqAudit: true
     })
 
-    wss._onClientMessage = (ws, msgJSON) => {
-      const msg = JSON.parse(msgJSON)
-
-      if (msg.event === 'conf' && msg.flags === 65536) {
-        wss.close()
-        done()
-      }
-    }
-
-    ws.open()
+    assert(ws.isFlagEnabled(WSv2.flags.SEQ_ALL))
   })
 
   it('emits error on invalid seq number', (done) => {
