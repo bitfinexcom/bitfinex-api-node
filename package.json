@@ -52,15 +52,16 @@
   },
   "homepage": "http://bitfinexcom.github.io/bitfinex-api-node/",
   "devDependencies": {
-    "bfx-api-mock-srv": "^1.0.0",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-plugin-transform-regenerator": "^6.26.0",
     "babel-preset-env": "^1.7.0",
+    "bfx-api-mock-srv": "^1.0.0",
     "chai": "^3.4.1",
     "cli-table2": "^0.2.0",
     "dotenv": "^4.0.0",
     "jsdoc-to-markdown": "^5.0.1",
     "mocha": "^3.4.2",
+    "nyc": "^15.0.0",
     "socks-proxy-agent": "^3.0.1",
     "standard": "^10.0.2"
   },
