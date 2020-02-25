@@ -16,7 +16,6 @@ const rest = bfx.rest(2, { transform: true })
 const pair = String(args[2])
 const symbol = pair[0] === 't' ? pair : `t${pair}`
 
-// TODO: natural lang start/end query args (a library must exist)
 const START = Date.now() - (30 * 24 * 60 * 60 * 1000 * 1000)
 const END = Date.now()
 const LIMIT = 25
