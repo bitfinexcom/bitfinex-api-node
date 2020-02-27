@@ -1,18 +1,17 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
+const runExample = require('../util/run_example')
 
-const debug = require('debug')('bfx:examples:rest2_status')
-const bfx = require('../bfx')
-const rest = bfx.rest(2)
+module.exports = runExample({
+  name: 'rest-get-platform-status',
+  rest: true
+}, async ({ debug, rest }) => {
+  debug('fetching platform status...')
 
-debug('fetching platform status...')
+  const status = await rest.status()
 
-rest.status().then(status => {
   debug(status === 0
     ? 'Platform currently under maintenance'
     : 'Platform operating normally'
   )
-}).catch(err => {
-  debug('error: %j', err)
 })

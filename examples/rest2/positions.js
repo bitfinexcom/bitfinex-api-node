@@ -1,84 +1,48 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
+const _capitalize = require('lodash/capitalize')
+const _map = require('lodash/map')
+const { prepareAmount, preparePrice } = require('bfx-api-node-util')
+const runExample = require('../util/run_example')
 
-const Table = require('cli-table2')
-const debug = require('debug')('bfx:examples:rest2_positions')
-const bfx = require('../bfx')
-const rest = bfx.rest(2, { transform: true })
+module.exports = runExample({
+  name: 'positions',
+  rest: { env: true, transform: true }
+}, async ({ debug, debugTable, rest, params }) => {
+  debug('fetching positions...')
 
-const PL_ENABLED = process.argv[2] === 'pl'
-const tableColWidths = [20, 10, 20, 20, 20]
-const tableHeaders = [
-  'Symbol', 'Status', 'Amount', 'Base Price', 'Funding Cost', 'Base Value'
-]
-
-if (PL_ENABLED) {
-  tableHeaders.push('Net Value')
-  tableHeaders.push('P/L')
-  tableHeaders.push('P/L %')
-  tableColWidths.push(16)
-  tableColWidths.push(20)
-  tableColWidths.push(20)
-}
-
-const t = new Table({
-  colWidths: tableColWidths,
-  head: tableHeaders
-})
-
-debug('fetching positions...')
-
-const example = async () => {
   const positions = await rest.positions()
-  const lastPrices = {}
+  const symbols = _map(positions, 'symbol')
 
   if (positions.length === 0) {
     return debug('no open positions')
   }
 
-  debug('... done')
+  debug('found %d open positions', positions.length)
+  debug('fetching tickers for: %s', symbols.join(', '))
 
-  // Pull in ticker data if we need to calculate P/L
-  if (PL_ENABLED) {
-    const symbols = positions.map(p => p.symbol)
+  const prices = {}
+  const rawTickers = await rest.tickers(symbols)
 
-    debug('fetching tickers for: %s...', symbols)
-    const rawTickers = await rest.tickers(symbols)
-    debug('... done')
+  rawTickers.forEach(({ symbol, lastPrice }) => (prices[symbol] = +lastPrice))
 
-    for (let i = 0; i < rawTickers.length; i += 1) { // only save lastPrice
-      lastPrices[rawTickers[i].symbol] = Number(rawTickers[i].lastPrice)
-    }
-  }
+  debugTable({
+    headers: [
+      'Symbol', 'Status', 'Amount', 'Base Price', 'Funding Cost', 'Base Value',
+      'Net Value', 'P/L', 'P/L %'
+    ],
 
-  for (let i = 0; i < positions.length; i += 1) {
-    const p = positions[i]
-    p.status = p.status.toLowerCase()
-    p.status = `${p.status[0].toUpperCase()}${p.status.substring(1)}`
-
-    const data = [
-      p.symbol, p.status, p.amount, p.basePrice, p.marginFunding,
-      Number(p.marginFunding) + (Number(p.amount) * Number(p.basePrice))
-    ]
-
-    if (PL_ENABLED) {
-      const nv = Number(lastPrices[p.symbol]) * Number(p.amount)
-      const pl = nv - (p.basePrice * p.amount)
+    rows: positions.map((p) => {
+      const nv = +prices[p.symbol] * +p.amount
+      const pl = nv - (+p.basePrice * +p.amount)
       const plPerc = (pl / nv) * 100.0
 
-      data.push(nv)
-      data.push(pl)
-      data.push(plPerc)
-    }
-
-    t.push(data)
-  }
-
-  // claim all position
-  // positions.map((p) => {
-  //   p.claim()
-  // })
-}
-
-example().catch(debug)
+      return [
+        p.symbol, _capitalize(p.status), prepareAmount(p.amount),
+        preparePrice(p.basePrice), prepareAmount(p.marginFunding),
+        prepareAmount(+p.marginFunding + (+p.amount * +p.basePrice)),
+        prepareAmount(nv), prepareAmount(pl), plPerc.toFixed(2)
+      ]
+    })
+  })
+})

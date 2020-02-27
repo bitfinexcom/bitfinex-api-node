@@ -1,6 +1,6 @@
 'use strict'
 
-const PI = require('p-iteration')
+const Promise = require('bluebird')
 const runExample = require('../util/run_example')
 
 const TABLE_DEF = {
@@ -8,7 +8,7 @@ const TABLE_DEF = {
 }
 
 module.exports = runExample({
-  name: 'rest-close-positions',
+  name: 'rest-claim-positions',
   rest: { env: true, transform: true },
   ws: { env: true, transform: true, connect: true, auth: true }
 }, async ({ debug, debugTable, rest, ws }) => {
@@ -28,19 +28,14 @@ module.exports = runExample({
     p.symbol, p.status, p.amount, p.basePrice, p.liqPrice, p.pl
   ])))
 
-  const orders = positions.map(p => p.orderToClose(ws))
+  debug('claiming all positions...')
 
-  debug('submitting:')
-  orders.forEach(o => (debug('%s', o.toString())))
-  debug('')
+  await Promise.all(positions.map(p => p.claim(ws)))
 
-  ws.onOrderClose({}, ({ id, symbol }) => {
-    debug('received confirmation of order %d closed on %s', id, symbol)
-  })
+  debug('new position data:')
+  debugTable(TABLE_DEF, positions.map(p => ([
+    p.symbol, p.status, p.amount, p.basePrice, p.liqPrice, p.pl
+  ])))
 
-  await PI.forEachSeries(orders, o => o.submit())
   await ws.close()
-
-  debug('')
-  debug('closed %d positions', positions.length)
 })

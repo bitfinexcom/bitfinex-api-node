@@ -1,3 +1,18 @@
+4.0.11
+- meta: added nyc for coverage file gen
+- meta: added husky npm test pre-commit hook
+- meta: refactored to async/await instead of Promises where possible
+- meta: refactored examples to reduce boilerplate and normalize output
+- examples: removed CLI scripts in favour of a dedicated bfx-cli module
+- examples: renamed 'orders' to 'list-open-orders'
+- examples: positions now always includes P/L
+- WSv2: support '*' filter value to match all
+- WSv2: added sequencingEnabled() method
+- WSv2: added usesAgent() method
+- WSv2: added getURL() method
+- WSv2: fix in cancelOrders() to prevent context clobber for this.cancelOrder() call
+- WSv2: default connection url now exposed on WSv2.url
+
 4.0.10
 - fix: refactor tests so they can run alongside all other HF/API library tests
 

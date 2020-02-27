@@ -1,94 +1,121 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
+const _uniq = require('lodash/uniq')
+const _capitalize = require('lodash/capitalize')
+const _isFinite = require('lodash/isFinite')
+const _isString = require('lodash/isString')
+const { preparePrice, prepareAmount } = require('bfx-api-node-util')
+const argFromCLI = require('../util/arg_from_cli')
+const runExample = require('../util/run_example')
 
-const Table = require('cli-table2')
-const debug = require('debug')('bfx:examples:rest2_balances')
-const bfx = require('../bfx')
-const rest = bfx.rest(2, { transform: true })
+module.exports = runExample({
+  name: 'rest-balances',
+  rest: {
+    env: true,
+    transform: true
+  },
 
-const tableHeaders = ['Type', 'Symbol', 'Total', 'Available']
-const tableColWidths = [20, 10, 20, 20]
+  params: {
+    valueCurrency: argFromCLI(2),
+    hideZeroBalances: true,
+    filterByType: false,
+    filterByCurrency: false
+  }
+}, async ({ debug, debugTable, rest, params }) => {
+  const {
+    valueCurrency, hideZeroBalances, filterByType, filterByCurrency
+  } = params
 
-const VALUE_CURRENCY = process.argv[2] // optional
-const VALUE_ENABLED = typeof VALUE_CURRENCY === 'string' // we do no validation
-const symbolForWallet = w => `t${w.currency.toUpperCase()}${VALUE_CURRENCY}`
+  const symbolForWallet = w => `t${w.currency}${valueCurrency}`
 
-if (VALUE_ENABLED) {
-  tableHeaders.push(`Value (${VALUE_CURRENCY})`)
-  tableHeaders.push(`Unit Price (${VALUE_CURRENCY})`)
-  tableColWidths.push(20)
-  tableColWidths.push(20)
-}
+  debug('fetching balances')
 
-const t = new Table({
-  head: tableHeaders,
-  colWidths: tableColWidths
-})
-
-debug('fetching balances...')
-
-const example = async () => {
-  const balances = await rest.balances() // actual balance fetch
   const lastPrices = {}
+  const allWallets = await rest.balances() // actual balance fetch
+  let balances = allWallets
+
+  if (hideZeroBalances) {
+    balances = balances.filter(({ available, amount }) => (
+      +available !== 0 || +amount !== 0
+    ))
+  }
+
+  if (_isString(filterByType)) {
+    balances = balances.filter(({ type }) =>
+      (type.toLowerCase() === filterByType.toLowerCase())
+    )
+  }
+
+  if (_isString(filterByCurrency)) {
+    balances = balances.filter(({ currency }) => (
+      currency.toLowerCase() === filterByCurrency.toLowerCase())
+    )
+  }
+
+  if (balances.length === 0) {
+    return debug('no wallets match provided filters')
+  }
+
+  balances = balances.map(w => ({
+    ...w,
+    currency: w.currency.toUpperCase(),
+    inValueCurrency: w.currency.toUpperCase() === (valueCurrency || '')
+  }))
+
+  debug(
+    'found %d non-zero balances: %s',
+    balances.length, balances.map(({ currency }) => currency).join(', ')
+  )
+
+  const rows = balances.map(({ currency, type, amount, available }) => ([
+    _capitalize(type),
+    currency,
+    prepareAmount(amount),
+    prepareAmount(available)
+  ]))
 
   // Pull in ticker data if the user specified a value currency
   // Balance in BTC, value in USD -> We need to fetch tBTCUSD (last price)
-  if (VALUE_ENABLED) {
-    const symbols = Array.from(new Set(balances
-      .filter(w => (
-        (w.currency.toUpperCase() !== VALUE_CURRENCY) && // already in val curr
-        (w.available !== '0.0' || w.amount === '0.0') // empty balance, ignore
-      )).map(w => symbolForWallet(w))))
+  if (valueCurrency) {
+    const balancesToConvert = balances.filter(({ inValueCurrency }) => !inValueCurrency)
+    const symbols = _uniq(balancesToConvert.map(symbolForWallet))
+    debug('fetching tickers for: %s', symbols.join(', '))
 
-    debug('fetching tickers for: %s...', symbols.join(', '))
-    const rawTickers = await rest.tickers(symbols)
-    debug('... done')
+    const tickers = await rest.tickers(symbols)
+    tickers.map(({ symbol, lastPrice }) => (lastPrices[symbol] = +lastPrice))
 
-    for (let i = 0; i < rawTickers.length; i += 1) { // only save lastPrice
-      lastPrices[rawTickers[i].symbol] = Number(rawTickers[i].lastPrice)
-    }
-  }
+    const totalValue = balances.map(({ currency, amount, inValueCurrency }, i) => {
+      const value = inValueCurrency
+        ? amount
+        : lastPrices[symbolForWallet({ currency })] * amount
 
-  let w
-  let totalValue = 0
+      // add value data to table rows
+      if (_isFinite(value)) {
+        rows[i].push(prepareAmount(value))
+        rows[i].push(inValueCurrency
+          ? '-'
+          : preparePrice(lastPrices[symbolForWallet({ currency })])
+        )
 
-  for (let i = 0; i < balances.length; i += 1) {
-    w = balances[i]
-    if (w.available === '0.0' && w.amount === '0.0') continue
+        return value
+      } else {
+        rows[i].push('-')
+        rows[i].push('-')
 
-    w.currency = w.currency.toUpperCase()
-    w.type = `${w.type[0].toUpperCase()}${w.type.substring(1)}`
-
-    const rowData = [
-      w.type, w.currency, w.amount, w.available
-    ]
-
-    if (VALUE_ENABLED) {
-      const value = w.currency === VALUE_CURRENCY
-        ? w.amount
-        : lastPrices[symbolForWallet(w)] * w.amount
-
-      const unitPrice = w.currency === VALUE_CURRENCY
-        ? 1
-        : lastPrices[symbolForWallet(w)]
-
-      rowData.push(Number.isNaN(+value) ? '' : value)
-      rowData.push(unitPrice)
-
-      if (!Number.isNaN(+value)) {
-        totalValue += Number(value)
+        return 0
       }
-    }
+    }).reduce((prev, curr) => prev + curr, 0)
 
-    t.push(rowData)
+    debug('total value: %d %s', prepareAmount(totalValue), valueCurrency)
   }
 
-  console.log(t.toString())
-
-  if (VALUE_ENABLED) {
-    debug('total value: %d %s', totalValue, VALUE_CURRENCY)
-  }
-}
-
-example().catch(debug)
+  debugTable({
+    rows,
+    headers: [
+      'Type', 'Symbol', 'Total', 'Available', ...(!valueCurrency ? [] : [
+        `Value (${valueCurrency})`,
+        `Unit Price (${valueCurrency})`
+      ]
+      )]
+  })
+})

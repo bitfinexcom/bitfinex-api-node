@@ -1,42 +1,40 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
+const runExample = require('../util/run_example')
 
-const debug = require('debug')('bfx:examples:submit_order')
-const bfx = require('../bfx')
-const rest = bfx.rest(2, { transform: true })
+module.exports = runExample({
+  name: 'rest-wallet',
+  rest: { env: true, transform: true }
+}, async ({ rest, debug }) => {
+  debug('Submitting new order...')
 
-debug('Submitting new order...')
-
-// get new deposit address
-rest.getDepositAddress({
-  wallet: 'exchange',
-  method: 'bitcoin',
-  opRenew: 0
-})
-  .then((address) => {
-    debug(`New wallet address ${address}`)
+  // get new deposit address
+  const address = await rest.getDepositAddress({
+    wallet: 'exchange',
+    method: 'bitcoin',
+    opRenew: 0
   })
 
-// transfer between accounts
-rest.transfer({
-  from: 'exchange',
-  to: 'margin',
-  amount: 10,
-  currency: 'BTC',
-  currencyTo: 'BTC'
-})
-  .then((res) => {
-    debug(`transfer confirmed: ${res}`)
+  debug(`new wallet address ${address}`)
+
+  // transfer between accounts
+  const transferConfirmation = await rest.transfer({
+    from: 'exchange',
+    to: 'margin',
+    amount: 10,
+    currency: 'BTC',
+    currencyTo: 'BTC'
   })
 
-// withdraw
-rest.withdraw({
-  wallet: 'exchange',
-  method: 'bitcoin',
-  amount: 2,
-  address: '1MUz4VMYui5qY1mxUiG8BQ1Luv6tqkvaiL'
-})
-  .then((res) => {
-    debug(`withdraw confirmed: ${res}`)
+  debug('transfer confirmed: %j', transferConfirmation)
+
+  // withdraw
+  const withdrawalConfirmation = await rest.withdraw({
+    wallet: 'exchange',
+    method: 'bitcoin',
+    amount: 2,
+    address: '1MUz4VMYui5qY1mxUiG8BQ1Luv6tqkvaiL'
   })
+
+  debug('withdraw confirmed: %j', withdrawalConfirmation)
+})

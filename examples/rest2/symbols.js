@@ -1,18 +1,15 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
+const runExample = require('../util/run_example')
 
-const debug = require('debug')('bfx:examples:rest2_symbols')
-const bfx = require('../bfx')
-const rest = bfx.rest(2, { transform: true })
+module.exports = runExample({
+  name: 'rest-get-symbols',
+  rest: { transform: true }
+}, async ({ rest, debug }) => {
+  debug('fetching symbol list...')
 
-debug('fetching symbol list...')
+  const symbols = await rest.symbols()
 
-rest.symbols().then(symbols => {
-  debug(
-    'available symbols are: %s',
-    symbols.map(s => `t${s.toUpperCase()}`).join(', ')
-  )
-}).catch(err => {
-  debug('error: %j', err)
+  debug('read %d symbols', symbols.length)
+  debug('%s', symbols.map(s => `t${s.toUpperCase()}`).join(', '))
 })

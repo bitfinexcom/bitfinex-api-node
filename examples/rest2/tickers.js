@@ -1,36 +1,32 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
+const { preparePrice, prepareAmount } = require('bfx-api-node-util')
+const runExample = require('../util/run_example')
 
-const debug = require('debug')('bfx:examples:rest2_tickers')
-const Table = require('cli-table2')
-const bfx = require('../bfx')
-const rest = bfx.rest(2, { transform: true })
+module.exports = runExample({
+  name: 'rest-get-tickers',
+  rest: { transform: true }
+}, async ({ rest, debug, debugTable }) => {
+  debug('fetching symbol list...')
 
-const table = new Table({
-  colWidths: [10, 14, 14, 14, 14, 14, 14, 18, 18],
-  head: [
-    'Symbol', 'Last', 'High', 'Low', 'Daily Change', 'Bid', 'Ask', 'Bid Size',
-    'Ask Size'
-  ]
-})
+  const symbols = await rest.symbols()
 
-debug('fetching symbol list...')
-
-rest.symbols().then(symbols => {
-  debug('available symbols are: %s', symbols.join(', '))
+  debug('read %d symbols', symbols.length)
   debug('fetching tickers...')
 
-  return rest.tickers([symbols.map(s => `t${s.toUpperCase()}`)])
-}).then(tickers => {
-  let t
-  for (let i = 0; i < tickers.length; i += 1) {
-    t = tickers[i]
-    table.push([
-      t.symbol, t.lastPrice, t.high, t.low, t.dailyChange, t.bid, t.ask,
-      t.bidSize, t.askSize
-    ])
-  }
+  const tickers = await rest.tickers([symbols.map(s => `t${s.toUpperCase()}`)])
 
-  console.log(table.toString())
-}).catch(debug)
+  debugTable({
+    colWidths: [10, 14, 14, 14, 14, 14, 14, 18, 18],
+    headers: [
+      'Symbol', 'Last', 'High', 'Low', 'Daily Change', 'Bid', 'Ask', 'Bid Size',
+      'Ask Size'
+    ],
+
+    rows: tickers.map(t => ([
+      t.symbol, preparePrice(t.lastPrice), preparePrice(t.high),
+      preparePrice(t.low), (t.dailyChange * 100).toFixed(2), preparePrice(t.bid),
+      preparePrice(t.ask), prepareAmount(t.bidSize), prepareAmount(t.askSize)
+    ]))
+  })
+})
