@@ -1,37 +1,37 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
+const Promise = require('bluebird')
+const runExample = require('../util/run_example')
 
-const debug = require('debug')('bfx:examples:ws2_cancel_all')
-const bfx = require('../bfx')
-const ws = bfx.ws(2, { transform: true })
+runExample({
+  name: 'cancel-all-orders',
+  ws: { env: true, connect: true, transform: true }
+}, async ({ ws, debug }) => {
+  debug('awaiting order snapshot...')
 
-ws.on('error', (err) => {
-  console.log(err)
-})
+  const [snapshot] = await Promise.all([
+    new Promise((resolve) => (ws.onOrderSnapshot({}, resolve))),
+    ws.auth()
+  ])
 
-ws.on('open', () => {
-  debug('open')
-  ws.auth()
-})
-
-ws.onOrderSnapshot({}, (snapshot) => {
   if (snapshot.length === 0) {
     debug('no orders to cancel')
-    ws.close()
+    await ws.close()
     return
   }
 
-  debug('canceling %d orders', snapshot.length)
+  debug('received snapshot (%d orders)', snapshot.length)
+  debug('')
+  snapshot.forEach(o => debug('%s', o.toString()))
+  debug('')
+  debug('cancelling all..')
 
-  ws.cancelOrders(snapshot).then(() => {
-    debug('cancelled all orders')
-    ws.close()
-  })
+  const confirmations = await ws.cancelOrders(snapshot)
+
+  debug(
+    'done! cancelled the following order IDs: %s',
+    confirmations.map(o => o[0]).join(', ')
+  )
+
+  await ws.close()
 })
-
-ws.once('auth', () => {
-  debug('authenticated')
-})
-
-ws.open()

@@ -1,15 +1,15 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
+const runExample = require('../util/run_example')
 
-const debug = require('debug')('bfx:examples:rest2_currencies')
-const bfx = require('../bfx')
-const rest = bfx.rest(2)
+module.exports = runExample({
+  name: 'rest-get-currencies',
+  rest: true
+}, async ({ debug, debugTable, rest }) => {
+  debug('fetching currency list...')
 
-debug('fetching currency list...')
+  const currencies = await rest.currencies()
 
-rest.currencies().then(currencies => {
-  console.log(JSON.stringify(currencies, null, 2))
-}).catch(err => {
-  debug('error: %j', err)
+  debug('received %d currencies', currencies[0].length)
+  debug('%s', currencies[0].join(', '))
 })

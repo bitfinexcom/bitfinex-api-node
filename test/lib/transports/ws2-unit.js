@@ -2,10 +2,13 @@
 'use strict'
 
 const assert = require('assert')
-const WSv2 = require('../../../lib/transports/ws2')
+const SocksProxyAgent = require('socks-proxy-agent')
 const { MockWSv2Server } = require('bfx-api-mock-srv')
+const _isFunction = require('lodash/isFunction')
 const _isObject = require('lodash/isObject')
+const _isString = require('lodash/isString')
 const _isEmpty = require('lodash/isEmpty')
+const WSv2 = require('../../../lib/transports/ws2')
 
 const API_KEY = 'dummy'
 const API_SECRET = 'dummy'
@@ -114,6 +117,15 @@ describe('WSv2 unit', () => {
       assert.strictEqual(listener.modelClass, Map)
       assert.deepStrictEqual(listener.filter, { 2: 'tBTCUSD' })
       assert.strictEqual(typeof listener.cb, 'function')
+    })
+
+    it('sequencingEnabled: returns sequencing status', () => {
+      ws = createTestWSv2Instance({ seqAudit: false })
+
+      assert.ok(_isFunction(ws.sequencingEnabled), 'WSv2 does not provide sequencingEnabled()')
+      assert.ok(!ws.sequencingEnabled(), 'sequencing enabled even though disabled in constructor')
+      ws.enableSequencing()
+      assert.ok(ws.sequencingEnabled(), 'sequencing status not reported by getter')
     })
 
     it('enableSequencing: sends the correct conf flag', async () => {
@@ -745,6 +757,24 @@ describe('WSv2 unit', () => {
 
       goodPayloads.forEach(p => assert(WSv2._payloadPassesFilter(p, filter)))
       badPayloads.forEach(p => assert(!WSv2._payloadPassesFilter(p, filter)))
+    })
+
+    it('_payloadPassesFilter: ignores filter if empty', () => {
+      const filterUndefined = { 1: undefined }
+      const filterNull = { 1: null }
+      const filterEmpty = { 1: '' }
+      const payload = [0, 'tBTCUSD', 42, '']
+
+      assert(WSv2._payloadPassesFilter(payload, filterUndefined))
+      assert(WSv2._payloadPassesFilter(payload, filterNull))
+      assert(WSv2._payloadPassesFilter(payload, filterEmpty))
+    })
+
+    it('_payloadPassesFilter: ignores filter if *', () => {
+      const filter = { 1: '*' }
+      const payload = [0, 'tBTCUSD', 42, '']
+
+      assert(WSv2._payloadPassesFilter(payload, filter))
     })
 
     it('_notifyListenerGroup: notifies all matching listeners in the group', (done) => {
@@ -1650,9 +1680,7 @@ describe('WSv2 unit', () => {
 
       assert.strictEqual(ws._validateMessageSeq([243, [252.12, 2, -1], 1]), null)
       assert.strictEqual(ws._validateMessageSeq([243, [252.12, 2, -1], 2]), null)
-
-      const err = ws._validateMessageSeq([243, [252.12, 2, -1], 5])
-      assert(err instanceof Error)
+      assert(ws._validateMessageSeq([243, [252.12, 2, -1], 5]) instanceof Error)
     })
 
     it('returns an error on invalid auth seq', () => {
@@ -1664,9 +1692,7 @@ describe('WSv2 unit', () => {
 
       assert.strictEqual(ws._validateMessageSeq([0, [252.12, 2, -1], 1, 1]), null)
       assert.strictEqual(ws._validateMessageSeq([0, [252.12, 2, -1], 2, 2]), null)
-
-      const err = ws._validateMessageSeq([0, [252.12, 2, -1], 3, 5])
-      assert(err instanceof Error)
+      assert(ws._validateMessageSeq([0, [252.12, 2, -1], 3, 5]) instanceof Error)
     })
 
     it('ignores heartbeats', () => {
@@ -1683,21 +1709,54 @@ describe('WSv2 unit', () => {
       assert.strictEqual(ws._validateMessageSeq([243, [252.12, 2, -1], 4]), null)
     })
 
-    it('ignores auth seq for notifications', () => {
-      ws = createTestWSv2Instance()
+    it.skip('all chan 0 messages except for notifications include, but do not advance the pub seq num', () => {
+      const ws = new WSv2()
 
       ws._seqAudit = true
-      ws._lastPubSeq = 0
-      ws._lastAuthSeq = 0
+      ws._lastPubSeq = 1
+      ws._lastAuthSeq = 1
 
-      const nSuccess = [null, null, null, null, null, null, 'SUCCESS']
-      const nError = [null, null, null, null, null, null, 'ERROR']
+      assert.strictEqual(ws._validateMessageSeq([0, 'bu', [], 1, 2]), null)
+      assert.strictEqual(ws._validateMessageSeq([0, 'bu', [], 1, 3]), null)
+      assert.strictEqual(ws._validateMessageSeq([0, 'bu', [], 1, 4]), null)
+      assert.strictEqual(ws._validateMessageSeq([0, 'n', [], 1, 5]), null)
+      assert.strictEqual(ws._lastPubSeq, 1)
+      assert.strictEqual(ws._lastAuthSeq, 5)
+    })
 
-      assert.strictEqual(ws._validateMessageSeq([0, 'n', nSuccess, 1, 1]), null)
-      assert.strictEqual(ws._validateMessageSeq([0, 'n', nSuccess, 2, 2]), null)
-      assert.strictEqual(ws._validateMessageSeq([0, 'n', nError, 3, 2]), null)
-      assert.strictEqual(ws._validateMessageSeq([0, 'n', nSuccess, 4, 3]), null)
-      assert.strictEqual(ws._validateMessageSeq([0, 'n', nSuccess, 5, 4]), null)
+    it.skip('non-*-req notifications advance the auth seq num and do not include a pub seq num', () => {
+      const ws = new WSv2()
+
+      ws._seqAudit = true
+      ws._lastPubSeq = 4
+      ws._lastAuthSeq = 4
+
+      const nonReqPayload = [null, null, null, null, null, null, null]
+
+      assert.strictEqual(ws._validateMessageSeq([0, 'n', nonReqPayload, 5]), null)
+      assert.strictEqual(ws._validateMessageSeq([0, 'n', nonReqPayload, 6]), null)
+      assert.strictEqual(ws._validateMessageSeq([0, 'n', nonReqPayload, 7]), null)
+      assert.strictEqual(ws._validateMessageSeq([0, 'n', nonReqPayload, 8]), null)
+      assert.strictEqual(ws._validateMessageSeq([0, 'n', nonReqPayload, 9]), null)
+      assert.strictEqual(ws._lastPubSeq, 9)
+      assert.strictEqual(ws._lastAuthSeq, 9)
+    })
+
+    it.skip('*-req notifications do not advance the auth sequence number', () => {
+      const ws = new WSv2()
+      const onReqPacket = [0, 'n', [0, 'on-req', null, null, [], null, '', ''], 1]
+      const ouReqPacket = [0, 'n', [0, 'ou-req', null, null, [], null, '', ''], 1]
+      const ocReqPacket = [0, 'n', [0, 'oc-req', null, null, [], null, '', ''], 1]
+
+      ws._seqAudit = true
+      ws._lastPubSeq = -1
+      ws._lastAuthSeq = -1
+
+      assert.strictEqual(ws._validateMessageSeq(onReqPacket), null)
+      assert.strictEqual(ws._validateMessageSeq(ouReqPacket), null)
+      assert.strictEqual(ws._validateMessageSeq(ocReqPacket), null)
+      assert.strictEqual(ws._lastPubSeq, -1)
+      assert.strictEqual(ws._lastAuthSeq, 3)
     })
   })
 
@@ -1839,6 +1898,13 @@ describe('WSv2 unit', () => {
     })
   })
 
+  describe('getURL', () => {
+    it('returns the URL the instance was constructed with', () => {
+      const ws = new WSv2({ url: 'test' })
+      assert.strictEqual(ws.getURL(), 'test', 'instance does not use provided URL')
+    })
+  })
+
   describe('auth args', () => {
     it('provides getAuthArgs to read args', () => {
       ws = createTestWSv2Instance()
@@ -1871,6 +1937,28 @@ describe('WSv2 unit', () => {
 
       ws.auth() // note promise ignored
       assert(sendCalled)
+    })
+  })
+
+  describe('usesAgent', () => {
+    it('returns true if an agent was passed to the constructor', () => {
+      ws = createTestWSv2Instance({
+        agent: new SocksProxyAgent('socks4://127.0.0.1:9998')
+      })
+
+      assert.ok(ws.usesAgent(), 'usesAgent() does not indicate agent presence when one was provided')
+    })
+
+    it('returns false if no agent was passed to the constructor', () => {
+      ws = createTestWSv2Instance()
+
+      assert.ok(!ws.usesAgent(), 'usesAgent() indicates agent presence when none provided')
+    })
+  })
+
+  describe('default connection url', () => {
+    it('is a static member on the class', () => {
+      assert.ok(_isString(WSv2.url) && !_isEmpty(WSv2.url))
     })
   })
 })

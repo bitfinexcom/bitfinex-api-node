@@ -1,15 +1,27 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
+const runExample = require('../util/run_example')
 
-const debug = require('debug')('bfx:examples:rest2_symbol_details')
-const bfx = require('../bfx')
-const rest = bfx.rest(2)
+module.exports = runExample({
+  name: 'rest-get-symbol-details',
+  rest: true
+}, async ({ rest, debug, debugTable }) => {
+  debug('fetching symbol details...')
 
-debug('fetching symbol details...')
+  const details = await rest.symbolDetails()
 
-rest.symbolDetails().then(res => {
-  console.log(JSON.stringify(res, null, 2))
-}).catch(err => {
-  debug('error: %j', err)
+  debugTable({
+    headers: [
+      'Pair', 'Precision', 'Initial Margin', 'Min Margin', 'Max Order',
+      'Min Order', 'Margin'
+    ],
+
+    rows: details.map(({
+      pair, price_precision, initial_margin, minimum_margin, // eslint-disable-line
+      maximum_order_size, minimum_order_size, margin // eslint-disable-line
+    }) => [
+      pair.toUpperCase(), price_precision, initial_margin, minimum_margin, // eslint-disable-line
+      maximum_order_size, minimum_order_size, margin ? 'Y' : 'N' // eslint-disable-line
+    ])
+  })
 })

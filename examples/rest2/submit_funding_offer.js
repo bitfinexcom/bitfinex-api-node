@@ -1,34 +1,35 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
-
-const debug = require('debug')('bfx:examples:submit_order')
-const bfx = require('../bfx')
+const Promise = require('bluebird')
 const { FundingOffer } = require('bfx-api-node-models')
-const rest = bfx.rest(2, { transform: true })
+const runExample = require('../util/run_example')
 
-debug('Submitting new order...')
+const CLOSE_DELAY_MS = 5 * 1000
 
-// Build new order
-const fo = new FundingOffer({
-  type: 'LIMIT',
-  symbol: 'fUSD',
-  rate: 0.0120000,
-  amount: 120,
-  period: 2
-}, rest)
+module.exports = runExample({
+  name: 'rest-submit-funding-offer',
+  rest: { env: true, transform: true }
+}, async ({ debug, rest, params }) => {
+  const fo = new FundingOffer({
+    type: 'LIMIT',
+    symbol: 'fUSD',
+    rate: 0.0120000,
+    amount: 120,
+    period: 2
+  }, rest)
 
-fo.submit().then((fo) => {
-  debug('Submitted funding offer', fo.id)
+  debug('submitting: %s', fo.toString())
+
+  try {
+    await fo.submit()
+  } catch (e) {
+    return debug('failed: %s', e.message)
+  }
+
+  debug('done. closing in %ds...', CLOSE_DELAY_MS / 1000)
+
+  await new Promise(resolve => setTimeout(resolve, CLOSE_DELAY_MS))
+  await fo.close()
+
+  debug('offer closed')
 })
-  .catch((err) => console.log(err))
-
-// cancel offer
-
-// setTimeout(() => {
-//   fo.cancel()
-// }, 5000)
-
-setTimeout(() => {
-  fo.close()
-}, 5000)

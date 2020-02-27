@@ -1,15 +1,20 @@
 {
   "name": "bitfinex-api-node",
-  "version": "4.0.10",
+  "version": "4.0.11",
   "description": "Node reference library for Bitfinex API",
   "engines": {
     "node": ">=7"
   },
   "main": "index.js",
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm test"
+    }
+  },
   "scripts": {
     "lint": "standard",
     "test": "npm run lint && npm run unit",
-    "unit": "NODE_ENV=test mocha -b --recursive",
+    "unit": "NODE_ENV=test nyc --reporter=lcov mocha -b --recursive",
     "manager_docs": "node_modules/jsdoc-to-markdown/bin/cli.js lib/ws2_manager.js > docs/manager.md",
     "ws_docs": "node_modules/jsdoc-to-markdown/bin/cli.js lib/transports/ws2.js > docs/ws2.md",
     "docs": "npm run ws_docs && npm run manager_docs",
@@ -22,7 +27,7 @@
     "trade-history": "node examples/rest2/trade-history.js",
     "positions": "node examples/rest2/positions.js",
     "balances": "node examples/rest2/balances.js",
-    "orders": "node examples/rest2/orders.js",
+    "list-open-orders": "node examples/rest2/list_open_orders.js",
     "close-positions": "node examples/rest2/close_positions.js",
     "cancel-orders": "node examples/ws2/cancel_all.js",
     "ledgers": "node examples/rest2/ledgers.js",
@@ -59,6 +64,7 @@
     "chai": "^3.4.1",
     "cli-table2": "^0.2.0",
     "dotenv": "^4.0.0",
+    "husky": "^4.2.3",
     "jsdoc-to-markdown": "^5.0.1",
     "mocha": "^3.4.2",
     "nyc": "^15.0.0",

@@ -1,40 +1,50 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
-
-const debug = require('debug')('bfx:examples:submit_order')
-const bfx = require('../bfx')
+const Promise = require('bluebird')
 const { Order } = require('bfx-api-node-models')
-const rest = bfx.rest(2)
+const runExample = require('../util/run_example')
 
-debug('Submitting new order...')
+const delay = (ms) => new Promise(resolve => (setTimeout(resolve, ms)))
 
-// Build new order
-const o = new Order({
-  cid: Date.now(),
-  symbol: 'tBTCUSD',
-  price: 18000,
-  amount: -0.02,
-  type: Order.type.LIMIT,
-  lev: 10
-}, rest)
+const UPDATE_DELAY_MS = 5 * 1000
+const CANCEL_DELAY_MS = 10 * 1000
 
-o.submit().then(() => {
-  debug(
-    'got submit confirmation for order %d [%d] [tif: %d]',
-    o.cid, o.id, o.mtsTIF
-  )
+module.exports = runExample({
+  name: 'rest-submit-order',
+  rest: { env: true }
+}, async ({ rest, debug }) => {
+  const o = new Order({
+    cid: Date.now(),
+    symbol: 'tLEOUSD',
+    price: 2,
+    amount: -6,
+    type: Order.type.LIMIT,
+    affiliateCode: 'xZvWHMNR'
+  }, rest)
+
+  debug('submitting order: %s', o.toString())
+
+  await o.submit()
+
+  debug('order successfully submitted! (id %j, cid %j, gid %j)', o.id, o.cid, o.gid)
+  debug('')
+  debug('will update price to $3.00 in %fs...', UPDATE_DELAY_MS / 1000)
+
+  await delay(UPDATE_DELAY_MS)
+
+  debug('')
+  debug('updating order price...')
+
+  const updateNotification = await o.update({ price: 3 })
+  debug('successfully updated! (%s: %s)', updateNotification.status, updateNotification.text)
+  debug('')
+  debug('will cancel the order in %fs', CANCEL_DELAY_MS / 1000)
+
+  await delay(CANCEL_DELAY_MS)
+
+  debug('')
+  debug('cancelling order...')
+
+  const cancelNotification = await o.cancel()
+  debug('successfully canceled! (%s: %s)', cancelNotification.status, cancelNotification.text)
 })
-  .catch((err) => console.log(err))
-
-// update order
-
-setTimeout(() => {
-  o.update({
-    price: 17000
-  })
-}, 5000)
-
-setTimeout(() => {
-  o.cancel()
-}, 10000)

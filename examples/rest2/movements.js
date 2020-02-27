@@ -1,41 +1,40 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
+const { prepareAmount, preparePrice } = require('bfx-api-node-util')
+const runExample = require('../util/run_example')
+const argFromCLI = require('../util/arg_from_cli')
 
-const args = process.argv
-const debug = require('debug')('bfx:examples:rest2-movements')
-const Table = require('cli-table2')
-const bfx = require('../bfx')
-const rest = bfx.rest(2, { transform: true })
-const ccy = args.length < 3 ? null : String(args[2])
+module.exports = runExample({
+  name: 'rest-get-movements',
+  rest: { env: true, transform: true },
+  params: {
+    ccy: argFromCLI(0, 'all')
+  }
+}, async ({ debug, debugTable, rest, params }) => {
+  const ccy = params.ccy === 'all' ? null : params.ccy
 
-const table = new Table({
-  colWidths: [12, 12, 20, 20, 20, 14, 14, 20, 20],
-  head: [
-    'ID', 'Currency', 'Started', 'Updated', 'Status', 'Amount', 'Fees',
-    'Destination', 'Tx ID'
-  ]
-})
+  debug('fetching movements for %s...', ccy || 'all currencies')
 
-debug('fetching movements for %s...', ccy || 'all currencies')
+  const movements = await rest.movements(ccy)
 
-rest.movements(ccy).then(movements => {
-  let m
-
-  for (let i = 0; i < movements.length; i += 1) {
-    m = movements[i]
-
-    const status = `${m.status[0].toUpperCase()}${m.status.substring(1).toLowerCase()}`
-    const started = new Date(m.mtsStarted).toLocaleString()
-    const updated = new Date(m.mtsUpdated).toLocaleString()
-
-    table.push([
-      m.id, m.currency, started, updated, status, m.amount, m.fees,
-      m.destinationAddress, m.transactionId
-    ])
+  if (movements.length === 0) {
+    return debug('no movements found')
   }
 
-  console.log(table.toString())
-}).catch(err => {
-  debug('error: %j', err)
+  debugTable({
+    headers: [
+      'ID', 'Currency', 'Started', 'Updated', 'Status', 'Amount', 'Fees'
+    ],
+
+    rows: movements.map((m) => {
+      const status = `${m.status[0].toUpperCase()}${m.status.substring(1).toLowerCase()}`
+      const started = new Date(m.mtsStarted).toLocaleString()
+      const updated = new Date(m.mtsUpdated).toLocaleString()
+
+      return [
+        m.id, m.currency, started, updated, status, prepareAmount(m.amount),
+        preparePrice(m.fees)
+      ]
+    })
+  })
 })
