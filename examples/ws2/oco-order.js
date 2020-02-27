@@ -1,73 +1,53 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
-
-const debug = require('debug')('bfx:examples:ws2_oco_order')
+const Promise = require('bluebird')
 const { Order } = require('bfx-api-node-models')
-const bfx = require('../bfx')
-const ws = bfx.ws(2)
+const runExample = require('../util/run_example')
 
-ws.on('error', (err) => {
-  console.log(err)
+// Build new order
+const o = new Order({
+  cid: Date.now(),
+  symbol: 'tBTCUSD',
+  type: Order.type.EXCHANGE_LIMIT,
+  amount: -0.05,
+
+  oco: true,
+  price: 2000,
+  priceAuxLimit: 1000
 })
 
-ws.on('open', () => {
-  debug('open')
-  ws.auth()
-})
+module.exports = runExample({
+  name: 'ws2-oco-order',
+  ws: { env: true, connect: true, auth: true, transform: true }
+}, async ({ ws, debug }) => {
+  o.registerListeners(ws) // enable automatic updates
 
-ws.once('auth', () => {
-  debug('authenticated')
-
-  // Build new order
-  const o = new Order({
-    cid: Date.now(),
-    symbol: 'tBTCUSD',
-    type: Order.type.EXCHANGE_LIMIT,
-    amount: -0.05,
-
-    oco: true,
-    price: 2000,
-    priceAuxLimit: 1000
-  }, ws)
-
-  let closed = false
-
-  // Enable automatic updates
-  o.registerListeners()
+  let orderClosed = false
 
   o.on('update', () => {
-    debug('order updated: %j', o.serialize())
+    debug('updated: %s', o.toString())
   })
 
   o.on('close', () => {
     debug('order closed: %s', o.status)
-    closed = true
+    orderClosed = true
   })
 
   debug('submitting order %d', o.cid)
+  await o.submit()
+  debug('got submit confirmation for order %d [%d]', o.cid, o.id)
 
-  o.submit().then(() => {
-    debug('got submit confirmation for order %d [%d]', o.cid, o.id)
+  // wait a bit...
+  await new Promise(resolve => setTimeout(resolve, 2000))
 
-    // wait a bit...
-    setTimeout(() => {
-      if (closed) return
+  if (orderClosed) {
+    return ws.close()
+  }
 
-      debug('canceling...')
+  debug('canceling...')
 
-      o.cancel().then(() => {
-        debug('got cancel confirmation for order %d', o.cid)
-        ws.close()
-      }).catch((err) => {
-        debug('error cancelling order: %j', err)
-        ws.close()
-      })
-    }, 2000)
-  }).catch((err) => {
-    console.log(err)
-    ws.close()
-  })
+  await o.cancel()
+  debug('got cancel confirmation for order %d', o.cid)
+
+  await ws.close()
 })
-
-ws.open()

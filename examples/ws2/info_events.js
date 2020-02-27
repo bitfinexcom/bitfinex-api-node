@@ -1,26 +1,13 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
+const runExample = require('../util/run_example')
 
-const debug = require('debug')('bfx:examples:ws2_info_events')
-const bfx = require('../bfx')
-
-const ws = bfx.ws(2, {
-  autoReconnect: true
-})
-
-ws.on('open', () => {
-  debug('open')
-  ws.auth()
-})
-
-ws.on('error', (err) => {
-  debug('error: %j', err)
-})
-
-ws.once('auth', () => {
-  debug('authenticated')
-
+module.exports = runExample({
+  name: 'ws2-info-events',
+  ws: {
+    env: true, connect: true, auth: true, autoReconnect: true
+  }
+}, async ({ ws, debug }) => {
   ws.onMaintenanceStart(() => {
     debug('info: maintenance period started')
     // pause activity untill further notice
@@ -33,8 +20,6 @@ ws.once('auth', () => {
 
   ws.onServerRestart(() => {
     debug('info: bitfinex ws server restarted')
-    // ws.reconnect() // if not using autoReconnect
+    // await ws.reconnect() // if not using autoReconnect
   })
 })
-
-ws.open()

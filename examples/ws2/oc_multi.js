@@ -1,50 +1,55 @@
 'use strict'
 
-process.env.DEBUG = '*'
-
-const debug = require('debug')('bfx:examples:ws2_oc_multi')
 const { Order } = require('bfx-api-node-models')
-const bfx = require('../bfx')
-const ws = bfx.ws(2)
+const runExample = require('../util/run_example')
 
-ws.on('error', (err) => {
-  console.log(err)
+const oA = new Order({
+  symbol: 'tBTCUSD',
+  price: 200,
+  amount: 1,
+  type: 'EXCHANGE LIMIT'
 })
 
-ws.on('open', () => {
-  debug('open')
-  ws.auth()
+const oB = new Order({
+  symbol: 'tETHUSD',
+  price: 50,
+  amount: 1,
+  type: 'EXCHANGE LIMIT'
 })
 
-ws.once('auth', () => {
-  debug('authenticated')
+module.exports = runExample({
+  name: 'ws2-oc-multi',
+  ws: { env: true, connect: true, auth: true, transform: true }
+}, async ({ ws, debug }) => {
+  oA.registerListeners(ws)
+  oB.registerListeners(ws)
 
-  const oA = new Order({
-    symbol: 'tBTCUSD',
-    price: 200,
-    amount: 1,
-    type: 'EXCHANGE LIMIT'
-  }, ws)
+  await oA.submit()
+  debug('created order A')
 
-  const oB = new Order({
-    symbol: 'tETHUSD',
-    price: 50,
-    amount: 1,
-    type: 'EXCHANGE LIMIT'
-  }, ws)
+  await oB.submit()
+  debug('created order B')
 
-  oA.submit().then(() => {
-    debug('created order A')
-    return oB.submit()
-  }).then(() => {
-    debug('created order B')
+  let oAClosed = false
+  let oBClosed = false
 
-    ws.send([0, 'oc_multi', null, {
-      id: [oA.id, oB.id]
-    }])
+  oA.on('close', async () => {
+    debug('order A cancelled: %s', oA.status)
 
-    debug('sent oc_multi for orders A & B')
+    oAClosed = true
+    if (oBClosed) return ws.close()
   })
-})
 
-ws.open()
+  oB.on('close', async () => {
+    debug('order B cancelled: %s', oB.status)
+
+    oBClosed = true
+    if (oAClosed) return ws.close()
+  })
+
+  ws.send([0, 'oc_multi', null, {
+    id: [oA.id, oB.id]
+  }])
+
+  debug('sent oc_multi for orders A & B')
+})

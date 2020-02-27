@@ -3,7 +3,7 @@
 const Promise = require('bluebird')
 const runExample = require('../util/run_example')
 
-runExample({
+module.exports = runExample({
   name: 'cancel-all-orders',
   ws: { env: true, connect: true, transform: true }
 }, async ({ ws, debug }) => {

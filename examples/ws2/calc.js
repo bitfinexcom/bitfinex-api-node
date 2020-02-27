@@ -1,34 +1,24 @@
 'use strict'
 
-process.env.DEBUG = '*'
+const Promise = require('bluebird')
+const runExample = require('../util/run_example')
 
-const debug = require('debug')('bfx:examples:ws2_calc')
-const bfx = require('../bfx')
-const ws = bfx.ws(2)
+module.exports = runExample({
+  name: 'ws2-calc',
+  ws: { env: true, connect: true, auth: true }
+}, async ({ ws, debug }) => {
+  await new Promise(resolve => setTimeout(resolve, 5 * 1000))
 
-ws.on('error', (err) => {
-  console.log(err)
+  ws.requestCalc([
+    'margin_sym_tBTCUSD',
+    'position_tBTCUSD',
+    'wallet_margin_BTC',
+    'wallet_funding_USD'
+  ])
+
+  // Watch log output for balance update packets (wu, miu, etc)
+  debug('sent calc, closing in 30s...')
+
+  await new Promise(resolve => setTimeout(resolve, 30 * 1000))
+  await ws.close()
 })
-
-ws.on('open', () => {
-  debug('open')
-  ws.auth()
-})
-
-ws.once('auth', () => {
-  debug('authenticated')
-
-  setTimeout(() => {
-    ws.requestCalc([
-      'margin_sym_tBTCUSD',
-      'position_tBTCUSD',
-      'wallet_margin_BTC',
-      'wallet_funding_USD'
-    ])
-
-    // Watch log output for balance update packets (wu, miu, etc)
-    debug('sent calc')
-  }, 5000)
-})
-
-ws.open()

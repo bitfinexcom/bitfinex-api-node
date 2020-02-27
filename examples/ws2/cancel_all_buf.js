@@ -1,39 +1,27 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
+const runExample = require('../util/run_example')
 
-const debug = require('debug')('bfx:examples:ws2_cancel_all_buf')
-const bfx = require('../bfx')
-const ws = bfx.ws(2, {
-  transform: true,
-  orderOpBufferDelay: 250 // this is the only difference :)
-})
-
-// The rest is as in ws_cancel_all.js
-ws.on('error', (err) => {
-  console.log(err)
-})
-
-ws.on('open', () => {
-  debug('open')
-  ws.auth()
-})
-
-ws.onOrderSnapshot({}, (snapshot) => {
-  if (snapshot.length === 0) {
-    debug('no orders to cancel')
-    return
+module.exports = runExample({
+  name: 'ws2-cancel-all-buffered',
+  ws: {
+    env: true,
+    connect: true,
+    auth: true,
+    transform: true,
+    orderOpBufferDelay: 250
   }
+}, async ({ ws, debug }) => {
+  ws.onOrderSnapshot({}, async (snapshot) => {
+    if (snapshot.length === 0) {
+      debug('no orders to cancel')
+      return
+    }
 
-  debug('canceling %d orders', snapshot.length)
+    debug('canceling %d orders', snapshot.length)
 
-  ws.cancelOrders(snapshot).then(() => {
+    await ws.cancelOrders(snapshot)
     debug('cancelled all orders')
+    await ws.close()
   })
 })
-
-ws.once('auth', () => {
-  debug('authenticated')
-})
-
-ws.open()

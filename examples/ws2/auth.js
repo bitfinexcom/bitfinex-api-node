@@ -1,31 +1,21 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
+const runExample = require('../util/run_example')
 
-const debug = require('debug')('bfx:examples:ws2_auth')
-const bfx = require('../bfx')
-const ws = bfx.ws(2)
+module.exports = runExample({
+  name: 'ws2-auth',
+  ws: { env: true } // manually open/auth to show usage
+}, async ({ ws, debug }) => {
+  // register a callback for any order snapshot that comes in (account orders)
+  ws.onOrderSnapshot({}, (orders) => {
+    debug(`order snapshot: ${JSON.stringify(orders, null, 2)}`)
+  })
 
-ws.on('open', () => { // wait for socket open
-  ws.auth() // & authenticate
-
+  await ws.open()
   debug('open')
-})
 
-ws.on('error', (err) => {
-  debug('error: %j', err)
-})
-
-ws.once('auth', () => {
+  await ws.auth()
   debug('authenticated')
 
   // do something with authenticated ws stream
 })
-
-// Register a callback for any order snapshot that comes in (account orders)
-ws.onOrderSnapshot({}, (orders) => {
-  debug(`order snapshot: ${JSON.stringify(orders, null, 2)}`)
-})
-
-// Open the websocket connection
-ws.open()

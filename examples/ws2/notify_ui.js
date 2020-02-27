@@ -1,23 +1,11 @@
 'use strict'
 
-process.env.DEBUG = '*'
+const runExample = require('../util/run_example')
 
-const debug = require('debug')('bfx:examples:notify_ui')
-const bfx = require('../bfx')
-const ws = bfx.ws(2)
-
-ws.on('error', (err) => {
-  console.log(err)
-})
-
-ws.on('open', () => {
-  debug('open')
-  ws.auth()
-})
-
-ws.once('auth', () => {
-  debug('authenticated')
-
+module.exports = runExample({
+  name: 'ws2-notify-ui',
+  ws: { env: true, connect: true, auth: true, transform: true }
+}, async ({ ws, debug }) => {
   ws.notifyUI({
     type: 'success',
     message: 'This is a test notification sent via the WSv2 API'
@@ -25,7 +13,5 @@ ws.once('auth', () => {
 
   debug('notification sent')
 
-  ws.close()
+  return ws.close()
 })
-
-ws.open()
