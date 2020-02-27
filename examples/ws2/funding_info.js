@@ -1,30 +1,15 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
-
-const debug = require('debug')('bfx:examples:funding_info')
-const bfx = require('../bfx')
-const ws = bfx.ws(2)
-
+const runExample = require('../util/run_example')
 const symbol = 'fUSD'
 
-ws.on('open', () => {
-  debug('open')
-  ws.auth()
-})
-
-ws.once('auth', () => {
-  setTimeout(() => {
-    ws.requestCalc([
-      `funding_sym_${symbol}`
-    ])
+module.exports = runExample({
+  name: 'ws2-funding-info',
+  ws: { env: true, connect: true, auth: true, transform: true }
+}, async ({ ws, debug }) => {
+  ws.onFundingInfoUpdate({}, fiu => {
+    fiu.forEach(fl => debug('fl: %j', fl.toJS()))
   })
-})
 
-ws.onFundingInfoUpdate({}, fiu => {
-  fiu.forEach(fl => {
-    debug('fl: %j', fl)
-  })
+  ws.requestCalc([`funding_sym_${symbol}`])
 })
-
-ws.open()

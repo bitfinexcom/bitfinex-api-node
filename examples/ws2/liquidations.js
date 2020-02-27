@@ -1,18 +1,14 @@
 'use strict'
 
-process.env.DEBUG = '*'
+const runExample = require('../util/run_example')
 
-const debug = require('debug')('bfx:examples:liquidations')
-const bfx = require('../bfx')
-const ws = bfx.ws(2, { transform: true })
+module.exports = runExample({
+  name: 'ws2-liquidations',
+  ws: { env: true, connect: true }
+}, async ({ ws, debug }) => {
+  ws.onStatus({ key: 'liq:global' }, (data) => {
+    debug('%j', data)
+  })
 
-ws.on('open', () => {
-  debug('open')
-  ws.subscribeStatus('liq:global')
+  await ws.subscribeStatus('liq:global')
 })
-
-ws.onStatus({ key: 'liq:global' }, (data) => {
-  console.log(data)
-})
-
-ws.open()
