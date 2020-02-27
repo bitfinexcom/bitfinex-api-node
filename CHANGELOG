@@ -1,3 +1,7 @@
+4.0.11
+- WSv2: fix error 'invalid pub seq #' after submitting an order
+- docs: fix reference link for onAccountTradeEntry
+
 4.0.10
 - fix: refactor tests so they can run alongside all other HF/API library tests
 
