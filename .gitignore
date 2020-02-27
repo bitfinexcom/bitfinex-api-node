@@ -9,3 +9,5 @@ todo
 package-lock.json
 .env
 dist/
+.nyc_output
+coverage/

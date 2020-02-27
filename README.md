@@ -4,15 +4,15 @@
 
 A Node.JS reference implementation of the Bitfinex API
 
-### Features
+## Features
 
 * Official implementation
 * REST v2 API
 * WebSockets v2 API
 * WebSockets v1 API
 
-
 ## Installation
+
 ```bash
   npm i --save bitfinex-api-node
 ```
@@ -35,6 +35,7 @@ Official API documentation at [https://docs.bitfinex.com/v2/reference](https://d
 ### Examples
 
 Sending an order & tracking status:
+
 ```js
 const ws = bfx.ws()
 
@@ -73,6 +74,7 @@ ws.open()
 ```
 
 Cancel all open orders
+
 ```js
 const ws = bfx.ws(2)
 
@@ -96,6 +98,7 @@ ws.open()
 ```
 
 Subscribe to trades by pair
+
 ```js
 const ws = bfx.ws(2)
 
@@ -114,9 +117,9 @@ ws.onTradeEntry({ symbol: 'tBTCUSD' }, (trades) => {
 ws.open()
 ```
 
-## Version 2.0.0 Breaking changes:
+## Version 2.0.0 Breaking changes
 
-### constructor takes only an options object now, including the API keys.
+### constructor takes only an options object now, including the API keys
 
 Old:
 

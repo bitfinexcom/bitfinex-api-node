@@ -48,14 +48,20 @@ class BFX {
     }
   }
 
+  /**
+   * Returns an arguments map ready to pass to a transport constructor
+   *
+   * @param {Object} extraOpts - options to pass to transport
+   */
   _getTransportPayload (extraOpts) {
-    return Object.assign({
+    return {
       apiKey: this._apiKey,
       apiSecret: this._apiSecret,
       authToken: this._authToken,
       company: this._company,
-      transform: this._transform
-    }, extraOpts)
+      transform: this._transform,
+      ...extraOpts
+    }
   }
 
   /**

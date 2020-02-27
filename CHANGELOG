@@ -1,6 +1,22 @@
-4.0.6
+4.0.11
 - WSv2: fix error 'invalid pub seq #' after submitting an order
 - docs: fix reference link for onAccountTradeEntry
+
+4.0.10
+- fix: refactor tests so they can run alongside all other HF/API library tests
+
+4.0.9
+- WS2Manager: respect internal auth arg settings
+
+4.0.8
+- WSv2: fix on trade message handler by prioritising channel data symbol over pair symbol
+
+4.0.7
+- WSv2: refactor to use async/await style where possible
+- WSv2: reconnect() now always resolves on completion
+
+4.0.6
+- WSv2: fix internal flag persistence #521
 
 4.0.5
 - WSv2: add auth arg management (pre-set dms and calc)
