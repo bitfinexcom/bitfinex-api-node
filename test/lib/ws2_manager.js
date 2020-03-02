@@ -2,10 +2,138 @@
 'use strict'
 
 const assert = require('assert')
+const Promise = require('bluebird')
+const _isObject = require('lodash/isObject')
+const _isArray = require('lodash/isArray')
 const WS2Manager = require('../../lib/ws2_manager')
 const WSv2 = require('../../lib/transports/ws2')
 
 describe('WS2Manager', () => {
+  describe('setAuthArgs', () => {
+    it('updates the internal auth args', () => {
+      const m = new WS2Manager()
+      m.setAuthArgs({ apiKey: '42' })
+      assert.strictEqual(m.getAuthArgs().apiKey, '42')
+    })
+
+    it('updates auth args on all sockets', () => {
+
+    })
+  })
+
+  describe('getAuthArgs', () => {
+    it('returns internal auth args', () => {
+      const m = new WS2Manager()
+      m.setAuthArgs({ apiKey: '42' })
+      assert.strictEqual(m.getAuthArgs().apiKey, '42')
+    })
+  })
+
+  describe('reconnect', () => {
+    it('calls reconnect on all sockets', async () => {
+      const m = new WS2Manager()
+      let called = false
+
+      m._sockets.push({
+        ws: { reconnect: () => { called = true } }
+      })
+
+      await m.reconnect()
+      assert.ok(called, 'reconnect not called on socket')
+    })
+
+    it('resolves when all sockets reconnect', async () => {
+      const m = new WS2Manager()
+      let called = false
+
+      m._sockets.push({
+        ws: {
+          reconnect: async () => {
+            await Promise.delay(10)
+            called = true
+          }
+        }
+      })
+
+      await m.reconnect()
+      assert.ok(called, 'reconnect not called on socket')
+    })
+  })
+
+  describe('close', () => {
+    it('calls close on all sockets', async () => {
+      const m = new WS2Manager()
+      let called = false
+
+      m._sockets.push({
+        ws: { close: () => { called = true } }
+      })
+
+      await m.close()
+      assert.ok(called, 'close not called on socket')
+    })
+
+    it('resolves when all sockets close', async () => {
+      const m = new WS2Manager()
+      let called = false
+
+      m._sockets.push({
+        ws: {
+          close: async () => {
+            await Promise.delay(10)
+            called = true
+          }
+        }
+      })
+
+      await m.close()
+      assert.ok(called, 'close not called on socket')
+    })
+  })
+
+  describe('getNumSockets', () => {
+    it('returns the number of sockets', () => {
+      const m = new WS2Manager()
+      m._sockets.push({})
+      m._sockets.push({})
+      assert.strictEqual(m.getNumSockets(), 2, 'did not report correct number of sockets')
+    })
+  })
+
+  describe('getSocket', () => {
+    it('returns the socket at the requested index', () => {
+      const m = new WS2Manager()
+      m._sockets.push(1)
+      m._sockets.push(42)
+      assert.strictEqual(m.getSocket(1), 42)
+    })
+  })
+
+  describe('getSocketInfo', () => {
+    it('returns an array of objects reporting number of data channels per socket', () => {
+      const m = new WS2Manager()
+
+      m._sockets.push({
+        pendingSubscriptions: [[], [], []],
+        pendingUnsubscriptions: [[]],
+        ws: { getDataChannelCount: () => 2 }
+      })
+
+      m._sockets.push({
+        pendingSubscriptions: [[], [], []],
+        pendingUnsubscriptions: [[]],
+        ws: { getDataChannelCount: () => 3 }
+      })
+
+      const info = m.getSocketInfo()
+
+      assert.ok(_isArray(info), 'did not return array')
+      info.forEach(i => assert.ok(_isObject(i), 'socket info not an object'))
+      assert.strictEqual(info[0].nChannels, 4, 'socket info does not report correct number of channels')
+      assert.strictEqual(info[1].nChannels, 5, 'socket info does not report correct number of channels')
+    })
+  })
+
   describe('getDataChannelCount', () => {
     it('takes pending subs & unsubs into account', () => {
       const s = {
@@ -118,6 +246,21 @@ describe('WS2Manager', () => {
     })
   })
 
+  describe('getAuthenticatedSocket', () => {
+    it('returns the first authenticated socket found', () => {
+      const m = new WS2Manager()
+
+      for (let i = 0; i < 3; i += 1) {
+        m._sockets.push({
+          test: i,
+          ws: { isAuthenticated: () => i === 1 }
+        })
+      }
+
+      assert.strictEqual(m.getAuthenticatedSocket().test, 1, 'did not return correct socket')
+    })
+  })
+
   describe('getFreeDataSocket', () => {
     it('returns the first socket below the data channel limit', () => {
       const m = new WS2Manager()
@@ -222,6 +365,29 @@ describe('WS2Manager', () => {
 
       s = m.getSocketWithChannel(42)
       assert(!s)
+    })
+  })
+
+  describe('getSocketWithSubRef', () => {
+    it('returns the first socket found that has the requested subscription ref', () => {
+      const m = new WS2Manager()
+
+      for (let i = 0; i < 3; i += 1) {
+        m._sockets.push({
+          test: i,
+          ws: {
+            hasSubscriptionRef: (channel, identifier) => {
+              assert.strictEqual(channel, 'a', 'did not pass channel through')
+              assert.strictEqual(identifier, 'b', 'did not pass identifier through')
+              return i === 1
+            }
+          }
+        })
+      }
+
+      const s = m.getSocketWithSubRef('a', 'b')
+      assert.ok(_isObject(s), 'did not return a socket')
+      assert.strictEqual(s.test, 1, 'did not return correct socket')
     })
   })
 
@@ -340,6 +506,30 @@ describe('WS2Manager', () => {
       }
 
       m.unsubscribe(42)
+      assert.deepStrictEqual(m._sockets[0].pendingUnsubscriptions, [42])
+      assert(unsubCalled)
+    })
+  })
+
+  describe('managedUnsubscribe', () => {
+    it('saves pending unsub and calls managed unsub on socket', () => {
+      const m = new WS2Manager()
+      let unsubCalled = false
+
+      m._sockets[0] = {
+        pendingUnsubscriptions: [],
+        ws: {
+          managedUnsubscribe: (cid) => {
+            assert.strictEqual(cid, 42)
+            unsubCalled = true
+          },
+
+          hasSubscriptionRef: (cid) => cid === 42,
+          _chanIdByIdentifier: () => 42
+        }
+      }
+
+      m.managedUnsubscribe(42)
       assert.deepStrictEqual(m._sockets[0].pendingUnsubscriptions, [42])
       assert(unsubCalled)
     })

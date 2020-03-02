@@ -10,10 +10,6 @@ const { MockWSv2Server } = require('bfx-api-mock-srv')
 const API_KEY = 'dummy'
 const API_SECRET = 'dummy'
 
-const delay = async (ms) => {
-  await new Promise(resolve => setTimeout(resolve, ms))
-}
-
 const createTestWSv2Instance = (params = {}) => {
   return new WSv2({
     apiKey: API_KEY,
@@ -88,14 +84,14 @@ describe('WSv2 integration', () => {
 
       wss.send([0, 'ou', arr])
 
-      await delay(100)
+      await Promise.delay(100)
 
       assert.strictEqual(o.price, 256)
       arr[16] = 150
 
       wss.send([0, 'oc', arr])
 
-      await delay(100)
+      await Promise.delay(100)
 
       assert.strictEqual(o.price, 150)
       o.removeListeners()

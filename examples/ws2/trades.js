@@ -1,39 +1,40 @@
 'use strict'
 
+const _isEmpty = require('lodash/isEmpty')
 const runExample = require('../util/run_example')
 
 module.exports = runExample({
   name: 'ws2-oc-multi',
-  ws: { env: true, connect: true, auth: true }
-}, async ({ ws, debug }) => {
-  ws.onFundingTradeEntry({ symbol: 'fUSD' }, (trade) => {
-    debug('fte: %j', trade)
+  ws: {
+    env: true,
+    connect: true,
+    auth: true,
+    keepOpen: true,
+    transform: true
+  },
+  params: {
+    market: 'tBTCUSD'
+  }
+}, async ({ ws, debug, params }) => {
+  const { market } = params
+
+  if (_isEmpty(market)) {
+    throw new Error('market required')
+  }
+
+  if (market[0] === 't') {
+    ws.onTradeEntry({ symbol: market }, (trade) => {
+      debug('trade on %s: %s', market, trade.toString())
+    })
+  } else {
+    ws.onFundingTradeEntry({ symbol: market }, (trade) => {
+      debug('funding trade: %s', trade.toString())
+    })
+  }
+
+  ws.onAccountTradeEntry({ symbol: market }, (trade) => {
+    debug('account trade: %s', trade.toString())
   })
 
-  ws.onFundingTradeUpdate({ symbol: 'fUSD' }, (trade) => {
-    debug('ftu: %j', trade)
-  })
-
-  ws.onTradeEntry({ symbol: 'tEOSUSD' }, (trade) => {
-    debug('te: %j', trade)
-  })
-
-  ws.onTrades({ symbol: 'tEOSUSD' }, (trades) => {
-    debug('tEOSUSD trades: %j', trades)
-  })
-
-  ws.onTrades({ symbol: 'fUSD' }, (trades) => {
-    debug('fUSD trades: %j', trades)
-  })
-
-  ws.onAccountTradeEntry({ symbol: 'tEOSUSD' }, (trade) => {
-    debug('account te: %j', trade)
-  })
-
-  ws.onAccountTradeUpdate({ symbol: 'tEOSUSD' }, (trade) => {
-    debug('account tu: %j', trade)
-  })
-
-  await ws.subscribeTrades('tEOSUSD')
-  await ws.subscribeTrades('fUSD')
+  await ws.subscribeTrades(market)
 })

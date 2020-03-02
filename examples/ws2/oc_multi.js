@@ -19,7 +19,13 @@ const oB = new Order({
 
 module.exports = runExample({
   name: 'ws2-oc-multi',
-  ws: { env: true, connect: true, auth: true, transform: true }
+  ws: {
+    env: true,
+    connect: true,
+    auth: true,
+    transform: true,
+    keepOpen: true
+  }
 }, async ({ ws, debug }) => {
   oA.registerListeners(ws)
   oB.registerListeners(ws)

@@ -28,7 +28,7 @@ module.exports = runExample({
 
   debug('done. closing in %ds...', CLOSE_DELAY_MS / 1000)
 
-  await new Promise(resolve => setTimeout(resolve, CLOSE_DELAY_MS))
+  await Promise.delay(CLOSE_DELAY_MS)
   await fo.close()
 
   debug('offer closed')

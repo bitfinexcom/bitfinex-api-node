@@ -1,22 +1,26 @@
 'use strict'
 
 const Promise = require('bluebird')
+const _isEmpty = require('lodash/isEmpty')
 const runExample = require('../util/run_example')
-
-const TABLE_DEF = {
-  headers: ['Symbol', 'Status', 'Amount', 'Base Price', 'Liq Price', 'P/L']
-}
 
 module.exports = runExample({
   name: 'rest-claim-positions',
   rest: { env: true, transform: true },
-  ws: { env: true, transform: true, connect: true, auth: true }
-}, async ({ debug, debugTable, rest, ws }) => {
-  const positions = await rest.positions()
+  readline: true,
+  params: {
+    filterByMarket: false
+  }
+}, async ({ debug, debugTable, rest, readline, params }) => {
+  const { filterByMarket } = params
+  const allPositions = await rest.positions()
+  const positions = _isEmpty(filterByMarket)
+    ? allPositions
+    : allPositions.filter(({ symbol }) => symbol === filterByMarket)
 
   if (positions.length === 0) {
-    debug('no open positions')
-    return ws.close()
+    debug('no positions match filter')
+    return
   }
 
   debug(
@@ -24,18 +28,25 @@ module.exports = runExample({
     positions.map(({ symbol }) => symbol).join(',')
   )
 
-  debugTable(TABLE_DEF, positions.map(p => ([
-    p.symbol, p.status, p.amount, p.basePrice, p.liqPrice, p.pl
-  ])))
+  debugTable({
+    headers: ['Symbol', 'Status', 'Amount', 'Base Price', 'P/L'],
+    rows: positions.map(p => ([
+      p.symbol, p.status, p.amount, p.basePrice, p.pl
+    ]))
+  })
 
-  debug('claiming all positions...')
+  const confirm = await readline.questionAsync(
+    '>  Are you sure you want to claim the position(s) listed above? '
+  )
 
-  await Promise.all(positions.map(p => p.claim(ws)))
+  if (confirm.toLowerCase()[0] !== 'y') {
+    return
+  }
 
-  debug('new position data:')
-  debugTable(TABLE_DEF, positions.map(p => ([
-    p.symbol, p.status, p.amount, p.basePrice, p.liqPrice, p.pl
-  ])))
+  debug('')
+  debug('claiming positions...')
 
-  await ws.close()
+  await Promise.all(positions.map(p => p.claim(rest)))
+
+  debug('done!')
 })

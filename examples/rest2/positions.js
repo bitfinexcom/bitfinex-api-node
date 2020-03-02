@@ -8,7 +8,7 @@ const runExample = require('../util/run_example')
 module.exports = runExample({
   name: 'positions',
   rest: { env: true, transform: true }
-}, async ({ debug, debugTable, rest, params }) => {
+}, async ({ debug, debugTable, rest }) => {
   debug('fetching positions...')
 
   const positions = await rest.positions()
@@ -28,8 +28,8 @@ module.exports = runExample({
 
   debugTable({
     headers: [
-      'Symbol', 'Status', 'Amount', 'Base Price', 'Funding Cost', 'Base Value',
-      'Net Value', 'P/L', 'P/L %'
+      'ID', 'Symbol', 'Status', 'Amount', 'Base Price', 'Funding Cost',
+      'Base Value', 'Net Value', 'P/L', 'P/L %'
     ],
 
     rows: positions.map((p) => {
@@ -38,7 +38,7 @@ module.exports = runExample({
       const plPerc = (pl / nv) * 100.0
 
       return [
-        p.symbol, _capitalize(p.status), prepareAmount(p.amount),
+        p.id, p.symbol, _capitalize(p.status), prepareAmount(p.amount),
         preparePrice(p.basePrice), prepareAmount(p.marginFunding),
         prepareAmount(+p.marginFunding + (+p.amount * +p.basePrice)),
         prepareAmount(nv), prepareAmount(pl), plPerc.toFixed(2)

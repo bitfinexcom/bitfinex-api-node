@@ -38,16 +38,14 @@ module.exports = runExample({
   debug('got submit confirmation for order %d [%d]', o.cid, o.id)
 
   // wait a bit...
-  await new Promise(resolve => setTimeout(resolve, 2000))
+  await Promise.delay(2 * 1000)
 
   if (orderClosed) {
-    return ws.close()
+    return debug('order closed prematurely; did it auto-fill?')
   }
 
   debug('canceling...')
 
   await o.cancel()
   debug('got cancel confirmation for order %d', o.cid)
-
-  await ws.close()
 })

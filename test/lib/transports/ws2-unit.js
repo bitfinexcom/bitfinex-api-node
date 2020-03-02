@@ -2,6 +2,7 @@
 'use strict'
 
 const assert = require('assert')
+const Promise = require('bluebird')
 const SocksProxyAgent = require('socks-proxy-agent')
 const { MockWSv2Server } = require('bfx-api-mock-srv')
 const _isFunction = require('lodash/isFunction')
@@ -485,7 +486,7 @@ describe('WSv2 unit', () => {
       ws.reconnect = () => assert(false)
       ws.close()
 
-      await new Promise(resolve => { setTimeout(resolve, 50) })
+      await Promise.delay(50)
     })
   })
 
@@ -1588,7 +1589,7 @@ describe('WSv2 unit', () => {
       ws._triggerPacketWD = ws._triggerPacketWD.bind(ws)
       ws._onWSMessage('asdf') // send first packet, init wd
 
-      await new Promise(resolve => setTimeout(resolve, 150))
+      await Promise.delay(150)
 
       assert(wdTriggered)
     })
@@ -1606,7 +1607,7 @@ describe('WSv2 unit', () => {
       ws._triggerPacketWD = () => assert(false)
       ws._onWSMessage('asdf')
 
-      await new Promise(resolve => setTimeout(resolve, 200))
+      await Promise.delay(200)
 
       clearInterval(sendInterval)
       clearTimeout(ws._packetWDTimeout)
@@ -1959,6 +1960,57 @@ describe('WSv2 unit', () => {
   describe('default connection url', () => {
     it('is a static member on the class', () => {
       assert.ok(_isString(WSv2.url) && !_isEmpty(WSv2.url))
+    })
+  })
+
+  describe('onMaintenanceStart', () => {
+    it('is called when receiving a 20060 info code', async () => {
+      ws = createTestWSv2Instance()
+      wss = new MockWSv2Server()
+
+      await ws.open()
+
+      return new Promise((resolve) => {
+        ws.onMaintenanceStart(() => resolve())
+        wss.send({
+          event: 'info',
+          code: '20060'
+        })
+      })
+    })
+  })
+
+  describe('onMaintenanceEnd', () => {
+    it('is called when receiving a 20061 info code', async () => {
+      ws = createTestWSv2Instance()
+      wss = new MockWSv2Server()
+
+      await ws.open()
+
+      return new Promise((resolve) => {
+        ws.onMaintenanceEnd(() => resolve())
+        wss.send({
+          event: 'info',
+          code: '20061'
+        })
+      })
+    })
+  })
+
+  describe('onServerRestart', () => {
+    it('is called when receiving a 20051 info code', async () => {
+      ws = createTestWSv2Instance()
+      wss = new MockWSv2Server()
+
+      await ws.open()
+
+      return new Promise((resolve) => {
+        ws.onServerRestart(() => resolve())
+        wss.send({
+          event: 'info',
+          code: '20051'
+        })
+      })
     })
   })
 })

@@ -28,6 +28,4 @@ module.exports = runExample({
     'got submit confirmation for order %d [%d] [tif: %d]',
     o.cid, o.id, o.mtsTIF
   )
-
-  return ws.close()
 })
