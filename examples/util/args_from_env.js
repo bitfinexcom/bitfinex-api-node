@@ -16,18 +16,13 @@ const validArg = v => _isString(v) && !_isEmpty(v)
 module.exports = (urlKey) => {
   const { API_KEY, API_SECRET, SOCKS_PROXY_URL } = process.env
   const URL = process.env[urlKey]
-
-  if (!validArg(API_KEY)) throw new Error('API key not found')
-  if (!validArg(API_SECRET)) throw new Error('API secret not found')
-
   const agent = validArg(SOCKS_PROXY_URL) && new SocksProxyAgent(SOCKS_PROXY_URL)
-  const envArgs = {
-    apiKey: API_KEY,
-    apiSecret: API_SECRET
-  }
+  const envArgs = {}
 
   if (agent) envArgs.agent = agent
   if (validArg(URL)) envArgs.url = URL
+  if (validArg(API_KEY)) envArgs.apiKey = API_KEY
+  if (validArg(API_SECRET)) envArgs.apiSecret = API_SECRET
 
   return envArgs
 }

@@ -3,9 +3,8 @@
 const _uniq = require('lodash/uniq')
 const _capitalize = require('lodash/capitalize')
 const _isFinite = require('lodash/isFinite')
-const _isString = require('lodash/isString')
-const { preparePrice, prepareAmount } = require('bfx-api-node-util')
-const argFromCLI = require('../util/arg_from_cli')
+const _isEmpty = require('lodash/isEmpty')
+const { prepareAmount } = require('bfx-api-node-util')
 const runExample = require('../util/run_example')
 
 module.exports = runExample({
@@ -16,106 +15,82 @@ module.exports = runExample({
   },
 
   params: {
-    valueCurrency: argFromCLI(2),
     hideZeroBalances: true,
     filterByType: false,
-    filterByCurrency: false
+    filterByCurrency: false,
+    valueCCY: 'USD'
   }
 }, async ({ debug, debugTable, rest, params }) => {
   const {
-    valueCurrency, hideZeroBalances, filterByType, filterByCurrency
+    valueCCY, hideZeroBalances, filterByType, filterByCurrency
   } = params
 
-  const symbolForWallet = w => `t${w.currency}${valueCurrency}`
+  const symbolForWallet = w => `t${w.currency}${valueCCY}`
 
   debug('fetching balances')
 
-  const lastPrices = {}
   const allWallets = await rest.balances() // actual balance fetch
-  let balances = allWallets
-
-  if (hideZeroBalances) {
-    balances = balances.filter(({ available, amount }) => (
-      +available !== 0 || +amount !== 0
-    ))
-  }
-
-  if (_isString(filterByType)) {
-    balances = balances.filter(({ type }) =>
-      (type.toLowerCase() === filterByType.toLowerCase())
-    )
-  }
-
-  if (_isString(filterByCurrency)) {
-    balances = balances.filter(({ currency }) => (
-      currency.toLowerCase() === filterByCurrency.toLowerCase())
-    )
-  }
+  const balances = allWallets.filter(w => !( // filter as requested
+    (hideZeroBalances && +w.amount === 0) ||
+    (!_isEmpty(filterByType) && (w.type.toLowerCase() !== filterByType.toLowerCase())) ||
+    (!_isEmpty(filterByCurrency) && (w.currency.toLowerCase() !== filterByCurrency.toLowerCase()))
+  )).map(w => ({
+    ...w,
+    currency: w.currency.toUpperCase(),
+    inValueCurrency: w.currency.toUpperCase() === valueCCY
+  }))
 
   if (balances.length === 0) {
     return debug('no wallets match provided filters')
   }
 
-  balances = balances.map(w => ({
-    ...w,
-    currency: w.currency.toUpperCase(),
-    inValueCurrency: w.currency.toUpperCase() === (valueCurrency || '')
-  }))
+  debug('found %d balances', balances.length)
 
-  debug(
-    'found %d non-zero balances: %s',
-    balances.length, balances.map(({ currency }) => currency).join(', ')
-  )
-
-  const rows = balances.map(({ currency, type, amount, available }) => ([
-    _capitalize(type),
-    currency,
-    prepareAmount(amount),
-    prepareAmount(available)
-  ]))
-
-  // Pull in ticker data if the user specified a value currency
+  // Pull in ticker data for balances which are not in the requested value ccy
   // Balance in BTC, value in USD -> We need to fetch tBTCUSD (last price)
-  if (valueCurrency) {
-    const balancesToConvert = balances.filter(({ inValueCurrency }) => !inValueCurrency)
-    const symbols = _uniq(balancesToConvert.map(symbolForWallet))
+  const lastPrices = {}
+  const balancesToConvert = balances.filter(w => w.currency !== valueCCY)
+  const symbols = _uniq(balancesToConvert.map(symbolForWallet))
+
+  if (symbols.length > 0) {
     debug('fetching tickers for: %s', symbols.join(', '))
-
     const tickers = await rest.tickers(symbols)
-    tickers.map(({ symbol, lastPrice }) => (lastPrices[symbol] = +lastPrice))
-
-    const totalValue = balances.map(({ currency, amount, inValueCurrency }, i) => {
-      const value = inValueCurrency
-        ? amount
-        : lastPrices[symbolForWallet({ currency })] * amount
-
-      // add value data to table rows
-      if (_isFinite(value)) {
-        rows[i].push(prepareAmount(value))
-        rows[i].push(inValueCurrency
-          ? '-'
-          : preparePrice(lastPrices[symbolForWallet({ currency })])
-        )
-
-        return value
-      } else {
-        rows[i].push('-')
-        rows[i].push('-')
-
-        return 0
-      }
-    }).reduce((prev, curr) => prev + curr, 0)
-
-    debug('total value: %d %s', prepareAmount(totalValue), valueCurrency)
+    tickers.forEach(({ symbol, lastPrice }) => (lastPrices[symbol] = +lastPrice))
   }
+
+  let totalValue = 0
+  const rows = balances.map(({ currency, type, amount, available }) => {
+    const value = currency !== valueCCY
+      ? (lastPrices[symbolForWallet({ currency })] * +amount) || 0
+      : +amount
+
+    totalValue += value
+
+    return [
+      _capitalize(type),
+      currency,
+      prepareAmount(amount),
+      prepareAmount(available),
+
+      ...(_isFinite(value) ? [
+        prepareAmount(value),
+        currency !== valueCCY
+          ? prepareAmount(lastPrices[symbolForWallet({ currency })])
+          : 1
+      ] : [
+        '-',
+        '-'
+      ])
+    ]
+  })
 
   debugTable({
     rows,
     headers: [
-      'Type', 'Symbol', 'Total', 'Available', ...(!valueCurrency ? [] : [
-        `Value (${valueCurrency})`,
-        `Unit Price (${valueCurrency})`
-      ]
-      )]
+      'Type', 'Symbol', 'Total', 'Available', `Value (${valueCCY})`,
+      `Unit Price (${valueCCY})`
+    ]
   })
+
+  debug('total value: %d %s', prepareAmount(totalValue), valueCCY)
 })

@@ -12,6 +12,4 @@ module.exports = runExample({
   })
 
   debug('notification sent')
-
-  return ws.close()
 })

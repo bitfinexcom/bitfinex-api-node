@@ -20,7 +20,7 @@ module.exports = runExample({
     auth: true
   }
 }, async ({ ws, debug }) => {
-  let orderSent = false
+  const orderSent = false
 
   await ws.subscribeOrderBook(SYMBOL, 'P0', '25')
   debug('subscribed to order book %s:P0:25', SYMBOL)
@@ -64,9 +64,6 @@ module.exports = runExample({
 
       await o.update({ price: `${o.price * 1.05}` })
       debug('order updated, new price %f', o.price)
-
-      debug('closing connection')
-      await ws.close()
     })
   })
 })

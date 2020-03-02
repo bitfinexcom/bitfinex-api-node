@@ -7,7 +7,7 @@ module.exports = runExample({
   name: 'ws2-calc',
   ws: { env: true, connect: true, auth: true }
 }, async ({ ws, debug }) => {
-  await new Promise(resolve => setTimeout(resolve, 5 * 1000))
+  await Promise.delay(5 * 1000)
 
   ws.requestCalc([
     'margin_sym_tBTCUSD',
@@ -19,6 +19,5 @@ module.exports = runExample({
   // Watch log output for balance update packets (wu, miu, etc)
   debug('sent calc, closing in 30s...')
 
-  await new Promise(resolve => setTimeout(resolve, 30 * 1000))
-  await ws.close()
+  await Promise.delay(30 * 1000)
 })

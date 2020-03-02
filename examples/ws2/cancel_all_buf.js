@@ -22,6 +22,5 @@ module.exports = runExample({
 
     await ws.cancelOrders(snapshot)
     debug('cancelled all orders')
-    await ws.close()
   })
 })

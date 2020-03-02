@@ -12,6 +12,11 @@
 - WSv2: added getURL() method
 - WSv2: fix in cancelOrders() to prevent context clobber for this.cancelOrder() call
 - WSv2: default connection url now exposed on WSv2.url
+- WSv2: removed unused prec/len params from unsubscribeOrderBook()
+- WSv2: removed unused rawMsg param from _handleEventMessage()
+- WS2Manager: reconnect() and close() now return promises
+- WS2Manager: added getAuthArgs()
+- WS2Manager: added missing tests
 
 4.0.10
 - fix: refactor tests so they can run alongside all other HF/API library tests

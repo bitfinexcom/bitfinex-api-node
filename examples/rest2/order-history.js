@@ -1,10 +1,8 @@
 'use strict'
 
 const { prepareAmount, preparePrice } = require('bfx-api-node-util')
-const _isString = require('lodash/isString')
 const _isEmpty = require('lodash/isEmpty')
 const runExample = require('../util/run_example')
-const argFromCLI = require('../util/arg_from_cli')
 
 const START = Date.now() - (30 * 24 * 60 * 60 * 1000 * 1000)
 const END = Date.now()
@@ -14,25 +12,21 @@ module.exports = runExample({
   name: 'rest-get-order-history',
   rest: { env: true, transform: true },
   params: {
-    symbol: argFromCLI(0, null)
+    market: 'tBTCUSD'
   }
 }, async ({ debug, debugTable, rest, params }) => {
-  let { symbol } = params
+  let { market } = params
 
-  if (!_isString(symbol) || _isEmpty(symbol)) {
-    return debug('symbol required')
+  if (_isEmpty(market)) {
+    return debug('market required')
   }
 
-  if (symbol[0] !== 't') {
-    symbol = `t${symbol}`
-  }
+  debug('fetching 30d order history for %s...', market)
 
-  debug('fetching 30d order history for %s...', symbol)
-
-  const orders = await rest.orderHistory(symbol, START, END, LIMIT)
+  const orders = await rest.orderHistory(market, START, END, LIMIT)
 
   if (orders.length === 0) {
-    return debug('no historical orders for %s', symbol)
+    return debug('no historical orders for %s', market)
   }
 
   debugTable({

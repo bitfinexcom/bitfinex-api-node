@@ -12,7 +12,7 @@ const WSv2 = require('../../lib/transports/ws2')
 
 const getRunArgs = (override = {}) => ({
   name: 'self-test',
-  noCatch: true,
+  testing: true,
   ...override
 })
 
@@ -21,18 +21,22 @@ describe('runExample', () => {
     try {
       runExample({}, async () => (assert.fail('example should not have executed')))
       assert.fail('error should have been thrown with missing name')
-    } catch (e) {}
+    } catch (e) {
+      assert.ok(!!e)
+    }
 
     try {
       runExample({ name: '' }, async () => (assert.fail('example should not have executed')))
       assert.fail('error should have been thrown with empty name')
-    } catch (e) {}
+    } catch (e) {
+      assert.ok(!!e)
+    }
   })
 
   it('supports async examples', (done) => {
     try {
       runExample(getRunArgs(), async () => {
-        await new Promise(resolve => setTimeout(resolve, 10))
+        await Promise.delay(10)
         done()
       })
     } catch (e) {
@@ -56,14 +60,14 @@ describe('runExample', () => {
     })
   })
 
-  it('catches example errors', () => {
+  it('catches example errors', async () => {
     let exampleExecuted = false
 
     try {
-      runExample(getRunArgs({ noCatch: false }), async () => {
+      await runExample(getRunArgs({ testing: false }), () => {
         exampleExecuted = true
         throw new Error('test error')
-      })
+      })()
     } catch (e) {
       assert.fail('example error should have been caught internally')
     }
@@ -71,7 +75,7 @@ describe('runExample', () => {
     assert.ok(exampleExecuted, 'example was not executed')
   })
 
-  it('does not catch errors if noCatch is provided', () => {
+  it('does not catch errors if testing is provided', () => {
     let errorThrown = false
 
     try {
@@ -121,7 +125,7 @@ describe('runExample', () => {
 
     runExample(getRunArgs({
       rest: { url: URL }
-    }), async ({ rest }) => {
+    }), ({ rest }) => {
       assert.ok(rest instanceof RESTv2, 'did not receive a RESTv2 instance')
       assert.strictEqual(rest.getURL(), URL, 'RESTv2 args were not passed through')
       done()
@@ -167,6 +171,39 @@ describe('runExample', () => {
       assert.ok(ws instanceof WSv2, 'did not receive a WSv2 instance')
       assert.ok(ws.sequencingEnabled(), 'WSv2 args were not passed through')
       done()
+    })
+  })
+
+  it('closes WSv2 on example end if left open', (done) => {
+    runExample(getRunArgs({
+      ws: true
+    }), async ({ ws }) => {
+      ws.on('close', done)
+
+      await ws.open()
+    })
+  })
+
+  it('does not close WSv2 on example end if requested not too', (done) => {
+    runExample(getRunArgs({
+      ws: { connect: true, keepOpen: true }
+    }), async ({ ws }) => {
+      setTimeout(async () => {
+        ws.once('close', done)
+        await ws.close()
+      }, 20)
+    })
+  })
+
+  it('provides a readline instance if requested', () => {
+    return runExample(getRunArgs({ readline: true }), ({ readline }) => {
+      assert.ok(_isFunction(readline.questionAsync, 'no readline instance provided'))
+    })
+  })
+
+  it('automatically closes the readline instance if provided and not already closed', (done) => {
+    return runExample(getRunArgs({ readline: true }), ({ readline }) => {
+      readline.on('close', done)
     })
   })
 })

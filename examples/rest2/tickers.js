@@ -5,16 +5,32 @@ const runExample = require('../util/run_example')
 
 module.exports = runExample({
   name: 'rest-get-tickers',
-  rest: { transform: true }
-}, async ({ rest, debug, debugTable }) => {
+  rest: { transform: true },
+  params: {
+    filterByMarket: 'all'
+  }
+}, async ({ rest, debug, debugTable, params }) => {
+  const { filterByMarket } = params
+
   debug('fetching symbol list...')
 
-  const symbols = await rest.symbols()
+  const rawSymbols = await rest.symbols()
 
-  debug('read %d symbols', symbols.length)
-  debug('fetching tickers...')
+  debug('read %d symbols', rawSymbols.length)
 
-  const tickers = await rest.tickers([symbols.map(s => `t${s.toUpperCase()}`)])
+  const symbols = rawSymbols
+    .map(s => `t${s.toUpperCase()}`)
+    .filter(s => (
+      filterByMarket === 'all' || (s === filterByMarket)
+    ))
+
+  if (symbols.length === 0) {
+    return debug('no tickers match provided filters')
+  }
+
+  debug('fetching %d tickers...', symbols.length)
+
+  const tickers = await rest.tickers(symbols)
 
   debugTable({
     colWidths: [10, 14, 14, 14, 14, 14, 14, 18, 18],
