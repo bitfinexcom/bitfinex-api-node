@@ -15,7 +15,7 @@ module.exports = runExample({
     symbol: 'tBTCUSD'
   }
 }, async ({ debug, debugTable, rest, params }) => {
-  let { symbol } = params
+  const { symbol } = params
 
   if (_isEmpty(symbol)) {
     return debug('symbol required')
