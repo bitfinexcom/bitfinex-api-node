@@ -129,7 +129,7 @@ describe('runExample', () => {
       assert.strictEqual(rest.getURL(), URL, 'RESTv2 args were not passed through')
       done()
     })
-  })
+  }).timeout(10000)
 
   it('provides a WSv2 client if requested', (done) => {
     runExample(getRunArgs({
@@ -138,7 +138,7 @@ describe('runExample', () => {
       assert.ok(ws instanceof WSv2, 'no WSv2 instance provided to example')
       done()
     })
-  })
+  }).timeout(10000)
 
   it('parses .env and passes data to WSv2 constructor if requested', async () => {
     process.env.SOCKS_PROXY_URL = 'socks4://127.0.0.1:9998'
@@ -160,7 +160,7 @@ describe('runExample', () => {
       assert.ok(!ws.usesAgent(), 'WSv2 instance provided to example used connection agent when none configured')
       assert.strictEqual(ws.getURL(), WSv2.url, 'WSv2 instance provided to example does not use default URL when no override configured')
     })
-  })
+  }).timeout(10000)
 
   it('passes extra WSv2 args to constructor if provided', (done) => {
     runExample(getRunArgs({
@@ -170,7 +170,7 @@ describe('runExample', () => {
       assert.ok(ws.sequencingEnabled(), 'WSv2 args were not passed through')
       done()
     })
-  })
+  }).timeout(10000)
 
   it('closes WSv2 on example end if left open', (done) => {
     runExample(getRunArgs({
