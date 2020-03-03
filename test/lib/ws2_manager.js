@@ -274,7 +274,7 @@ describe('WS2Manager', () => {
         ws.on('open', () => ws.close().then(resolve).catch(reject))
       })
     })
-  })
+  }).timeout(4000)
 
   describe('getAuthenticatedSocket', () => {
     it('returns the first authenticated socket found', () => {
