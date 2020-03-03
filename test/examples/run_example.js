@@ -134,7 +134,7 @@ describe('runExample', () => {
   it('provides a WSv2 client if requested', (done) => {
     runExample(getRunArgs({
       ws: true
-    }), async ({ ws }) => {
+    }), ({ ws }) => {
       assert.ok(ws instanceof WSv2, 'no WSv2 instance provided to example')
       done()
     })
@@ -204,4 +204,4 @@ describe('runExample', () => {
       readline.on('close', done)
     })
   })
-})
+}).timeout(10 * 1000) // timeout for travis
