@@ -49,28 +49,28 @@
     "bfx-api-mock-srv": "^1.0.4",
     "blessed": "^0.1.81",
     "blessed-contrib": "^4.8.19",
-    "chai": "^3.4.1",
+    "chai": "^4.2.0",
     "cli-table2": "^0.2.0",
-    "dotenv": "^4.0.0",
+    "dotenv": "^8.2.0",
     "husky": "^4.2.3",
     "jsdoc-to-markdown": "^5.0.1",
     "mocha": "^7.1.0",
     "nyc": "^15.0.0",
     "readline-promise": "^1.0.4",
-    "socks-proxy-agent": "^3.0.1",
-    "standard": "^10.0.2"
+    "socks-proxy-agent": "^5.0.0",
+    "standard": "^14.3.1"
   },
   "dependencies": {
-    "bfx-api-node-models": "^1.1.0",
-    "bfx-api-node-rest": "^3.0.0",
+    "bfx-api-node-models": "^1.1.9",
+    "bfx-api-node-rest": "^3.0.3",
     "bfx-api-node-util": "^1.0.2",
     "bfx-api-node-ws1": "^1.0.0",
-    "bignumber.js": "^6.0.0",
+    "bignumber.js": "^9.0.0",
     "bluebird": "^3.5.1",
     "cbq": "0.0.1",
     "copy": "^0.3.2",
     "crc-32": "^1.2.0",
-    "debug": "^2.2.0",
+    "debug": "^4.1.1",
     "lodash": "^4.17.4",
     "lodash.throttle": "^4.1.1",
     "lossless-json": "^1.0.3",
@@ -78,6 +78,6 @@
     "promise-throttle": "^1.0.1",
     "request": "^2.67.0",
     "request-promise": "^4.2.0",
-    "ws": "^3.0.0"
+    "ws": "^7.2.1"
   }
 }
