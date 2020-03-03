@@ -9,21 +9,31 @@ const WS2Manager = require('../../lib/ws2_manager')
 const WSv2 = require('../../lib/transports/ws2')
 
 describe('WS2Manager', () => {
+  let m
+
+  afterEach(async () => {
+    if (m) {
+      try {
+        await m.close()
+      } catch (e) {
+        assert.ok(true, 'may fail due to being modified internally')
+      }
+
+      m = null
+    }
+  })
+
   describe('setAuthArgs', () => {
     it('updates the internal auth args', () => {
-      const m = new WS2Manager()
+      m = new WS2Manager()
       m.setAuthArgs({ apiKey: '42' })
       assert.strictEqual(m.getAuthArgs().apiKey, '42')
-    })
-
-    it('updates auth args on all sockets', () => {
-
     })
   })
 
   describe('getAuthArgs', () => {
     it('returns internal auth args', () => {
-      const m = new WS2Manager()
+      m = new WS2Manager()
       m.setAuthArgs({ apiKey: '42' })
       assert.strictEqual(m.getAuthArgs().apiKey, '42')
     })
@@ -31,11 +41,11 @@ describe('WS2Manager', () => {
 
   describe('reconnect', () => {
     it('calls reconnect on all sockets', async () => {
-      const m = new WS2Manager()
+      m = new WS2Manager()
       let called = false
 
       m._sockets.push({
-        ws: { reconnect: () => { called = true } }
+        ws: { reconnect: async () => { called = true } }
       })
 
       await m.reconnect()
@@ -43,7 +53,7 @@ describe('WS2Manager', () => {
     })
 
     it('resolves when all sockets reconnect', async () => {
-      const m = new WS2Manager()
+      m = new WS2Manager()
       let called = false
 
       m._sockets.push({
@@ -62,11 +72,11 @@ describe('WS2Manager', () => {
 
   describe('close', () => {
     it('calls close on all sockets', async () => {
-      const m = new WS2Manager()
+      m = new WS2Manager()
       let called = false
 
       m._sockets.push({
-        ws: { close: () => { called = true } }
+        ws: { close: async () => { called = true } }
       })
 
       await m.close()
@@ -74,7 +84,7 @@ describe('WS2Manager', () => {
     })
 
     it('resolves when all sockets close', async () => {
-      const m = new WS2Manager()
+      m = new WS2Manager()
       let called = false
 
       m._sockets.push({
@@ -93,7 +103,7 @@ describe('WS2Manager', () => {
 
   describe('getNumSockets', () => {
     it('returns the number of sockets', () => {
-      const m = new WS2Manager()
+      m = new WS2Manager()
       m._sockets.push({})
       m._sockets.push({})
       assert.strictEqual(m.getNumSockets(), 2, 'did not report correct number of sockets')
@@ -102,7 +112,7 @@ describe('WS2Manager', () => {
 
   describe('getSocket', () => {
     it('returns the socket at the requested index', () => {
-      const m = new WS2Manager()
+      m = new WS2Manager()
       m._sockets.push(1)
       m._sockets.push(42)
       assert.strictEqual(m.getSocket(1), 42)
@@ -111,7 +121,7 @@ describe('WS2Manager', () => {
 
   describe('getSocketInfo', () => {
     it('returns an array of objects reporting number of data channels per socket', () => {
-      const m = new WS2Manager()
+      m = new WS2Manager()
 
       m._sockets.push({
         pendingSubscriptions: [[], [], []],
@@ -157,7 +167,7 @@ describe('WS2Manager', () => {
 
   describe('auth', () => {
     it('does nothing if api key/secret are already provided', () => {
-      const m = new WS2Manager({ apiKey: 'x', apiSecret: 'x' })
+      m = new WS2Manager({ apiKey: 'x', apiSecret: 'x' })
 
       m.auth({ apiKey: '42', apiSecret: '43' })
       assert.strictEqual(m._socketArgs.apiKey, 'x')
@@ -165,7 +175,7 @@ describe('WS2Manager', () => {
     })
 
     it('saves auth args', () => {
-      const m = new WS2Manager()
+      m = new WS2Manager()
 
       m.auth({ calc: 1, dms: 4 })
       assert.strictEqual(m._authArgs.calc, 1)
@@ -174,7 +184,7 @@ describe('WS2Manager', () => {
 
     it('calls auth on existing unauthenticated sockets', (done) => {
       let cred = false
-      const m = new WS2Manager()
+      m = new WS2Manager()
 
       m._sockets = [{
         ws: {
@@ -193,14 +203,14 @@ describe('WS2Manager', () => {
   })
 
   describe('openSocket', () => {
-    it('binds listeners to forward events', () => {
+    it('binds listeners to forward events', async () => {
       const heardEvents = {}
       const events = [
         'open', 'message', 'auth', 'error', 'close', 'subscribed',
         'unsubscribed'
       ]
 
-      const m = new WS2Manager()
+      m = new WS2Manager()
       const s = m.openSocket()
       const { ws } = s
 
@@ -212,27 +222,43 @@ describe('WS2Manager', () => {
       events.forEach(e => {
         assert(heardEvents[e])
       })
+
+      return new Promise((resolve, reject) => {
+        ws.on('open', () => ws.close().then(resolve).catch(reject))
+      })
     })
 
-    it('saves socket state', () => {
-      const m = new WS2Manager()
+    it('saves socket state', async () => {
+      m = new WS2Manager()
       const s = m.openSocket()
+      const { ws } = s
+
       assert.deepStrictEqual(m._sockets[0], s)
+
+      return new Promise((resolve, reject) => {
+        ws.on('open', () => ws.close().then(resolve).catch(reject))
+      })
     })
 
-    it('binds \'unsubscribed\' listener to remove channel from pending unsubs', () => {
-      const m = new WS2Manager()
+    it('binds \'unsubscribed\' listener to remove channel from pending unsubs', async () => {
+      m = new WS2Manager()
       const s = m.openSocket()
+      const { ws } = s
 
       s.pendingUnsubscriptions.push(`${42}`)
       s.ws.emit('unsubscribed', { chanId: 42 })
 
       assert.strictEqual(s.pendingUnsubscriptions.length, 0)
+
+      return new Promise((resolve, reject) => {
+        ws.on('open', () => ws.close().then(resolve).catch(reject))
+      })
     })
 
-    it('binds \'subscribed\' listener to remove channel from pending subs', () => {
-      const m = new WS2Manager()
+    it('binds \'subscribed\' listener to remove channel from pending subs', async () => {
+      m = new WS2Manager()
       const s = m.openSocket()
+      const { ws } = s
 
       s.pendingSubscriptions.push(['book', { symbol: 'tBTCUSD', prec: 'R0' }])
       s.ws.emit('subscribed', {
@@ -243,12 +269,16 @@ describe('WS2Manager', () => {
       })
 
       assert.strictEqual(s.pendingSubscriptions.length, 0)
+
+      return new Promise((resolve, reject) => {
+        ws.on('open', () => ws.close().then(resolve).catch(reject))
+      })
     })
   })
 
   describe('getAuthenticatedSocket', () => {
     it('returns the first authenticated socket found', () => {
-      const m = new WS2Manager()
+      m = new WS2Manager()
 
       for (let i = 0; i < 3; i += 1) {
         m._sockets.push({
@@ -263,7 +293,7 @@ describe('WS2Manager', () => {
 
   describe('getFreeDataSocket', () => {
     it('returns the first socket below the data channel limit', () => {
-      const m = new WS2Manager()
+      m = new WS2Manager()
 
       m._sockets[0] = {
         ws: { getDataChannelCount: () => 200 },
@@ -284,7 +314,7 @@ describe('WS2Manager', () => {
 
   describe('getSocketWithDataChannel', () => {
     it('returns socket subscribed to specified channel/filter pair', () => {
-      const m = new WS2Manager()
+      m = new WS2Manager()
       m._sockets[0] = {
         ws: {},
         pendingSubscriptions: [['candles', { key: 'test' }]],
@@ -340,7 +370,7 @@ describe('WS2Manager', () => {
 
   describe('getSocketWithChannel', () => {
     it('returns correct socket', () => {
-      const m = new WS2Manager()
+      m = new WS2Manager()
       m._sockets[0] = {
         pendingUnsubscriptions: [],
         ws: {
@@ -370,7 +400,7 @@ describe('WS2Manager', () => {
 
   describe('getSocketWithSubRef', () => {
     it('returns the first socket found that has the requested subscription ref', () => {
-      const m = new WS2Manager()
+      m = new WS2Manager()
 
       for (let i = 0; i < 3; i += 1) {
         m._sockets.push({
@@ -393,7 +423,7 @@ describe('WS2Manager', () => {
 
   describe('subscribe', () => {
     it('delays sub for unopened sockets', () => {
-      const m = new WS2Manager()
+      m = new WS2Manager()
       let onceOpenCalled = false
 
       m._sockets[0] = {
@@ -415,7 +445,7 @@ describe('WS2Manager', () => {
     })
 
     it('saves pending sub', () => {
-      const m = new WS2Manager()
+      m = new WS2Manager()
       m._sockets[0] = {
         pendingSubscriptions: [],
         pendingUnsubscriptions: [],
@@ -433,7 +463,7 @@ describe('WS2Manager', () => {
     })
 
     it('opens a new socket if no sockets are available', () => {
-      const m = new WS2Manager()
+      m = new WS2Manager()
       let openCalled = false
 
       m.openSocket = () => {
@@ -453,7 +483,7 @@ describe('WS2Manager', () => {
     })
 
     it('opens a new socket if no sockets are below data limit', () => {
-      const m = new WS2Manager()
+      m = new WS2Manager()
       let openCalled = false
 
       m._sockets[0] = {
@@ -488,7 +518,7 @@ describe('WS2Manager', () => {
 
   describe('unsubscribe', () => {
     it('saves pending unsub & calls unsub on socket', () => {
-      const m = new WS2Manager()
+      m = new WS2Manager()
       let unsubCalled = false
 
       m._sockets[0] = {
@@ -513,7 +543,7 @@ describe('WS2Manager', () => {
 
   describe('managedUnsubscribe', () => {
     it('saves pending unsub and calls managed unsub on socket', () => {
-      const m = new WS2Manager()
+      m = new WS2Manager()
       let unsubCalled = false
 
       m._sockets[0] = {
@@ -537,7 +567,7 @@ describe('WS2Manager', () => {
 
   describe('withAllSockets', () => {
     it('calls the provided cb with all internal sockets', () => {
-      const m = new WS2Manager()
+      m = new WS2Manager()
       const socketsSeen = {}
 
       m._sockets = ['a', 'b', 'c']

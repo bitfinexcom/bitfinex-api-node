@@ -32,7 +32,9 @@ describe('WSv2 unit', () => {
       if (ws && ws.isOpen()) {
         await ws.close()
       }
-    } catch (e) {}
+    } catch (e) {
+      assert(true)
+    }
 
     if (wss && wss.isOpen()) {
       await wss.close()
@@ -224,7 +226,9 @@ describe('WSv2 unit', () => {
       try {
         await ws.open()
         assert(false)
-      } catch (e) {}
+      } catch (e) {
+        assert.ok(true, 'failed to open twice')
+      }
     })
 
     it('open: updates open flag', async () => {
@@ -258,7 +262,9 @@ describe('WSv2 unit', () => {
       try {
         await ws.close()
         assert(false)
-      } catch (e) {}
+      } catch (e) {
+        assert.ok(true, 'did not close due to being open')
+      }
     })
 
     it('close: fails to close twice', async () => {
@@ -267,7 +273,7 @@ describe('WSv2 unit', () => {
 
       await ws.open()
 
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         ws.on('close', async () => {
           try {
             await ws.close()
@@ -307,7 +313,9 @@ describe('WSv2 unit', () => {
       try {
         await ws.auth()
         assert(false)
-      } catch (e) {}
+      } catch (e) {
+        assert.ok(true, 'failed to auth twice')
+      }
     })
 
     it('auth: updates auth flag', async () => {
@@ -483,8 +491,8 @@ describe('WSv2 unit', () => {
       await ws.open()
       await ws.auth()
 
-      ws.reconnect = () => assert(false)
-      ws.close()
+      ws.reconnect = async () => assert(false)
+      await ws.close()
 
       await Promise.delay(50)
     })
@@ -565,7 +573,7 @@ describe('WSv2 unit', () => {
       const flags = 'flags'
       let messageSeen = false
 
-      ws.on('message', (m, f) => {
+      ws.on('message', (m) => {
         assert.deepStrictEqual(m, msg)
         assert.strictEqual(flags, 'flags')
         messageSeen = true
@@ -733,7 +741,7 @@ describe('WSv2 unit', () => {
 
       let calls = 0
 
-      ws.onMessage({}, (msg) => {
+      ws.onMessage({}, () => {
         if (++calls === 2) done()
       })
 
@@ -975,15 +983,15 @@ describe('WSv2 unit', () => {
       }
 
       let seen = 0
-      ws.onOrderBook({ symbol: 'tBTCUSD', prec: 'P0' }, (ob) => {
+      ws.onOrderBook({ symbol: 'tBTCUSD', prec: 'P0' }, () => {
         assert(false)
       })
 
-      ws.onOrderBook({ symbol: 'tBTCUSD', prec: 'P1' }, (ob) => {
+      ws.onOrderBook({ symbol: 'tBTCUSD', prec: 'P1' }, () => {
         assert(false)
       })
 
-      ws.onOrderBook({ symbol: 'tBTCUSD', prec: 'P2' }, (ob) => {
+      ws.onOrderBook({ symbol: 'tBTCUSD', prec: 'P2' }, () => {
         if (++seen === 2) done()
       })
 
@@ -1464,9 +1472,11 @@ describe('WSv2 unit', () => {
       ws._orderOpBuffer = [[0, 'oc', null, []]]
 
       try {
-        ws._flushOrderOps()
+        await ws._flushOrderOps()
         assert(false)
-      } catch (e) {}
+      } catch (e) {
+        assert.ok(true, 'rejected due to being unauthorized')
+      }
     })
 
     it('_flushOrderOps: merges the buffer into a multi-op packet & sends', (done) => {
@@ -1513,9 +1523,9 @@ describe('WSv2 unit', () => {
       try {
         await ws._flushOrderOps()
         assert(false)
-      } catch (e) {}
-
-      assert(seenAll)
+      } catch (e) {
+        assert(seenAll)
+      }
     })
   })
 
@@ -1550,7 +1560,7 @@ describe('WSv2 unit', () => {
     it('_resetPacketWD: schedules new wd timeout', (done) => {
       ws = new WSv2({ packetWDDelay: 500 })
       ws._isOpen = true
-      ws._triggerPacketWD = () => done()
+      ws._triggerPacketWD = async () => { done() }
       ws._resetPacketWD()
       assert(ws._packetWDTimeout !== null)
     })
@@ -1558,7 +1568,7 @@ describe('WSv2 unit', () => {
     it('_triggerPacketWD: does nothing if wd is disabled', (done) => {
       ws = createTestWSv2Instance()
       ws._isOpen = true
-      ws.reconnect = () => assert(false)
+      ws.reconnect = async () => { assert(false) }
       ws._triggerPacketWD()
 
       setTimeout(done, 50)
@@ -1567,7 +1577,7 @@ describe('WSv2 unit', () => {
     it('_triggerPacketWD: calls reconnect()', (done) => {
       ws = new WSv2({ packetWDDelay: 1000 })
       ws._isOpen = true
-      ws.reconnect = done
+      ws.reconnect = async () => { done() }
       ws._triggerPacketWD()
     })
 
@@ -1604,7 +1614,7 @@ describe('WSv2 unit', () => {
         ws._onWSMessage('asdf')
       }, 50)
 
-      ws._triggerPacketWD = () => assert(false)
+      ws._triggerPacketWD = async () => { assert(false) }
       ws._onWSMessage('asdf')
 
       await Promise.delay(200)
