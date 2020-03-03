@@ -9,6 +9,12 @@ const _isFunction = require('lodash/isFunction')
 const _isObject = require('lodash/isObject')
 const _isString = require('lodash/isString')
 const _isEmpty = require('lodash/isEmpty')
+const {
+  Position, FundingOffer, FundingCredit, FundingLoan, Wallet, BalanceInfo,
+  MarginInfo, FundingInfo, FundingTrade, Notification, Candle, PublicTrade,
+  Trade, TradingTicker, FundingTicker
+} = require('bfx-api-node-models')
+
 const WSv2 = require('../../../lib/transports/ws2')
 
 const API_KEY = 'dummy'
@@ -40,8 +46,67 @@ describe('WSv2 unit', () => {
       await wss.close()
     }
 
-    ws = null
-    wss = null
+    ws = null // eslint-disable-line
+    wss = null // eslint-disable-line
+  })
+
+  describe('event subscribers', () => {
+    const testSub = (name, eventName, filterIndex, filterKey, filterValue, model) => {
+      describe(name, () => {
+        it(`listens for ${eventName} event, passes valid filter, and uses correct model`, (done) => {
+          ws = createTestWSv2Instance()
+          ws._registerListener = (passedEventName, filter, passedModel) => {
+            assert.strictEqual(passedEventName, eventName, 'incorrect event name')
+
+            if (filterIndex !== null) {
+              assert.deepStrictEqual(filter, { [filterIndex]: filterValue }, 'incorrect filter')
+            }
+
+            if (model !== null) {
+              assert.strictEqual(model, passedModel)
+            }
+
+            done()
+          }
+
+          ws[name]({ [filterKey]: filterValue })
+        })
+      })
+    }
+
+    testSub('onCandle', 'candle', 0, 'key', 'test-key', Candle)
+    testSub('onTrades', 'trades', 0, 'symbol', 'tBTCUSD', PublicTrade)
+    testSub('onTrades', 'trades', 0, 'symbol', 'fUSD', FundingTrade)
+    testSub('onTradeEntry', 'trade-entry', 0, 'symbol', 'tBTCUSD', PublicTrade)
+    testSub('onAccountTradeEntry', 'auth-te', 1, 'symbol', 'tBTCUSD', Trade)
+    testSub('onAccountTradeUpdate', 'auth-tu', 1, 'symbol', 'tBTCUSD', Trade)
+    testSub('onTicker', 'ticker', 0, 'symbol', 'tBTCUSD', TradingTicker)
+    testSub('onTicker', 'ticker', 0, 'symbol', 'fUSD', FundingTicker)
+    testSub('onStatus', 'status', 0, 'key', 'test-key', null)
+    testSub('onPositionSnapshot', 'ps', 0, 'symbol', 'tBTCUSD', Position)
+    testSub('onPositionNew', 'pn', 0, 'symbol', 'tBTCUSD', Position)
+    testSub('onPositionUpdate', 'pu', 0, 'symbol', 'tBTCUSD', Position)
+    testSub('onPositionClose', 'pc', 0, 'symbol', 'tBTCUSD', Position)
+    testSub('onFundingOfferSnapshot', 'fos', 1, 'symbol', 'tBTCUSD', FundingOffer)
+    testSub('onFundingOfferNew', 'fon', 1, 'symbol', 'tBTCUSD', FundingOffer)
+    testSub('onFundingOfferUpdate', 'fou', 1, 'symbol', 'tBTCUSD', FundingOffer)
+    testSub('onFundingOfferClose', 'foc', 1, 'symbol', 'tBTCUSD', FundingOffer)
+    testSub('onFundingCreditSnapshot', 'fcs', 1, 'symbol', 'tBTCUSD', FundingCredit)
+    testSub('onFundingCreditNew', 'fcn', 1, 'symbol', 'tBTCUSD', FundingCredit)
+    testSub('onFundingCreditUpdate', 'fcu', 1, 'symbol', 'tBTCUSD', FundingCredit)
+    testSub('onFundingCreditClose', 'fcc', 1, 'symbol', 'tBTCUSD', FundingCredit)
+    testSub('onFundingLoanSnapshot', 'fls', 1, 'symbol', 'tBTCUSD', FundingLoan)
+    testSub('onFundingLoanNew', 'fln', 1, 'symbol', 'tBTCUSD', FundingLoan)
+    testSub('onFundingLoanUpdate', 'flu', 1, 'symbol', 'tBTCUSD', FundingLoan)
+    testSub('onFundingLoanClose', 'flc', null, null, null, FundingLoan)
+    testSub('onWalletSnapshot', 'ws', null, null, null, Wallet)
+    testSub('onWalletUpdate', 'wu', null, null, null, Wallet)
+    testSub('onBalanceInfoUpdate', 'bu', null, null, null, BalanceInfo)
+    testSub('onMarginInfoUpdate', 'miu', null, null, null, MarginInfo)
+    testSub('onFundingInfoUpdate', 'fiu', null, null, null, FundingInfo)
+    testSub('onFundingTradeEntry', 'fte', 0, 'symbol', 'tBTCUSD', FundingTrade)
+    testSub('onFundingTradeUpdate', 'ftu', 0, 'symbol', 'tBTCUSD', FundingTrade)
+    testSub('onNotification', 'n', 1, 'type', 'oc-req', Notification)
   })
 
   describe('utilities', () => {
@@ -51,7 +116,7 @@ describe('WSv2 unit', () => {
 
       await ws.open()
 
-      ws._enabledFlags = WSv2.flags.CHECKSUM
+      ws._enabledFlags = WSv2.flags.CHECKSUM // eslint-disable-line
 
       return new Promise((resolve) => {
         ws.send = (packet) => {
@@ -519,7 +584,7 @@ describe('WSv2 unit', () => {
         return null
       })
 
-      ws._channelMap[42] = { channel: 'trades', chanId: 42 }
+      ws._channelMap[42] = { channel: 'trades', chanId: 42 } // eslint-disable-line
 
       ws._onWSMessage(JSON.stringify([0, 'tu', [], 0, 0]))
       ws._onWSMessage(JSON.stringify([0, 'te', [], 1, 0]))
@@ -1405,7 +1470,7 @@ describe('WSv2 unit', () => {
 
       let n = 0
 
-      ws._infoListeners[42] = [
+      ws._infoListeners[42] = [ // eslint-disable-line
         () => { n += 1 },
         () => { n += 2 }
       ]
@@ -1861,6 +1926,40 @@ describe('WSv2 unit', () => {
 
       assert(sawFTU)
     })
+
+    it('uses funding trade model for funding symbols', (done) => {
+      ws = createTestWSv2Instance({ transform: true })
+
+      const payload = [636854, 'fUSD', 1575282446000, 41238905, -1000, 0.002, 7, null]
+      const msg = [0, 'ftu', payload]
+
+      ws.on('trades', (_, data) => {
+        assert(data instanceof FundingTrade)
+        done()
+      })
+
+      ws._handleTradeMessage(msg, {
+        channel: 'ftu',
+        pair: 'fUSD'
+      })
+    })
+
+    it('uses public trade model for trading symbols', (done) => {
+      ws = createTestWSv2Instance({ transform: true })
+
+      const payload = [636854, 'tBTCUSD', 1575282446000, 41238905, -1000, 0.002, 7, null]
+      const msg = [0, 'tu', payload]
+
+      ws.on('trades', (_, data) => {
+        assert(data instanceof PublicTrade)
+        done()
+      })
+
+      ws._handleTradeMessage(msg, {
+        channel: 'tu',
+        pair: 'tBTCUSD'
+      })
+    })
   })
 
   describe('resubscribePreviousChannels', () => {
@@ -2021,6 +2120,181 @@ describe('WSv2 unit', () => {
           code: '20051'
         })
       })
+    })
+  })
+
+  describe('cancelOrder', () => {
+    it('throws an error if not authenticated', (done) => {
+      ws = createTestWSv2Instance()
+      ws.cancelOrder().catch(() => { done() })
+    })
+
+    it('uses order as id if given number', (done) => {
+      ws = createTestWSv2Instance()
+      ws._isAuthenticated = true
+      ws._sendOrderPacket = (packet) => {
+        assert.deepStrictEqual(packet[3], { id: 42 })
+        done()
+      }
+
+      ws.cancelOrder(42)
+    })
+
+    it('parses id from order array', (done) => {
+      ws = createTestWSv2Instance()
+      ws._isAuthenticated = true
+      ws._sendOrderPacket = (packet) => {
+        assert.deepStrictEqual(packet[3], { id: 42 })
+        done()
+      }
+
+      ws.cancelOrder([42])
+    })
+
+    it('parses id from order object', (done) => {
+      ws = createTestWSv2Instance()
+      ws._isAuthenticated = true
+      ws._sendOrderPacket = (packet) => {
+        assert.deepStrictEqual(packet[3], { id: 42 })
+        done()
+      }
+
+      ws.cancelOrder({ id: 42 })
+    })
+
+    it('resolves on confirmation', (done) => {
+      ws = createTestWSv2Instance()
+      ws._isAuthenticated = true
+      ws._sendOrderPacket = () => {}
+
+      ws.cancelOrder(42).then(() => done())
+
+      ws._eventCallbacks.q.get('order-cancel-42')[0]()
+    })
+  })
+
+  describe('cancelOrders', () => {
+    it('throws an error if not authenticated', (done) => {
+      ws = createTestWSv2Instance()
+      ws.cancelOrders([]).catch(() => done())
+    })
+
+    it('calls cancelOrder with each order', () => {
+      ws = createTestWSv2Instance()
+      ws._isAuthenticated = true
+
+      let seen = 0
+
+      ws.cancelOrder = (i) => { seen += i }
+      ws.cancelOrders([1, 2])
+      assert.strictEqual(seen, 3)
+    })
+
+    it('resolves when all orders are cancelled', async () => {
+      const now = Date.now()
+      ws = createTestWSv2Instance()
+      ws._isAuthenticated = true
+      ws.cancelOrder = async () => {
+        return Promise.delay(10)
+      }
+
+      await ws.cancelOrders([1, 2])
+
+      assert.ok(Date.now() - now >= 10, 'did not wait') // note 10 - parallel
+    })
+  })
+
+  describe('_handleTickerMessage', () => {
+    it('forwards messages to relevant listeners', (done) => {
+      ws = createTestWSv2Instance()
+      ws._channelMap = {
+        42: {
+          chanId: 42,
+          channel: 'ticker',
+          symbol: 'tBTCUSD'
+        }
+      }
+
+      ws.onTicker({ symbol: 'tBTCUSD' }, () => { done() })
+      ws._handleTickerMessage([42, ['test']], ws._channelMap[42])
+    })
+
+    it('emits a ticker event with the symbol', (done) => {
+      ws = createTestWSv2Instance()
+      ws._channelMap = {
+        42: {
+          chanId: 42,
+          channel: 'ticker',
+          symbol: 'tBTCUSD'
+        }
+      }
+
+      ws.on('ticker', (symbol, data) => {
+        assert.strictEqual(symbol, 'tBTCUSD')
+        assert.strictEqual(data[0], 42)
+        done()
+      })
+
+      ws._handleTickerMessage([42, [42]], ws._channelMap[42])
+    })
+
+    it('uses the trading ticker model for trade symbols', (done) => {
+      ws = createTestWSv2Instance({ transform: true })
+      ws._channelMap = {
+        42: {
+          chanId: 42,
+          channel: 'ticker',
+          symbol: 'tBTCUSD'
+        }
+      }
+
+      ws.on('ticker', (symbol, data) => {
+        assert.ok(data instanceof TradingTicker)
+        done()
+      })
+
+      ws._handleTickerMessage([42, [42]], ws._channelMap[42])
+    })
+
+    it('uses the funding ticker model for funding symbols', (done) => {
+      ws = createTestWSv2Instance({ transform: true })
+      ws._channelMap = {
+        42: {
+          chanId: 42,
+          channel: 'ticker',
+          symbol: 'fUSD'
+        }
+      }
+
+      ws.on('ticker', (symbol, data) => {
+        assert.ok(data instanceof FundingTicker)
+        done()
+      })
+
+      ws._handleTickerMessage([42, [42]], ws._channelMap[42])
+    })
+  })
+
+  describe('hasChannel', () => {
+    it('returns true if the channel map contains the requested ID', () => {
+      ws = createTestWSv2Instance()
+      ws._channelMap = { test: '' }
+      assert.ok(ws.hasChannel('test'), 'channel ID not recognized')
+    })
+  })
+
+  describe('getChannelId', () => {
+    it('matches the specified type and filter', () => {
+      ws = createTestWSv2Instance()
+      ws._channelMap = {
+        test: {
+          chanId: 42,
+          channel: 'ticker',
+          symbol: 'fUSD'
+        }
+      }
+
+      assert.strictEqual(ws.getDataChannelId('ticker', { symbol: 'fUSD' }), 'test')
     })
   })
 })

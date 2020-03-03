@@ -13,3 +13,4 @@ dist/
 coverage/
 .vim
 tags
+.undodir

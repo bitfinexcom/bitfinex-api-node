@@ -17,9 +17,9 @@ describe('WS2Manager', () => {
         await m.close()
       } catch (e) {
         assert.ok(true, 'may fail due to being modified internally')
+      } finally {
+        m = null // eslint-disable-line
       }
-
-      m = null
     }
   })
 
@@ -226,7 +226,7 @@ describe('WS2Manager', () => {
       return new Promise((resolve, reject) => {
         ws.on('open', () => ws.close().then(resolve).catch(reject))
       })
-    })
+    }).timeout(4000)
 
     it('saves socket state', async () => {
       m = new WS2Manager()
@@ -238,7 +238,7 @@ describe('WS2Manager', () => {
       return new Promise((resolve, reject) => {
         ws.on('open', () => ws.close().then(resolve).catch(reject))
       })
-    })
+    }).timeout(4000)
 
     it('binds \'unsubscribed\' listener to remove channel from pending unsubs', async () => {
       m = new WS2Manager()
@@ -253,7 +253,7 @@ describe('WS2Manager', () => {
       return new Promise((resolve, reject) => {
         ws.on('open', () => ws.close().then(resolve).catch(reject))
       })
-    })
+    }).timeout(4000)
 
     it('binds \'subscribed\' listener to remove channel from pending subs', async () => {
       m = new WS2Manager()
@@ -273,8 +273,26 @@ describe('WS2Manager', () => {
       return new Promise((resolve, reject) => {
         ws.on('open', () => ws.close().then(resolve).catch(reject))
       })
-    })
-  }).timeout(4000)
+    }).timeout(4000)
+
+    it('auto-auths if manager has credentials configured', (done) => {
+      m = new WS2Manager({
+        apiKey: 'key',
+        apiSecret: 'secret'
+      })
+
+      const s = m.openSocket()
+      const { ws } = s
+
+      ws.auth = async () => {
+        assert.strictEqual(ws._apiKey, 'key', 'api key not set')
+        assert.strictEqual(ws._apiSecret, 'secret', 'api secret not set')
+
+        await ws.close()
+        done()
+      }
+    }).timeout(4000)
+  })
 
   describe('getAuthenticatedSocket', () => {
     it('returns the first authenticated socket found', () => {
@@ -578,6 +596,60 @@ describe('WS2Manager', () => {
       assert(socketsSeen.a)
       assert(socketsSeen.b)
       assert(socketsSeen.c)
+    })
+  })
+
+  describe('subscribeOrderBook', () => {
+    it('calls subscribe with a valid filter and the provided symbol', (done) => {
+      m = new WS2Manager()
+      m.subscribe = (type, symbol, filter) => {
+        assert.ok(_isObject(filter), 'filter not an object')
+        assert.strictEqual(filter.symbol, 'tBTCUSD', 'symbol did not match')
+        assert.strictEqual(filter.prec, 'P0', 'prec did not match')
+        assert.strictEqual(filter.len, '25', 'len did not match')
+        assert.strictEqual(filter.freq, 'F0', 'freq did not match')
+        assert.strictEqual(symbol, 'tBTCUSD')
+        done()
+      }
+
+      m.subscribeOrderBook('tBTCUSD', 'P0', '25', 'F0')
+    })
+  })
+
+  describe('onOrderBook', () => {
+    it('passes a valid OB filter to the first socket with a book channel', (done) => {
+      const assertFilter = (filter) => {
+        assert.ok(_isObject(filter), 'filter not an object')
+        assert.strictEqual(filter.symbol, 'tBTCUSD', 'symbol did not match')
+        assert.strictEqual(filter.prec, 'P0', 'prec did not match')
+        assert.strictEqual(filter.len, '25', 'len did not match')
+        assert.strictEqual(filter.freq, 'F0', 'freq did not match')
+      }
+
+      m = new WS2Manager()
+      m._sockets.push({
+        pendingSubscriptions: [],
+        pendingUnsubscriptions: [],
+        ws: {
+          getDataChannelId: (type, filter) => {
+            assert.strictEqual(type, 'book')
+            assertFilter(filter)
+            return 42
+          },
+
+          onOrderBook: (filter) => {
+            assertFilter(filter)
+            done()
+          }
+        }
+      })
+
+      m.onOrderBook({
+        symbol: 'tBTCUSD',
+        prec: 'P0',
+        len: '25',
+        freq: 'F0'
+      })
     })
   })
 })
