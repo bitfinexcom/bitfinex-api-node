@@ -118,7 +118,7 @@ describe('runExample', () => {
         done()
       })
     })
-  })
+  }).timeout(4000)
 
   it('passes extra RESTv2 args to constructor if provided', (done) => {
     const URL = 'http://localhost:42'
