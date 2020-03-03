@@ -181,7 +181,7 @@ describe('runExample', () => {
 
       await ws.open()
     })
-  }).timeout(3000)
+  }).timeout(6000)
 
   it('does not close WSv2 on example end if requested not too', (done) => {
     runExample(getRunArgs({
