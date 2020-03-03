@@ -44,7 +44,7 @@ describe('argsFromEnv', () => {
 
     assert.ok(_isObject(args), 'did not return an object')
     assert.ok(args.agent instanceof SocksProxyAgent, 'did not provide a SocksProxyAgent instance')
-    assert.strictEqual(args.agent.options.href, url, 'provided agent does not use proxy url from env')
+    assert.ok(/localhost/.test(args.agent.proxy.host), 'provided agent does not use proxy url from env')
   })
 
   it('provides a connection url only if available', () => {
