@@ -191,7 +191,7 @@ describe('runExample', () => {
         await ws.close()
       }, 20)
     })
-  })
+  }).timeout(4000)
 
   it('provides a readline instance if requested', () => {
     runExample(getRunArgs({ readline: true }), ({ readline }) => {
