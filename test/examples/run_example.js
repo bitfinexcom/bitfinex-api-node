@@ -140,26 +140,25 @@ describe('runExample', () => {
     })
   })
 
-  it('parses .env and passes data to WSv2 constructor if requested', (done) => {
+  it('parses .env and passes data to WSv2 constructor if requested', async () => {
     process.env.SOCKS_PROXY_URL = 'socks4://127.0.0.1:9998'
     process.env.WS_URL = 'localhost:8080'
 
-    runExample(getRunArgs({
+    await runExample(getRunArgs({
       ws: { env: true }
-    }), async ({ ws }) => {
+    }), ({ ws }) => {
       assert.ok(ws.usesAgent(), 'WSv2 instance provided to example not given connection agent')
       assert.strictEqual(ws.getURL(), 'localhost:8080', 'WSv2 instance provided to example not given connection url')
 
       delete process.env.SOCKS_PROXY_URL
       delete process.env.WS_URL
+    })
 
-      return runExample(getRunArgs({
-        ws: { env: true }
-      }), async ({ ws }) => {
-        assert.ok(!ws.usesAgent(), 'WSv2 instance provided to example used connection agent when none configured')
-        assert.strictEqual(ws.getURL(), WSv2.url, 'WSv2 instance provided to example does not use default URL when no override configured')
-        done()
-      })
+    return runExample(getRunArgs({
+      ws: { env: true }
+    }), ({ ws }) => {
+      assert.ok(!ws.usesAgent(), 'WSv2 instance provided to example used connection agent when none configured')
+      assert.strictEqual(ws.getURL(), WSv2.url, 'WSv2 instance provided to example does not use default URL when no override configured')
     })
   })
 
