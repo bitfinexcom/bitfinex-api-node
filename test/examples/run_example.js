@@ -98,27 +98,26 @@ describe('runExample', () => {
     })
   })
 
-  it('parses .env and passes data to RESTv2 constructor if requested', (done) => {
+  it('parses .env and passes data to RESTv2 constructor if requested', async () => {
     process.env.SOCKS_PROXY_URL = 'socks4://127.0.0.1:9998'
     process.env.REST_URL = 'localhost:8080'
 
-    runExample(getRunArgs({
+    await runExample(getRunArgs({
       rest: { env: true }
-    }), async ({ rest }) => {
+    }), ({ rest }) => {
       assert.ok(rest.usesAgent(), 'RESTv2 instance provided to example does not use .env config')
 
       delete process.env.SOCKS_PROXY_URL
       delete process.env.REST_URL
-
-      return runExample(getRunArgs({
-        rest: { env: true }
-      }), async ({ rest }) => {
-        assert.ok(!rest.usesAgent(), 'RESTv2 instance provided to example uses .env config when not requested')
-        assert.strictEqual(rest.getURL(), RESTv2.url, 'RESTv2 instance provided to example does not use default URL when no override configured')
-        done()
-      })
     })
-  }).timeout(4000)
+
+    return runExample(getRunArgs({
+      rest: { env: true }
+    }), async ({ rest }) => {
+      assert.ok(!rest.usesAgent(), 'RESTv2 instance provided to example uses .env config when not requested')
+      assert.strictEqual(rest.getURL(), RESTv2.url, 'RESTv2 instance provided to example does not use default URL when no override configured')
+    })
+  })
 
   it('passes extra RESTv2 args to constructor if provided', (done) => {
     const URL = 'http://localhost:42'
