@@ -3,6 +3,7 @@
 - meta: added husky npm test pre-commit hook
 - meta: refactored to async/await instead of Promises where possible
 - meta: refactored examples to reduce boilerplate and normalize output
+- meta: removed example script runners from package.json
 - examples: removed CLI scripts in favour of a dedicated bfx-cli module
 - examples: renamed 'orders' to 'list-open-orders'
 - examples: positions now always includes P/L
