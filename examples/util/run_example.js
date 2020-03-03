@@ -33,6 +33,10 @@ module.exports = (args = {}, example = () => { }) => {
     testing, name, ws, rest, readline, params = {}
   } = args
 
+  if (_isEmpty(name)) {
+    throw new Error('no example name provided')
+  }
+
   let timeout = null // saved so it can be cleared/exec prevented by the caller
   let noCatch = false
 
@@ -48,10 +52,6 @@ module.exports = (args = {}, example = () => { }) => {
 
     return new Promise((resolve, reject) => {
       timeout = setTimeout(async () => {
-        if (_isEmpty(name)) {
-          throw new Error('no example name provided')
-        }
-
         const debug = D('>')
         debug.enabled = true
 
