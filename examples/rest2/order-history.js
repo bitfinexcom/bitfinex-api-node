@@ -15,7 +15,7 @@ module.exports = runExample({
     market: 'tBTCUSD'
   }
 }, async ({ debug, debugTable, rest, params }) => {
-  let { market } = params
+  const { market } = params
 
   if (_isEmpty(market)) {
     return debug('market required')
