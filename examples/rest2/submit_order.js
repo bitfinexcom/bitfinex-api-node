@@ -24,13 +24,16 @@ module.exports = runExample({
   }
 }, async ({ rest, debug, params, readline }) => {
   const {
-    symbol, price, amount, type, affiliateCode, onlySubmitOrder, skipConfirm
+    symbol, price, amount, type, affiliateCode, onlySubmitOrder, skipConfirm,
+    priceStop, distance
   } = params
 
   const o = new Order({
     cid: Date.now(),
     symbol,
     price,
+    priceAuxLimit: priceStop,
+    priceTrailing: distance,
     amount,
     type,
     affiliateCode
