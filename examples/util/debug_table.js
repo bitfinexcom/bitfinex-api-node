@@ -5,11 +5,11 @@ const Table = require('cli-table2')
 /**
  * Generates a CLI table and logs it to the console
  *
- * @param {Object} args
- * @param {Object} args.rows - data
- * @param {Object} args.headers - column headers
- * @param {Object} args.debug - log function
- * @return {string} table
+ * @param {object} args - arguments
+ * @param {object} args.rows - data
+ * @param {object} args.headers - column headers
+ * @param {object} args.debug - log function
+ * @returns {string} table
  */
 module.exports = ({ rows, headers, debug }) => {
   const t = new Table({

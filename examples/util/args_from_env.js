@@ -11,7 +11,7 @@ const validArg = v => _isString(v) && !_isEmpty(v)
  * the api credentials, connection agent, and connection URL
  *
  * @param {string?} urlKey - name of env var holding the connection URL
- * @return {Object} envArgs
+ * @returns {object} envArgs
  */
 module.exports = (urlKey) => {
   const { API_KEY, API_SECRET, SOCKS_PROXY_URL } = process.env

@@ -28,7 +28,9 @@ const ws = new WSv2({ transform: true })
 
 ### Docs
 
-[See `docs/ws2.md`](/docs/ws2.md) for WS2 API methods, [and `docs/usage.md`](/docs/usage.md) for a basic usage guide. For executable examples, [refer to the `examples/`](/examples) folder.
+[See `docs/ws2.md`](/docs/ws2.md) for WS2 API methods,
+[and `docs/usage.md`](/docs/usage.md) for a basic usage guide. For executable
+examples, [refer to the `examples/`](/examples) folder.
 
 Official API documentation at [https://docs.bitfinex.com/v2/reference](https://docs.bitfinex.com/v2/reference)
 
@@ -139,7 +141,8 @@ To make dealing with snapshots better predictable, snapshots are emitted as an a
 
 ### normalized orderbooks for R0
 
-Lists of raw orderbooks (`R0`) are ordered in the same order as `P0`, `P1`, `P2`, `P3`
+Lists of raw orderbooks (`R0`) are ordered in the same order as `P0`, `P1`,
+`P2`, `P3`
 
 ## Testing
 
@@ -149,45 +152,64 @@ npm test
 
 ## FAQ
 
-### How many orders can I send?
+### Order Creation Limits
 
-The base limit per-user is 1,000 orders per 5 minute interval, and is shared between all account API connections. It increases proportionally to your trade volume based on the following formula:
+The base limit per-user is 1,000 orders per 5 minute interval, and is shared
+between all account API connections. It increases proportionally to your trade
+volume based on the following formula:
 
 `1000 + (TOTAL_PAIRS_PLATFORM * 60 * 5) / (250000000 / USER_VOL_LAST_30d)`
 
-Where `TOTAL_PAIRS_PLATFORM` is the number of pairs shared between Ethfinex/Bitfinex (currently ~101) and `USER_VOL_LAST_30d` is in USD.
+Where `TOTAL_PAIRS_PLATFORM` is the number of pairs shared between
+Ethfinex/Bitfinex (currently ~101) and `USER_VOL_LAST_30d` is in USD.
 
-### Will I always receive an `on` packet?
+### 'on' Packet Guarantees
 
-No; if your order fills immediately, the first packet referencing the order will be an `oc` signaling the order has closed. If the order fills partially immediately after creation, an `on` packet will arrive with a status of `PARTIALLY FILLED...`
+No; if your order fills immediately, the first packet referencing the order
+will be an `oc` signaling the order has closed. If the order fills partially
+immediately after creation, an `on` packet will arrive with a status of
+`PARTIALLY FILLED...`
 
-For example, if you submit a `LIMIT` buy for 0.2 BTC and it is added to the order book, an `on` packet will arrive via ws2. After a partial fill of 0.1 BTC, an `ou` packet will arrive, followed by a final `oc` after the remaining 0.1 BTC fills.
+For example, if you submit a `LIMIT` buy for 0.2 BTC and it is added to the
+order book, an `on` packet will arrive via ws2. After a partial fill of 0.1
+BTC, an `ou` packet will arrive, followed by a final `oc` after the remaining
+0.1 BTC fills.
 
-On the other hand, if the order fills immediately for 0.2 BTC, you will only receive an `oc` packet.
+On the other hand, if the order fills immediately for 0.2 BTC, you will only
+receive an `oc` packet.
 
-### My websocket won't connect!
+### Nonce too small
 
-Did you call `open()`? :)
+I make multiple parallel request and I receive an error that the nonce is too
+small. What does it mean?
 
-### nonce too small
-
-I make multiple parallel request and I receive an error that the nonce is too small. What does it mean?
-
-Nonces are used to guard against replay attacks. When multiple HTTP requests arrive at the API with the wrong nonce, e.g. because of an async timing issue, the API will reject the request.
+Nonces are used to guard against replay attacks. When multiple HTTP requests
+arrive at the API with the wrong nonce, e.g. because of an async timing issue,
+the API will reject the request.
 
 If you need to go parallel, you have to use multiple API keys right now.
 
-### How do `te` and `tu` messages differ?
+### `te` vs `tu` Messages
 
-A `te` packet is sent first to the client immediately after a trade has been matched & executed, followed by a `tu` message once it has completed processing. During times of high load, the `tu` message may be noticably delayed, and as such only the `te` message should be used for a realtime feed.
+A `te` packet is sent first to the client immediately after a trade has been
+matched & executed, followed by a `tu` message once it has completed processing.
+During times of high load, the `tu` message may be noticably delayed, and as
+such only the `te` message should be used for a realtime feed.
 
-### What are the sequence numbers for?
+### Sequencing
 
-If you enable sequencing on v2 of the WS API, each incoming packet will have a public sequence number at the end, along with an auth sequence number in the case of channel `0` packets. The public seq numbers increment on each packet, and the auth seq numbers increment on each authenticated action (new orders, etc). These values allow you to verify that no packets have been missed/dropped, since they always increase monotonically.
+If you enable sequencing on v2 of the WS API, each incoming packet will have a
+public sequence number at the end, along with an auth sequence number in the
+case of channel `0` packets. The public seq numbers increment on each packet,
+and the auth seq numbers increment on each authenticated action (new orders,
+etc). These values allow you to verify that no packets have been missed/dropped,
+since they always increase monotonically.
 
-### What is the difference between R* and P* order books?
+### Differences Between R* and P* Order Books
 
-Order books with precision `R0` are considered 'raw' and contain entries for each order submitted to the book, whereas `P*` books contain entries for each price level (which aggregate orders).
+Order books with precision `R0` are considered 'raw' and contain entries for
+each order submitted to the book, whereas `P*` books contain entries for each
+price level (which aggregate orders).
 
 ### Contributing
 

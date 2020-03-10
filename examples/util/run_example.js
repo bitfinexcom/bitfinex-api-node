@@ -1,7 +1,7 @@
 const dotenv = require('dotenv')
 const Promise = require('bluebird')
 const _isEmpty = require('lodash/isEmpty')
-const _isObject = require('lodash/isObject')
+const _isobject = require('lodash/isObject')
 const { RESTv2 } = require('bfx-api-node-rest')
 const Readline = require('readline-promise').default
 
@@ -15,18 +15,18 @@ const D = require('./debug').get()
  * WSv2/RESTv2 instances if requested. Captures errors and logs helpful
  * information in case of config load failure.
  *
- * @param {Object} args
+ * @param {object} args - arguments
  * @param {string} args.name - example name, used in debug string
- * @param {bool|Object?} args.ws - if passed, a WSv2 connection is provided
- * @param {bool?} args.ws.connect - if true, the connection is opened
- * @param {bool?} args.ws.env - if true, the instance receives credentials/connection info from .env
- * @param {bool?} args.ws.args - further args, passed to WSv2 constructor
- * @param {bool|Object} args.rest - if passed, a RESTv2 instance is provided
- * @param {bool?} args.rest.env - if true, the instance receives credentials/connection info from .env
- * @param {bool?} args.rest.args - further args, passed to RESTv2 constructor
- * @param {Object?} args.params - optional parameters to pass to the example
+ * @param {boolean|object} [args.ws] - if passed, a WSv2 connection is provided
+ * @param {boolean} [args.ws.connect] - if true, the connection is opened
+ * @param {boolean} [args.ws.env] - if true, the instance receives credentials/connection info from .env
+ * @param {boolean} [args.ws.args] - further args, passed to WSv2 constructor
+ * @param {boolean|object} [args.rest] - if passed, a RESTv2 instance is provided
+ * @param {boolean} [args.rest.env] - if true, the instance receives credentials/connection info from .env
+ * @param {boolean} [args.rest.args] - further args, passed to RESTv2 constructor
+ * @param {object} [args.params] - optional parameters to pass to the example
  * @param {Function} example - must return a promise
- * @return {Functino} paramOverride - func that can be used to override params
+ * @returns {Function} paramOverride - func that can be used to override params
  */
 module.exports = (args = {}, example = () => { }) => {
   const {
@@ -44,8 +44,8 @@ module.exports = (args = {}, example = () => { }) => {
    *  TODO: extract timeout body
    *  we return an override method for params below the timeout block
    *
-   * @param {Object} paramOverrides - merged with default script parameters
-   * @return {Promise} p - resolves on script completion
+   * @param {object} paramOverrides - merged with default script parameters
+   * @returns {Promise} p - resolves on script completion
    */
   const exec = (paramOverrides = {}) => {
     Object.assign(params, paramOverrides)
@@ -58,11 +58,11 @@ module.exports = (args = {}, example = () => { }) => {
         /**
          * Log a table to the console
          *
-         * @param {Object} args
-         * @param {Object[]} args.rows - data, can be specified as 2nd param
+         * @param {object} args - arguments
+         * @param {object[]} args.rows - data, can be specified as 2nd param
          * @param {string[]} args.headers - column labels
          * @param {number[]} args.widths - column widths
-         * @param {Object[]} extraRows - optional row spec as 2nd param
+         * @param {object[]} extraRows - optional row spec as 2nd param
          */
         const debugTable = ({ rows = [], headers, widths }, extraRows = []) => {
           debug('')
@@ -75,14 +75,14 @@ module.exports = (args = {}, example = () => { }) => {
           debug('')
         }
 
-        const { env: restEnv, ...restArgs } = _isObject(rest) ? rest : {}
+        const { env: restEnv, ...restArgs } = _isobject(rest) ? rest : {}
         const {
           env: wsEnv,
           connect: wsAutoConnect,
           keepOpen: wsKeepOpen,
           auth: wsAutoAuth,
           ...wsArgs
-        } = _isObject(ws) ? ws : {}
+        } = _isobject(ws) ? ws : {}
 
         // load .env if needed for either API transport
         if (restEnv || wsEnv) {

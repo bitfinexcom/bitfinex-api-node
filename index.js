@@ -10,9 +10,9 @@ const WS2Manager = require('./lib/ws2_manager')
  */
 class BFX {
   /**
-   * @param {Object} opts
-   * @param {string} opts.apiKey
-   * @param {string} opts.apiSecret
+   * @param {object} opts - options
+   * @param {string} opts.apiKey - API key
+   * @param {string} opts.apiSecret - API secret
    * @param {string} opts.authToken - optional auth option
    * @param {string} opts.transform - if true, packets are converted to models
    * @param {string} opts.nonceGenerator - optional
@@ -51,7 +51,8 @@ class BFX {
   /**
    * Returns an arguments map ready to pass to a transport constructor
    *
-   * @param {Object} extraOpts - options to pass to transport
+   * @param {object} extraOpts - options to pass to transport
+   * @returns {object} payload
    */
   _getTransportPayload (extraOpts) {
     return {
@@ -68,8 +69,8 @@ class BFX {
    * Returns a new REST API class instance (cached by version)
    *
    * @param {number} version - 1 or 2 (default)
-   * @param {Object} extraOpts - passed to transport constructor
-   * @return {RESTv1|RESTv2} transport
+   * @param {object} extraOpts - passed to transport constructor
+   * @returns {RESTv1|RESTv2} transport
    */
   rest (version = 2, extraOpts = {}) {
     if (version !== 1 && version !== 2) {
@@ -94,8 +95,8 @@ class BFX {
    * Returns a new WebSocket API class instance (cached by version)
    *
    * @param {number} version - 1 or 2 (default)
-   * @param {Object} extraOpts - passed to transport constructor
-   * @return {WSv1|WSv2} transport
+   * @param {object} extraOpts - passed to transport constructor
+   * @returns {WSv1|WSv2} transport
    */
   ws (version = 2, extraOpts = {}) {
     if (version !== 1 && version !== 2) {
@@ -105,8 +106,7 @@ class BFX {
     const key = `${version}|${JSON.stringify(extraOpts)}`
 
     if (!this._transportCache.ws[key]) {
-      Object.assign(extraOpts, this._wsArgs
-      )
+      Object.assign(extraOpts, this._wsArgs)
       const payload = this._getTransportPayload(extraOpts)
 
       this._transportCache.ws[key] = version === 2
