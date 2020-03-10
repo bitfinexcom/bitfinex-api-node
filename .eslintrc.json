@@ -1,18 +1,34 @@
 {
+  "plugins": [
+    "jsdoc"
+  ],
+
   "env": {
-    "browser": true,
-    "commonjs": true,
     "es6": true,
-    "node": true
+    "node": true,
+    "es2020": true
   },
-  "extends": "eslint:recommended",
-  "globals": {
-    "Atomics": "readonly",
-    "SharedArrayBuffer": "readonly"
-  },
+
+  "extends": [
+    "standard",
+    "eslint:recommended",
+    "plugin:promise/recommended",
+    "plugin:node/recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:lodash/recommended"
+  ],
+
   "parserOptions": {
-    "ecmaVersion": 2018
+    "ecmaVersion": 2020
   },
+
   "rules": {
+    "no-multiple-empty-lines": ["error", { "max": 1, "maxEOF": 1 }],
+    "promise/no-callback-in-promise": 0,
+    "lodash/prefer-lodash-method": 0,
+    "lodash/prefer-noop": 0,
+    "lodash/prefer-constant": 0,
+    "node/no-unpublished-require": 0
   }
 }

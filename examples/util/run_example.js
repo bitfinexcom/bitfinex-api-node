@@ -94,6 +94,7 @@ module.exports = (args = {}, example = () => { }) => {
 
         try {
           toolset = {
+            env: argsFromEnv(),
             params,
             debug,
             debugTable,

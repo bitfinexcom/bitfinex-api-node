@@ -14,7 +14,9 @@ describe('debugTable', () => {
         debug: () => {}
       })
       assert.fail('no error was thrown')
-    } catch (e) {}
+    } catch (e) {
+      assert.ok(true)
+    }
   })
 
   it('prints the table out line by line, and returns it as a multi-line string', () => {

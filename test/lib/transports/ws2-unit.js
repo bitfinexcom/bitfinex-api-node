@@ -9,6 +9,8 @@ const _isFunction = require('lodash/isFunction')
 const _isObject = require('lodash/isObject')
 const _isString = require('lodash/isString')
 const _isEmpty = require('lodash/isEmpty')
+const _isError = require('lodash/isError')
+const _includes = require('lodash/includes')
 const {
   Position, FundingOffer, FundingCredit, FundingLoan, Wallet, BalanceInfo,
   MarginInfo, FundingInfo, FundingTrade, Notification, Candle, PublicTrade,
@@ -579,7 +581,7 @@ describe('WSv2 unit', () => {
       await ws.auth()
 
       ws.on('error', (err) => {
-        if (err.message.indexOf('seq #') !== -1) errorsSeen++
+        if (_includes(err.message, 'seq #')) errorsSeen++
 
         return null
       })
@@ -1326,7 +1328,7 @@ describe('WSv2 unit', () => {
       ])
 
       assert(err)
-      assert(err instanceof Error)
+      assert(_isError(err))
     })
 
     it('_updateManagedCandles: correctly maintains transformed OBs', () => {
@@ -1406,7 +1408,7 @@ describe('WSv2 unit', () => {
     it('_handleConfigEvent: emits error if config failed', (done) => {
       ws = createTestWSv2Instance()
       ws.on('error', (err) => {
-        if (err.message.indexOf('42') !== -1) done()
+        if (_includes(err.message, '42')) done()
       })
       ws._handleConfigEvent({ status: 'bad', flags: 42 })
     })
@@ -1695,7 +1697,7 @@ describe('WSv2 unit', () => {
 
       return new Promise((resolve) => {
         ws.on('error', (e) => {
-          if (e.message.indexOf('no ws client') === -1) {
+          if (!_includes(e.message, 'no ws client')) {
             throw new Error('received unexpected error')
           } else {
             resolve()
@@ -1715,7 +1717,7 @@ describe('WSv2 unit', () => {
 
       return new Promise((resolve) => {
         ws.on('error', (e) => {
-          if (e.message.indexOf('currently closing') === -1) {
+          if (!_includes(e.message, 'currently closing')) {
             throw new Error('received unexpected error')
           } else {
             resolve()
@@ -1756,7 +1758,7 @@ describe('WSv2 unit', () => {
 
       assert.strictEqual(ws._validateMessageSeq([243, [252.12, 2, -1], 1]), null)
       assert.strictEqual(ws._validateMessageSeq([243, [252.12, 2, -1], 2]), null)
-      assert(ws._validateMessageSeq([243, [252.12, 2, -1], 5]) instanceof Error)
+      assert(_isError(ws._validateMessageSeq([243, [252.12, 2, -1], 5])))
     })
 
     it('returns an error on invalid auth seq', () => {
@@ -1768,7 +1770,7 @@ describe('WSv2 unit', () => {
 
       assert.strictEqual(ws._validateMessageSeq([0, [252.12, 2, -1], 1, 1]), null)
       assert.strictEqual(ws._validateMessageSeq([0, [252.12, 2, -1], 2, 2]), null)
-      assert(ws._validateMessageSeq([0, [252.12, 2, -1], 3, 5]) instanceof Error)
+      assert(_isError(ws._validateMessageSeq([0, [252.12, 2, -1], 3, 5])))
     })
 
     it('ignores heartbeats', () => {
@@ -2167,7 +2169,9 @@ describe('WSv2 unit', () => {
       ws._isAuthenticated = true
       ws._sendOrderPacket = () => {}
 
-      ws.cancelOrder(42).then(() => done())
+      ws.cancelOrder(42)
+        .then(() => done())
+        .catch((e) => done(e))
 
       ws._eventCallbacks.q.get('order-cancel-42')[0]()
     })
