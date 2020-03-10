@@ -70,7 +70,7 @@
   },
   "dependencies": {
     "bfx-api-node-models": "^1.1.9",
-    "bfx-api-node-rest": "^3.0.3",
+    "bfx-api-node-rest": "^3.0.4",
     "bfx-api-node-util": "^1.0.2",
     "bfx-api-node-ws1": "^1.0.0",
     "bignumber.js": "^9.0.0",
