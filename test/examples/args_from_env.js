@@ -2,6 +2,7 @@
 'use strict'
 
 const assert = require('assert')
+const _isUndefined = require('lodash/isUndefined')
 const _isObject = require('lodash/isObject')
 const _isString = require('lodash/isString')
 const _isEmpty = require('lodash/isEmpty')
@@ -16,8 +17,8 @@ describe('argsFromEnv', () => {
     let args = argsFromEnv()
 
     assert.ok(_isObject(args), 'did not return an object')
-    assert(typeof args.apiKey === 'undefined', 'api key parsed although not present on env')
-    assert(typeof args.apiSecret === 'undefined', 'api secret parsed although not present on env')
+    assert(_isUndefined(args.apiKey), 'api key parsed although not present on env')
+    assert(_isUndefined(args.apiSecret), 'api secret parsed although not present on env')
 
     process.env.API_KEY = '42'
     process.env.API_SECRET = '9000'
@@ -36,7 +37,7 @@ describe('argsFromEnv', () => {
     let args = argsFromEnv()
 
     assert.ok(_isObject(args), 'did not return an object')
-    assert.ok(typeof args.agent === 'undefined', 'agent provided although no config on env')
+    assert.ok(_isUndefined(args.agent), 'agent provided although no config on env')
 
     process.env.SOCKS_PROXY_URL = url
 
@@ -54,7 +55,7 @@ describe('argsFromEnv', () => {
     let args = argsFromEnv('TEST_URL')
 
     assert.ok(_isObject(args), 'did not return an object')
-    assert.ok(typeof args.url === 'undefined', 'url provided although no config on env')
+    assert.ok(_isUndefined(args.url), 'url provided although no config on env')
 
     process.env.TEST_URL = url
 

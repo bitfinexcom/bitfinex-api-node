@@ -29,7 +29,9 @@ describe('WSv2 integration', () => {
       if (ws && ws.isOpen()) {
         await ws.close()
       }
-    } catch (e) {}
+    } catch (e) {
+      assert.ok(true)
+    }
 
     if (wss && wss.isOpen()) {
       await wss.close()

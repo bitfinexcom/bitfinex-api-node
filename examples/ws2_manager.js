@@ -4,24 +4,22 @@ process.env.DEBUG = 'bfx:examples:*'
 
 const _flatten = require('lodash/flatten')
 const debug = require('debug')('bfx:examples:ws2-manager')
-const bfx = require('./bfx')
-
+const runExample = require('./util/run_example')
 const Manager = require('../lib/ws2_manager')
-const rest = bfx.rest(2, { transform: true })
 
-debug('fetching symbol details...')
+module.exports = runExample({
+  rest: { transform: true }
+}, async ({ rest, env }) => {
+  debug('fetching symbol details...')
 
-rest.symbolDetails().then(details => {
+  const details = await rest.symbolDetails()
   const symbols = details.map(d => `t${d.pair.toUpperCase()}`)
   const timeFrames = ['1m', '5m', '30m', '1h', '6h']
   const keys = _flatten(symbols.map(s => {
     return timeFrames.map(tf => `trade:${tf}:${s}`)
   }))
 
-  const m = new Manager({
-    url: bfx.args.wsURL,
-    ...bfx.args
-  })
+  const m = new Manager({ ...env })
 
   m.on('error', (err) => {
     debug('error: %s', err)

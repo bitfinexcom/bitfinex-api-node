@@ -195,7 +195,7 @@ describe('runExample', () => {
 
   it('provides a readline instance if requested', () => {
     runExample(getRunArgs({ readline: true }), ({ readline }) => {
-      assert.ok(_isFunction(readline.questionAsync, 'no readline instance provided'))
+      assert.ok(_isFunction(readline.questionAsync), 'no readline instance provided')
     })
   })
 
