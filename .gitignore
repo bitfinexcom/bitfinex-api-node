@@ -14,3 +14,4 @@ coverage/
 .vim
 tags
 .undodir
+Session.vim
