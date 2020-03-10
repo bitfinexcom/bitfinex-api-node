@@ -15,6 +15,7 @@
 - WSv2: default connection url now exposed on WSv2.url
 - WSv2: removed unused prec/len params from unsubscribeOrderBook()
 - WSv2: removed unused rawMsg param from _handleEventMessage()
+- WSv2: fix getDataChannelId() not filtering by channel type
 - WS2Manager: reconnect() and close() now return promises
 - WS2Manager: added getAuthArgs()
 - WS2Manager: added missing tests

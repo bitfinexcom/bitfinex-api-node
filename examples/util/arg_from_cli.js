@@ -8,9 +8,9 @@ const _isFunction = require('lodash/isFunction')
  * npm
  *
  * @param {number} index - starting after invocation (2)
- * @param {string} default - fallback value if none found/not supported
+ * @param {string} def - fallback value if none found/not supported
  * @param {Function?} parser - optional, used to process value if provided
- * @return {string} value
+ * @returns {string} value
  */
 module.exports = (index, def, parser) => {
   const val = /node/.test(process.argv[0]) || /npm/.test(process.argv[0])
