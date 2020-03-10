@@ -36,7 +36,7 @@ module.exports = runExample({
     },
 
     columnSpacing: 5,
-    columnWidth: [10, 10, 10]
+    columnWidth: [10, 20, 10]
   })
 
   screen.append(bookTable)
