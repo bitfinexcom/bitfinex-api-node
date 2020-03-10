@@ -7,7 +7,7 @@ module.exports = runExample({
   name: 'rest-get-tickers',
   rest: { transform: true },
   params: {
-    filterByMarket: 'all'
+    filterByMarket: null
   }
 }, async ({ rest, debug, debugTable, params }) => {
   const { filterByMarket } = params
@@ -21,7 +21,7 @@ module.exports = runExample({
   const symbols = rawSymbols
     .map(s => `t${s.toUpperCase()}`)
     .filter(s => (
-      filterByMarket === 'all' || (s === filterByMarket)
+      !filterByMarket || (s === filterByMarket)
     ))
 
   if (symbols.length === 0) {
