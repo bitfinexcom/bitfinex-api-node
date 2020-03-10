@@ -4,11 +4,10 @@ const _isEmpty = require('lodash/isEmpty')
 const runExample = require('../util/run_example')
 
 module.exports = runExample({
-  name: 'ws2-oc-multi',
+  name: 'ws2-trades',
   ws: {
     env: true,
     connect: true,
-    auth: true,
     keepOpen: true,
     transform: true
   },
