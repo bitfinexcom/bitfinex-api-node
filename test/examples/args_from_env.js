@@ -12,7 +12,7 @@ const argsFromEnv = require('../../examples/util/args_from_env')
 describe('argsFromEnv', () => {
   it('pulls api credentials from the environment only if available', () => {
     delete process.env.API_KEY
-    delete process.env.API_KEY
+    delete process.env.API_SECRET
 
     let args = argsFromEnv()
 
