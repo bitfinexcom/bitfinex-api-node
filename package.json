@@ -68,7 +68,7 @@
   },
   "dependencies": {
     "readline-promise": "^1.0.4",
-    "bfx-api-node-models": "^1.2.0",
+    "bfx-api-node-models": "^1.2.1",
     "bfx-api-node-rest": "^3.0.8",
     "bfx-api-node-util": "^1.0.2",
     "bfx-api-node-ws1": "^1.0.0",
