@@ -1,3 +1,8 @@
+4.0.15
+- meta: bump all dependencies
+- meta: update babel config
+- refactor: scoped all JSDoc data under module:bitfinex-api-node
+
 4.0.14
 - fix: README docs reference
 
