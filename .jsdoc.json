@@ -1,27 +1,36 @@
 {
   "tags": {
-    "allowUnknownTags": false,
+    "allowUnknownTags": ["category"],
     "dictionaries": ["jsdoc"]
   },
   "source": {
-    "include": ["index.js", "LICENSE.md", "README.md"],
-    "includePattern": ".js$",
-    "excludePattern": "(node_modules/|docs)"
+    "include": ["index.js", "lib", "LICENSE.md", "README.md"],
+    "includePattern": ".js$"
   },
   "plugins": [
-    "plugins/markdown"
+    "plugins/markdown",
+    "jsdoc-plugin-npm",
+    "jsdoc-plugin-url",
+    "jsdoc-mermaid",
+    "node_modules/better-docs/category"
   ],
   "templates": {
     "cleverLinks": false,
     "monospaceLinks": true,
-    "useLongnameInNav": false,
-    "showInheritedInNav": true
+    "smallSourceLink": true,
+    "hideAuthor": true,
+    "search": true,
+    "better-docs": {
+      "name": "Bitfinex Node.JS API Client Library",
+      "title": "Bitfinex Node.JS Client"
+    }
   },
   "opts": {
-    "destination": "./docs/",
+    "destination": "./docs",
     "encoding": "utf8",
+    "private": false,
     "recurse": true,
-    "template": "./node_modules/docdash"
-  },
-  "package": ""
+    "verbose": true,
+    "template": "./node_modules/better-docs"
+  }
 }
