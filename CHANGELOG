@@ -1,3 +1,6 @@
+4.0.16
+- meta: update JSDoc doclets for bfx-oss-docs
+
 4.0.15
 - meta: bump all dependencies
 - meta: update babel config

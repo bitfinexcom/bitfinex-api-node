@@ -6,13 +6,12 @@
  * WSv2 API client is implemented here, the others are re-exported from their
  * respective packages to provide a unified interface to all Bitfinex APIs.
  *
- * @category API Client
  * @module bitfinex-api-node
  */
 
 const { RESTv1, RESTv2 } = require('bfx-api-node-rest')
 const WSv1 = require('bfx-api-node-ws1')
-const WSv2 = require('./lib/transports/ws2')
+const WSv2 = require('./lib/ws2')
 const WS2Manager = require('./lib/ws2_manager')
 const ClientManager = require('./lib/client_manager')
 

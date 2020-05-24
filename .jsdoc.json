@@ -1,36 +1,61 @@
 {
   "tags": {
-    "allowUnknownTags": ["category"],
+    "allowUnknownTags": false,
     "dictionaries": ["jsdoc"]
   },
+
+  "plugins": [
+    "plugins/markdown",
+    "jsdoc-mermaid",
+    "jsdoc-plugin-npm",
+    "jsdoc-plugin-url"
+  ],
+
   "source": {
     "include": ["index.js", "lib", "LICENSE.md", "README.md"],
     "includePattern": ".js$"
   },
-  "plugins": [
-    "plugins/markdown",
-    "jsdoc-plugin-npm",
-    "jsdoc-plugin-url",
-    "jsdoc-mermaid",
-    "node_modules/better-docs/category"
-  ],
-  "templates": {
-    "cleverLinks": false,
-    "monospaceLinks": true,
-    "smallSourceLink": true,
-    "hideAuthor": true,
-    "search": true,
-    "better-docs": {
-      "name": "Bitfinex Node.JS API Client Library",
-      "title": "Bitfinex Node.JS Client"
-    }
-  },
+
   "opts": {
-    "destination": "./docs",
+    "destination": "./docs/jsdoc",
     "encoding": "utf8",
-    "private": false,
     "recurse": true,
     "verbose": true,
-    "template": "./node_modules/better-docs"
+    "template": "./node_modules/docdash"
+  },
+
+  "markdown": {
+    "parser": "gfm",
+    "hardwrap": false,
+    "idInHeadings": true
+  },
+
+  "templates": {
+    "cleverLinks": true,
+    "default": {
+      "outputSourceFiles": true,
+      "includeDate": true,
+      "useLongnameInNav": false
+    }
+  },
+
+  "docdash": {
+    "static": true,
+    "sort": true,
+    "search": true,
+    "collapse": true,
+    "wrap": true,
+    "typedefs": true,
+    "private": false,
+    "sectionOrder": [
+      "Tutorials",
+      "Namespaces",
+      "Modules",
+      "Classes",
+      "Externals",
+      "Events",
+      "Mixins",
+      "Interfaces"
+    ]
   }
 }

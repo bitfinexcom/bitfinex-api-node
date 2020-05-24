@@ -1,6 +1,6 @@
 {
   "name": "bitfinex-api-node",
-  "version": "4.0.15",
+  "version": "4.0.16",
   "description": "Node reference library for Bitfinex API",
   "engines": {
     "node": ">=8.3.0"
@@ -51,9 +51,9 @@
     "@babel/plugin-transform-regenerator": "^7.8.7",
     "@babel/preset-env": "^7.9.6",
     "babel-eslint": "^10.1.0",
-    "better-docs": "^2.0.1",
     "bfx-api-mock-srv": "^1.0.4",
     "chai": "^4.2.0",
+    "docdash": "^1.2.0",
     "dotenv": "^8.2.0",
     "eslint": "^7.0.0",
     "eslint-config-standard": "^14.1.0",
