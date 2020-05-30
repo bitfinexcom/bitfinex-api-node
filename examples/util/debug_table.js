@@ -1,6 +1,6 @@
 'use strict'
 
-const Table = require('cli-table2')
+const Table = require('cli-table3')
 
 /**
  * Generates a CLI table and logs it to the console
