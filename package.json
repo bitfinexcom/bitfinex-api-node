@@ -1,6 +1,6 @@
 {
   "name": "bitfinex-api-node",
-  "version": "4.0.14",
+  "version": "4.0.15",
   "description": "Node reference library for Bitfinex API",
   "engines": {
     "node": ">=8.3.0"
@@ -64,17 +64,16 @@
     "standard": "^14.3.1"
   },
   "dependencies": {
-    "readline-promise": "^1.0.4",
-    "blessed": "^0.1.81",
-    "blessed-contrib": "^4.8.19",
-    "cli-table2": "^0.2.0",
     "bfx-api-node-models": "^1.2.1",
     "bfx-api-node-rest": "^3.0.8",
     "bfx-api-node-util": "^1.0.2",
     "bfx-api-node-ws1": "^1.0.0",
     "bignumber.js": "^9.0.0",
+    "blessed": "^0.1.81",
+    "blessed-contrib": "^4.8.19",
     "bluebird": "^3.5.1",
     "cbq": "0.0.1",
+    "cli-table3": "^0.6.0",
     "copy": "^0.3.2",
     "crc-32": "^1.2.0",
     "debug": "^4.1.1",
@@ -83,6 +82,7 @@
     "lossless-json": "^1.0.3",
     "p-iteration": "^1.1.8",
     "promise-throttle": "^1.0.1",
+    "readline-promise": "^1.0.4",
     "request": "^2.67.0",
     "request-promise": "^4.2.0",
     "ws": "^7.2.1"
