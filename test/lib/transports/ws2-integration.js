@@ -4,7 +4,7 @@
 const assert = require('assert')
 const Promise = require('bluebird')
 const WSv2 = require('../../../lib/transports/ws2')
-const { Order } = require('bfx-api-node-models')
+const { Order, FundingOffer } = require('bfx-api-node-models')
 const { MockWSv2Server } = require('bfx-api-mock-srv')
 
 const API_KEY = 'dummy'
@@ -220,6 +220,126 @@ describe('WSv2 integration', () => {
         // note promises ignored
         ws.submitOrder(oA)
         ws.submitOrder(oB)
+      })
+    })
+  })
+
+  describe('submitFundingOffer', () => {
+    const testCases = {
+      'as class instance': {
+        payload: new FundingOffer({
+          type: 'LIMIT',
+          symbol: 'fUSD',
+          amount: '50',
+          rate: '0.001',
+          period: 2,
+          flags: 0
+        }),
+        expectedResult: {
+          type: 'LIMIT',
+          symbol: 'fUSD',
+          amount: '50.00000000',
+          rate: '0.00100000',
+          period: 2,
+          flags: 0
+        }
+      },
+      'as object literal': {
+        payload: {
+          type: 'LIMIT',
+          symbol: 'fUSD',
+          amount: '60',
+          rate: '0.003',
+          period: 7,
+          flags: 0
+        },
+        expectedResult: {
+          type: 'LIMIT',
+          symbol: 'fUSD',
+          amount: '60.00000000',
+          rate: '0.00300000',
+          period: 7,
+          flags: 0
+        }
+      },
+      'as array': {
+        payload: [
+          null, 'fUSD', null, null, '55', null, 'LIMIT', null, null, 0,
+          null, null, null, null, '0.002', 4
+        ],
+        expectedResult: {
+          type: 'LIMIT',
+          symbol: 'fUSD',
+          amount: '55.00000000',
+          rate: '0.00200000',
+          period: 4,
+          flags: 0
+        }
+      }
+    }
+
+    Object.keys(testCases).forEach((scenario) => {
+      it(scenario, async () => {
+        let sentPackets = 0
+        wss = new MockWSv2Server()
+        ws = createTestWSv2Instance()
+
+        await ws.open()
+        await ws.auth()
+
+        ws._ws.send = (msgJSON) => {
+          const msg = JSON.parse(msgJSON)
+          assert.strictEqual(msg[1], 'fon')
+          assert.deepStrictEqual(msg[3], testCases[scenario].expectedResult)
+          sentPackets++
+          wss.close()
+        }
+
+        ws.submitFundingOffer(testCases[scenario].payload)
+        assert.strictEqual(sentPackets, 1)
+      })
+    })
+  })
+
+  describe('cancelFundingOffer', () => {
+    const testCases = {
+      'as class instance': {
+        payload: new FundingOffer({ id: 123 }),
+        expectedResult: { id: 123 }
+      },
+      'as object literal': {
+        payload: { id: 124 },
+        expectedResult: { id: 124 }
+      },
+      'as number': {
+        payload: 125,
+        expectedResult: { id: 125 }
+      },
+      'as array': {
+        payload: [126],
+        expectedResult: { id: 126 }
+      }
+    }
+
+    Object.keys(testCases).forEach((scenario) => {
+      it(scenario, async () => {
+        let sentPackets = 0
+        wss = new MockWSv2Server()
+        ws = createTestWSv2Instance()
+
+        await ws.open()
+        await ws.auth()
+
+        ws._ws.send = (msgJSON) => {
+          const msg = JSON.parse(msgJSON)
+          assert.strictEqual(msg[1], 'foc')
+          assert.deepStrictEqual(msg[3], testCases[scenario].expectedResult)
+          sentPackets++
+          wss.close()
+        }
+
+        ws.cancelFundingOffer(testCases[scenario].payload)
+        assert.strictEqual(sentPackets, 1)
       })
     })
   })
