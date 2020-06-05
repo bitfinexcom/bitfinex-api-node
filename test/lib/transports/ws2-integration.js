@@ -292,7 +292,6 @@ describe('WSv2 integration', () => {
           assert.strictEqual(msg[1], 'fon')
           assert.deepStrictEqual(msg[3], testCases[scenario].expectedResult)
           sentPackets++
-          wss.close()
         }
 
         ws.submitFundingOffer(testCases[scenario].payload)
@@ -335,10 +334,93 @@ describe('WSv2 integration', () => {
           assert.strictEqual(msg[1], 'foc')
           assert.deepStrictEqual(msg[3], testCases[scenario].expectedResult)
           sentPackets++
-          wss.close()
         }
 
         ws.cancelFundingOffer(testCases[scenario].payload)
+        assert.strictEqual(sentPackets, 1)
+      })
+    })
+  })
+
+  describe('closeFundingLoan', () => {
+    const testCases = {
+      'as class instance': {
+        payload: new FundingOffer({ id: 123 }),
+        expectedResult: { id: 123 }
+      },
+      'as object literal': {
+        payload: { id: 124 },
+        expectedResult: { id: 124 }
+      },
+      'as number': {
+        payload: 125,
+        expectedResult: { id: 125 }
+      },
+      'as array': {
+        payload: [126],
+        expectedResult: { id: 126 }
+      }
+    }
+
+    Object.keys(testCases).forEach((scenario) => {
+      it(scenario, async () => {
+        let sentPackets = 0
+        wss = new MockWSv2Server()
+        ws = createTestWSv2Instance()
+
+        await ws.open()
+        await ws.auth()
+
+        ws._ws.send = (msgJSON) => {
+          const msg = JSON.parse(msgJSON)
+          assert.strictEqual(msg[1], 'flc')
+          assert.deepStrictEqual(msg[3], testCases[scenario].expectedResult)
+          sentPackets++
+        }
+
+        ws.closeFundingLoan(testCases[scenario].payload)
+        assert.strictEqual(sentPackets, 1)
+      })
+    })
+  })
+
+  describe('closeFundingCredit', () => {
+    const testCases = {
+      'as class instance': {
+        payload: new FundingOffer({ id: 123 }),
+        expectedResult: { id: 123 }
+      },
+      'as object literal': {
+        payload: { id: 124 },
+        expectedResult: { id: 124 }
+      },
+      'as number': {
+        payload: 125,
+        expectedResult: { id: 125 }
+      },
+      'as array': {
+        payload: [126],
+        expectedResult: { id: 126 }
+      }
+    }
+
+    Object.keys(testCases).forEach((scenario) => {
+      it(scenario, async () => {
+        let sentPackets = 0
+        wss = new MockWSv2Server()
+        ws = createTestWSv2Instance()
+
+        await ws.open()
+        await ws.auth()
+
+        ws._ws.send = (msgJSON) => {
+          const msg = JSON.parse(msgJSON)
+          assert.strictEqual(msg[1], 'fcc')
+          assert.deepStrictEqual(msg[3], testCases[scenario].expectedResult)
+          sentPackets++
+        }
+
+        ws.closeFundingCredit(testCases[scenario].payload)
         assert.strictEqual(sentPackets, 1)
       })
     })
