@@ -1,3 +1,8 @@
+4.0.15
+- meta: bump deps
+- meta: normalize eslint config
+- refactor: improve doclets
+
 4.0.14
 - fix: README docs reference
 

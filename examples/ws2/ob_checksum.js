@@ -1,6 +1,6 @@
 'use strict'
 
-const WSv2 = require('../../lib/transports/ws2')
+const WSv2 = require('../../lib/ws2')
 const runExample = require('../util/run_example')
 
 const SYMBOL = 'tXRPBTC'

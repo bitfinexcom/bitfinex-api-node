@@ -1,6 +1,6 @@
 {
   "name": "bitfinex-api-node",
-  "version": "4.0.14",
+  "version": "4.0.15",
   "description": "Node reference library for Bitfinex API",
   "engines": {
     "node": ">=8.3.0"
@@ -12,11 +12,13 @@
     }
   },
   "scripts": {
-    "lint": "eslint lib/ examples/ test/ index.js",
+    "lint": "./node_modules/.bin/eslint lib/ examples/ test/ index.js",
     "test": "npm run lint && npm run unit",
     "unit": "NODE_ENV=test nyc --check-coverage --lines 80 --branches 65 --functions 70 --statements 75 --reporter=lcov --reporter=html mocha -b --recursive",
-    "docs": "rm -rf docs && node_modules/.bin/jsdoc --configure .jsdoc.json --verbose",
-    "build": "babel -q ./index.js -d ./dist && babel -q ./lib -d ./dist/lib && copy package.json dist"
+    "build-docs": "rm -rf docs/*.md && ./node_modules/.bin/jsdoc2md -f index.js 'lib/**/*.js' > docs/reference.md",
+    "build-lib": "babel ./index.js -d ./dist && babel ./lib -d ./dist/lib && copy package.json dist",
+    "build": "npm run build-lib && npm run build-docs",
+    "dist": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -41,27 +43,27 @@
   },
   "homepage": "http://bitfinexcom.github.io/bitfinex-api-node/",
   "devDependencies": {
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-plugin-transform-regenerator": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
+    "@babel/cli": "^7.8.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.9.6",
+    "@babel/plugin-transform-regenerator": "^7.8.7",
+    "@babel/preset-env": "^7.9.6",
     "bfx-api-mock-srv": "^1.0.4",
     "chai": "^4.2.0",
-    "docdash": "^1.2.0",
     "dotenv": "^8.2.0",
-    "eslint": "^6.8.0",
-    "eslint-config-standard": "^14.1.0",
-    "eslint-plugin-import": "^2.20.1",
-    "eslint-plugin-jsdoc": "^22.0.0",
-    "eslint-plugin-lodash": "^6.0.0",
-    "eslint-plugin-node": "^11.0.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.1",
     "husky": "^4.2.3",
-    "jsdoc-to-markdown": "^5.0.1",
     "mocha": "^7.1.0",
     "nyc": "^15.0.0",
     "socks-proxy-agent": "^5.0.0",
-    "standard": "^14.3.1"
+    "eslint": "^7.2.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-jsdoc": "^27.0.4",
+    "eslint-plugin-lodash": "^7.1.0",
+    "eslint-plugin-mocha": "^7.0.1",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "jsdoc-to-markdown": "^6.0.1"
   },
   "dependencies": {
     "readline-promise": "^1.0.4",

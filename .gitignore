@@ -15,3 +15,5 @@ coverage/
 tags
 .undodir
 Session.vim
+!./docs/jsdoc/.keep
+./docs/jsdoc/

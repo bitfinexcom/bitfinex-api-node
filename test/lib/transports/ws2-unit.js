@@ -17,7 +17,7 @@ const {
   Trade, TradingTicker, FundingTicker
 } = require('bfx-api-node-models')
 
-const WSv2 = require('../../../lib/transports/ws2')
+const WSv2 = require('../../../lib/ws2')
 
 const API_KEY = 'dummy'
 const API_SECRET = 'dummy'

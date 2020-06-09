@@ -5,7 +5,7 @@ const _isobject = require('lodash/isObject')
 const { RESTv2 } = require('bfx-api-node-rest')
 const Readline = require('readline-promise').default
 
-const WSv2 = require('../../lib/transports/ws2')
+const WSv2 = require('../../lib/ws2')
 const argsFromEnv = require('./args_from_env')
 const debugTableUtil = require('./debug_table')
 const D = require('./debug').get()

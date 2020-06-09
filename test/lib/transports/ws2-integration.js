@@ -3,7 +3,7 @@
 
 const assert = require('assert')
 const Promise = require('bluebird')
-const WSv2 = require('../../../lib/transports/ws2')
+const WSv2 = require('../../../lib/ws2')
 const { Order } = require('bfx-api-node-models')
 const { MockWSv2Server } = require('bfx-api-mock-srv')
 
