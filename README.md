@@ -28,11 +28,11 @@ const ws = new WSv2({ transform: true })
 
 ### Docs
 
-Refer to the [`docs/`](https://cdn.statically.io/gh/bitfinexcom/bitfinex-api-node/master/docs/index.html)
-folder for JSDoc-generated HTML documentation, and the [`examples/`](/examples)
-folder for executable examples covering common use cases.
+API documentation can be found in [`docs/reference.md`](docs/reference.md), and
+examples in the [`examples`](examples) folder.
 
-Official API documentation at [https://docs.bitfinex.com/v2/reference](https://docs.bitfinex.com/v2/reference)
+Complete API documentation can be found at
+[docs.bitfinex.com/v2/reference](https://docs.bitfinex.com/v2/reference)
 
 ### Examples
 

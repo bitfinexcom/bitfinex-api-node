@@ -8,7 +8,7 @@ const _isFunction = require('lodash/isFunction')
 const { RESTv2 } = require('bfx-api-node-rest')
 
 const runExample = require('../../examples/util/run_example')
-const WSv2 = require('../../lib/transports/ws2')
+const WSv2 = require('../../lib/ws2')
 
 const getRunArgs = (override = {}) => ({
   name: 'self-test',

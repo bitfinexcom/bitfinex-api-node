@@ -6,7 +6,7 @@ const Promise = require('bluebird')
 const _isObject = require('lodash/isObject')
 const _isArray = require('lodash/isArray')
 const WS2Manager = require('../../lib/ws2_manager')
-const WSv2 = require('../../lib/transports/ws2')
+const WSv2 = require('../../lib/ws2')
 
 describe('WS2Manager', () => {
   let m
