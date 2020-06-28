@@ -27,7 +27,7 @@ module.exports = runExample({
     return debug('no orders to cancel')
   }
 
-  const orders = _isEmpty(filterByMarket)
+  const orders = (filterByMarket === undefined)
     ? allOrders
     : allOrders.filter(o => o.symbol === filterByMarket)
 
