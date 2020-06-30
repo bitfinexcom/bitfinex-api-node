@@ -67,7 +67,7 @@
     "readline-promise": "^1.0.4",
     "blessed": "^0.1.81",
     "blessed-contrib": "^4.8.19",
-    "cli-table2": "^0.2.0",
+    "cli-table3": "^0.6.0",
     "bfx-api-node-models": "^1.2.1",
     "bfx-api-node-rest": "^3.0.8",
     "bfx-api-node-util": "^1.0.2",
