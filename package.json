@@ -14,7 +14,7 @@
   "scripts": {
     "lint": "eslint lib/ examples/ test/ index.js",
     "test": "npm run lint && npm run unit",
-    "unit": "NODE_ENV=test nyc --check-coverage --lines 80 --branches 65 --functions 70 --statements 75 --reporter=lcov --reporter=html mocha -b --recursive",
+    "unit": "NODE_ENV=test mocha -b --recursive",
     "docs": "rm -rf docs && node_modules/.bin/jsdoc --configure .jsdoc.json --verbose",
     "build": "babel -q ./index.js -d ./dist && babel -q ./lib -d ./dist/lib && copy package.json dist"
   },
@@ -59,7 +59,6 @@
     "husky": "^4.2.3",
     "jsdoc-to-markdown": "^5.0.1",
     "mocha": "^7.1.0",
-    "nyc": "^15.0.0",
     "socks-proxy-agent": "^5.0.0",
     "standard": "^14.3.1"
   },
