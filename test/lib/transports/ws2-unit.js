@@ -2279,14 +2279,6 @@ describe('WSv2 unit', () => {
     })
   })
 
-  describe('hasChannel', () => {
-    it('returns true if the channel map contains the requested ID', () => {
-      ws = createTestWSv2Instance()
-      ws._channelMap = { test: '' }
-      assert.ok(ws.hasChannel('test'), 'channel ID not recognized')
-    })
-  })
-
   describe('getChannelId', () => {
     it('matches the specified type and filter', () => {
       ws = createTestWSv2Instance()
