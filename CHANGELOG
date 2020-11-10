@@ -1,3 +1,6 @@
+4.0.16
+- fix: unsubscribe fails depending on channel id type
+
 4.0.15
 - fix 2 high vulnerabilities, switch from cli-table2 to cli-table3 dependency
 
