@@ -13,14 +13,15 @@ module.exports = runExample({
   debug('pulse history response')
   debugTable({
     headers: [
-      'PID', 'MTS', 'PUID', 'TITLE', 'CONTENT'
+      'PID', 'MTS', 'PUID', 'TITLE', 'CONTENT', 'COMMENTS'
     ],
-    rows: pulseHistRes.map(({ id, mts, userID, title, content }) => [
+    rows: pulseHistRes.map(({ id, mts, userID, title, content, comments }) => [
       id,
       new Date(mts).toLocaleString(),
       userID,
-      (title && title.substring(0, 10)) || '-',
-      content.substring(0, 10)
+      (title && title.substring(0, 15)) || '-',
+      content.substring(0, 15),
+      comments // number of comments
     ])
   })
   const pulseMsg = new PulseMessage({
@@ -48,14 +49,14 @@ module.exports = runExample({
       pulse.id,
       new Date(pulse.mts).toLocaleString(),
       pulse.userID,
-      (pulse.title && pulse.title.substring(0, 10)) || '-',
-      pulse.content.substring(0, 10)
+      (pulse.title && pulse.title.substring(0, 15)) || '-',
+      pulse.content.substring(0, 15)
     ]]
   })
+
   const pulseComment = new PulseMessage({
     parent: pulse.id,
-    title: '1234 5678 Foo Bar Baz Qux TITLE',
-    content: '1234 5678 Foo Bar Baz Qux Content',
+    content: 'No more seven warlords of the sea',
     isPublic: 0,
     isPin: 1
   })
@@ -71,15 +72,35 @@ module.exports = runExample({
   debug('pulse comment submission response')
   debugTable({
     headers: [
-      'PID', 'MTS', 'PARENT', 'PUID', 'TITLE', 'CONTENT'
+      'PID', 'MTS', 'PARENT', 'PUID', 'COMMENT'
     ],
     rows: [[
       comment.id,
       new Date(comment.mts).toLocaleString(),
       comment.parent,
       comment.userID,
-      (comment.title && comment.title.substring(0, 10)) || '-',
-      comment.content.substring(0, 10)
+      comment.content.substring(0, 15)
     ]]
+  })
+
+  debug('gettting pulse comments..')
+  const pulseComments = await rest.fetchPulseComments({
+    parent: pulse.id,
+    isPublic: 0, // 0 for comments made by you; 1 for all comments of the pulse
+    limit: 3, // fetch given number of comments for this pulse
+    end: 0 // fetch comments from a given starttime in milliseconds
+  })
+
+  debug('pulse comments response: %O', pulseComments)
+  debugTable({
+    headers: [
+      'PID', 'MTS', 'PUID', 'COMMENT'
+    ],
+    rows: pulseComments.map(({ id, mts, userID, content }) => [
+      id,
+      new Date(mts).toLocaleString(),
+      userID,
+      content.substring(0, 15)
+    ])
   })
 })
