@@ -91,7 +91,7 @@ module.exports = runExample({
     end: 0 // fetch comments from a given starttime in milliseconds
   })
 
-  debug('pulse comments response: %O', pulseComments)
+  debug('pulse comments response')
   debugTable({
     headers: [
       'PID', 'MTS', 'PUID', 'COMMENT'
