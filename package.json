@@ -1,6 +1,6 @@
 {
   "name": "bitfinex-api-node",
-  "version": "4.0.16",
+  "version": "4.0.17",
   "description": "Node reference library for Bitfinex API",
   "engines": {
     "node": ">=8.3.0"
@@ -33,7 +33,8 @@
     "Cris Mihalache <cris.m@bitfinex.com> (https://www.bitfinex.com)",
     "Robert Kowalski <robert@bitfinex.com> (https://www.bitfinex.com)",
     "Simone Poggi <simone@bitfinex.com> (https://www.bitfinex.com)",
-    "Paolo Ardoino <paolo@bitfinex.com> (https://www.bitfinex.com)"
+    "Paolo Ardoino <paolo@bitfinex.com> (https://www.bitfinex.com)",
+    "Abhishek Shrestha <abhishek.shrestha@bitfinex.com> (https://www.bitfinex.com)"
   ],
   "license": "MIT",
   "bugs": {
@@ -67,8 +68,8 @@
     "blessed": "^0.1.81",
     "blessed-contrib": "^4.8.19",
     "cli-table3": "^0.6.0",
-    "bfx-api-node-models": "^1.2.1",
-    "bfx-api-node-rest": "^3.0.8",
+    "bfx-api-node-models": "^1.3.1",
+    "bfx-api-node-rest": "^3.1.0",
     "bfx-api-node-util": "^1.0.2",
     "bfx-api-node-ws1": "^1.0.0",
     "bignumber.js": "^9.0.0",
