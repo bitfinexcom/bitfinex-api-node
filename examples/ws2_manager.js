@@ -8,6 +8,7 @@ const runExample = require('./util/run_example')
 const Manager = require('../lib/ws2_manager')
 
 module.exports = runExample({
+  name: 'ws2-manger',
   rest: { transform: true }
 }, async ({ rest, env }) => {
   debug('fetching symbol details...')
