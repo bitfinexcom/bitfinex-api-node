@@ -10,14 +10,14 @@ const WS2Manager = require('./lib/ws2_manager')
  */
 class BFX {
   /**
-   * @param {object} opts - options
-   * @param {string} opts.apiKey - API key
-   * @param {string} opts.apiSecret - API secret
-   * @param {string} opts.authToken - optional auth option
-   * @param {string} opts.transform - if true, packets are converted to models
-   * @param {string} opts.nonceGenerator - optional
-   * @param {string} opts.ws - ws transport options
-   * @param {string} opts.rest - rest transport options
+   * @param {object} [opts] - options
+   * @param {string} [opts.apiKey] - API key
+   * @param {string} [opts.apiSecret] - API secret
+   * @param {string} [opts.authToken] - optional auth option
+   * @param {string} [opts.company] - optional auth option
+   * @param {boolean} [opts.transform] - if true, packets are converted to models
+   * @param {object} [opts.ws] - ws transport options
+   * @param {object} [opts.rest] - rest transport options
    */
   constructor (opts = {
     apiKey: '',
@@ -68,8 +68,8 @@ class BFX {
   /**
    * Returns a new REST API class instance (cached by version)
    *
-   * @param {number} version - 1 or 2 (default)
-   * @param {object} extraOpts - passed to transport constructor
+   * @param {number} [version] - 1 or 2 (default)
+   * @param {object} [extraOpts] - passed to transport constructor
    * @returns {RESTv1|RESTv2} transport
    */
   rest (version = 2, extraOpts = {}) {
@@ -94,8 +94,8 @@ class BFX {
   /**
    * Returns a new WebSocket API class instance (cached by version)
    *
-   * @param {number} version - 1 or 2 (default)
-   * @param {object} extraOpts - passed to transport constructor
+   * @param {number} [version] - 1 or 2 (default)
+   * @param {object} [extraOpts] - passed to transport constructor
    * @returns {WSv1|WSv2} transport
    */
   ws (version = 2, extraOpts = {}) {
