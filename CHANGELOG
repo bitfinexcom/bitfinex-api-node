@@ -1,3 +1,7 @@
+5.0.0
+- upgrade: upgraded bfx-api-node-rest to 4.0.0, breaks previous versions compatibility 
+- fix: jsdocs
+
 4.0.17
 - added pulse examples
 

@@ -8,7 +8,7 @@ const { prepareAmount } = require('bfx-api-node-util')
 const runExample = require('../util/run_example')
 
 module.exports = runExample({
-  name: 'rest-balances',
+  name: 'rest-wallets',
   rest: {
     env: true,
     transform: true
@@ -29,9 +29,9 @@ module.exports = runExample({
 
   debug('fetching balances')
 
-  const allWallets = await rest.balances() // actual balance fetch
+  const allWallets = await rest.wallets() // actual balance fetch
   const balances = allWallets.filter(w => !( // filter as requested
-    (hideZeroBalances && +w.amount === 0) ||
+    (hideZeroBalances && +w.balance === 0) ||
     (!_isEmpty(filterByType) && (w.type.toLowerCase() !== filterByType.toLowerCase())) ||
     (!_isEmpty(filterByCurrency) && (w.currency.toLowerCase() !== filterByCurrency.toLowerCase()))
   )).map(w => ({
@@ -59,18 +59,18 @@ module.exports = runExample({
   }
 
   let totalValue = 0
-  const rows = balances.map(({ currency, type, amount, available }) => {
+  const rows = balances.map(({ currency, type, balance, balanceAvailable }) => {
     const value = currency !== valueCCY
-      ? (lastPrices[symbolForWallet({ currency })] * +amount) || 0
-      : +amount
+      ? (lastPrices[symbolForWallet({ currency })] * +balance) || 0
+      : +balance
 
     totalValue += value
 
     return [
       _capitalize(type),
       currency,
-      prepareAmount(amount),
-      prepareAmount(available),
+      prepareAmount(balance),
+      prepareAmount(balanceAvailable),
 
       ...(_isFinite(value) ? [
         prepareAmount(value),
