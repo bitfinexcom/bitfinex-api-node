@@ -2024,11 +2024,15 @@ describe('WSv2 unit', () => {
       assert.strictEqual(ws.getAuthArgs().dms, 4)
     })
 
-    it('initializes to empty args set', () => {
+    it('initializes auth args', () => {
       ws = createTestWSv2Instance()
       const initAuthArgs = ws.getAuthArgs()
 
-      assert(_isObject(initAuthArgs) && _isEmpty(initAuthArgs))
+      assert(_isObject(initAuthArgs))
+      assert.deepStrictEqual(initAuthArgs, {
+        apiKey: API_KEY,
+        apiSecret: API_SECRET
+      })
     })
 
     it('updates auth args with setAuthArgs', async () => {

@@ -105,9 +105,9 @@ describe('BFX', () => {
       const ws2 = bfx.ws(2)
 
       assert.strictEqual(ws1._apiKey, 'k')
-      assert.strictEqual(ws2._apiKey, 'k')
+      assert.strictEqual(ws2._authArgs.apiKey, 'k')
       assert.strictEqual(ws1._apiSecret, 's')
-      assert.strictEqual(ws2._apiSecret, 's')
+      assert.strictEqual(ws2._authArgs.apiSecret, 's')
       assert.strictEqual(ws1._url, 'wss://')
       assert.strictEqual(ws2._url, 'wss://')
       assert.strictEqual(ws2._transform, true)
