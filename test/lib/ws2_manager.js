@@ -189,8 +189,7 @@ describe('WS2Manager', () => {
       m._sockets = [{
         ws: {
           isAuthenticated: () => false,
-          setAPICredentials: (key, secret) => { cred = `${key}:${secret}` },
-          updateAuthArgs: () => {},
+          updateAuthArgs: ({ apiKey: key, apiSecret: secret }) => { cred = `${key}:${secret}` },
           auth: () => {
             assert.strictEqual(cred, '41:42')
             done()
@@ -285,8 +284,8 @@ describe('WS2Manager', () => {
       const { ws } = s
 
       ws.auth = async () => {
-        assert.strictEqual(ws._apiKey, 'key', 'api key not set')
-        assert.strictEqual(ws._apiSecret, 'secret', 'api secret not set')
+        assert.strictEqual(ws._authArgs.apiKey, 'key', 'api key not set')
+        assert.strictEqual(ws._authArgs.apiSecret, 'secret', 'api secret not set')
 
         await ws.close()
         done()

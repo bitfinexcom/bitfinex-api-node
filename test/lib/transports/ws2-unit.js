@@ -565,6 +565,25 @@ describe('WSv2 unit', () => {
     })
   })
 
+  it('reconnect with new credentials', async () => {
+    wss = new MockWSv2Server({ authMiddleware: ({ apiKey, apiSecret }) => apiKey === API_KEY && apiSecret === API_SECRET })
+    ws = createTestWSv2Instance({ reconnectDelay: 10 })
+
+    await ws.open()
+    await ws.auth()
+    assert(ws.isAuthenticated())
+
+    ws.updateAuthArgs({ apiKey: 'wrong', apiSecret: 'wrong' })
+    ws.reconnect()
+    await Promise.delay(50)
+    assert(!ws.isAuthenticated())
+
+    ws.updateAuthArgs({ apiKey: API_KEY, apiSecret: API_SECRET })
+    ws.reconnect()
+    await Promise.delay(50)
+    assert(ws.isAuthenticated())
+  })
+
   describe('seq audit', () => {
     it('automatically enables sequencing if seqAudit is true in constructor', () => {
       ws = createTestWSv2Instance({ seqAudit: true })
@@ -2024,11 +2043,15 @@ describe('WSv2 unit', () => {
       assert.strictEqual(ws.getAuthArgs().dms, 4)
     })
 
-    it('initializes to empty args set', () => {
+    it('initializes auth args', () => {
       ws = createTestWSv2Instance()
       const initAuthArgs = ws.getAuthArgs()
 
-      assert(_isObject(initAuthArgs) && _isEmpty(initAuthArgs))
+      assert(_isObject(initAuthArgs))
+      assert.deepStrictEqual(initAuthArgs, {
+        apiKey: API_KEY,
+        apiSecret: API_SECRET
+      })
     })
 
     it('updates auth args with setAuthArgs', async () => {
