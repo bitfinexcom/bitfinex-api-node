@@ -1,18 +1,12 @@
 'use strict'
 
-const dotenv = require('dotenv')
-const D = require('debug')
+const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
 const WSv2 = require('../../lib/transports/ws2')
-const debug = D('>')
-debug.enabled = true
-
-dotenv.config()
-const { API_KEY, API_SECRET } = process.env
 
 async function execute () {
   const ws = new WSv2({
-    apiKey: API_KEY,
-    apiSecret: API_SECRET
+    apiKey,
+    apiSecret
   })
   ws.on('error', e => debug('WSv2 error: %s', e.message | e))
 
