@@ -28,6 +28,7 @@ async function execute () {
   debug('authenticated')
 
   // do something with authenticated ws stream
+  await ws.close()
 }
 
 execute()
