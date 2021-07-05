@@ -1,25 +1,26 @@
 'use strict'
 
 const { Order } = require('bfx-api-node-models')
-const runExample = require('../util/run_example')
+const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
+const WSv2 = require('../../lib/transports/ws2')
 
 const SYMBOL = 'tBTCUSD'
 
-module.exports = runExample({
-  name: 'ws2-atomic-order-update',
-  ws: {
-    env: true,
+async function execute () {
+  const ws = new WSv2({
+    apiKey,
+    apiSecret,
     transform: true,
     manageOrderBooks: true,
 
     packetWDDelay: 10 * 1000,
     autoReconnect: true,
-    seqAudit: true,
+    seqAudit: true
+  })
+  ws.on('error', e => debug('WSv2 error: %s', e.message | e))
+  await ws.open()
+  await ws.auth()
 
-    connect: true,
-    auth: true
-  }
-}, async ({ ws, debug }) => {
   const orderSent = false
 
   await ws.subscribeOrderBook(SYMBOL, 'P0', '25')
@@ -66,4 +67,7 @@ module.exports = runExample({
       debug('order updated, new price %f', o.price)
     })
   })
-})
+  await ws.close()
+}
+
+execute()
