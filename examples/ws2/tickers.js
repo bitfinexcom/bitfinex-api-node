@@ -1,11 +1,17 @@
 'use strict'
 
-const runExample = require('../util/run_example')
+const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
+const WSv2 = require('../../lib/transports/ws2')
 
-module.exports = runExample({
-  name: 'ws2-tickers',
-  ws: { env: true, connect: true, transform: true }
-}, async ({ ws, debug }) => {
+async function execute () {
+  const ws = new WSv2({
+    apiKey,
+    apiSecret,
+    transform: true
+  })
+  ws.on('error', e => debug('WSv2 error: %s', e.message | e))
+  await ws.open()
+
   ws.onTicker({ symbol: 'tETHUSD' }, (ticker) => {
     debug('ETH/USD ticker: %j', ticker.toJS())
   })
@@ -16,4 +22,7 @@ module.exports = runExample({
 
   await ws.subscribeTicker('tETHUSD')
   await ws.subscribeTicker('fUSD')
-})
+  await ws.close()
+}
+
+execute()
