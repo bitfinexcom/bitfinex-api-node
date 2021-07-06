@@ -2,7 +2,8 @@
 
 const Promise = require('bluebird')
 const { Order } = require('bfx-api-node-models')
-const runExample = require('../util/run_example')
+const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
+const WSv2 = require('../../lib/transports/ws2')
 
 // Build new order
 const o = new Order({
@@ -16,10 +17,16 @@ const o = new Order({
   priceAuxLimit: 1000
 })
 
-module.exports = runExample({
-  name: 'ws2-oco-order',
-  ws: { env: true, connect: true, auth: true, transform: true }
-}, async ({ ws, debug }) => {
+async function execute () {
+  const ws = new WSv2({
+    apiKey,
+    apiSecret,
+    transform: true
+  })
+  ws.on('error', e => debug('WSv2 error: %s', e.message | e))
+  await ws.open()
+  await ws.auth()
+
   o.registerListeners(ws) // enable automatic updates
 
   let orderClosed = false
@@ -48,4 +55,7 @@ module.exports = runExample({
 
   await o.cancel()
   debug('got cancel confirmation for order %d', o.cid)
-})
+  await ws.close()
+}
+
+execute()
