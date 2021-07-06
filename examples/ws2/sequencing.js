@@ -2,12 +2,19 @@
 
 const _isArray = require('lodash/isArray')
 const _isFinite = require('lodash/isFinite')
-const runExample = require('../util/run_example')
+const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
+const WSv2 = require('../../lib/transports/ws2')
 
-module.exports = runExample({
-  name: 'ws2-sequencing',
-  ws: { env: true, connect: true, auth: true }
-}, async ({ ws, debug }) => {
+async function execute () {
+  const ws = new WSv2({
+    apiKey,
+    apiSecret,
+    transform: true
+  })
+  ws.on('error', e => debug('WSv2 error: %s', e.message | e))
+  await ws.open()
+  await ws.auth()
+
   // Enables internal sequence tracking; an error will be emitted if there is a
   // seq # mis-match
   await ws.enableSequencing({ audit: true })
@@ -39,4 +46,7 @@ module.exports = runExample({
       debug('recv public seq # %d, auth seq # %d', seq, authSeq)
     }
   })
-})
+  await ws.close()
+}
+
+execute()
