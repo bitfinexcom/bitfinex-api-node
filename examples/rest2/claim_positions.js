@@ -1,18 +1,17 @@
 'use strict'
 
 const Promise = require('bluebird')
+const { RESTv2 } = require('bfx-api-node-rest')
 const _isEmpty = require('lodash/isEmpty')
-const runExample = require('../util/run_example')
+const { args: { apiKey, apiSecret }, debug, debugTable, readline } = require('../util/setup')
 
-module.exports = runExample({
-  name: 'rest-claim-positions',
-  rest: { env: true, transform: true },
-  readline: true,
-  params: {
-    filterByMarket: false
-  }
-}, async ({ debug, debugTable, rest, readline, params }) => {
-  const { filterByMarket } = params
+async function execute () {
+  const rest = new RESTv2({
+    apiKey,
+    apiSecret,
+    transform: true
+  })
+  const filterByMarket = false
   const allPositions = await rest.positions()
   const positions = _isEmpty(filterByMarket)
     ? allPositions
@@ -49,4 +48,7 @@ module.exports = runExample({
   await Promise.all(positions.map(p => p.claim(rest)))
 
   debug('done!')
-})
+  readline.close()
+}
+
+execute()
