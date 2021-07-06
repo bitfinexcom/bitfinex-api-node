@@ -5,22 +5,21 @@ const blessedContrib = require('blessed-contrib')
 const _isEmpty = require('lodash/isEmpty')
 const _reverse = require('lodash/reverse')
 const { preparePrice, prepareAmount } = require('bfx-api-node-util')
-const runExample = require('../util/run_example')
+const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
+const WSv2 = require('../../lib/transports/ws2')
 
-module.exports = runExample({
-  name: 'ws2-order-book-viz',
-  ws: {
-    env: true,
-    connect: true,
+async function execute () {
+  const ws = new WSv2({
+    apiKey,
+    apiSecret,
     transform: true,
-    manageOrderBooks: true, // tell the ws client to maintain full sorted OBs
-    keepOpen: true
-  },
-  params: {
-    market: 'tBTCUSD'
-  }
-}, async ({ ws, params }) => {
-  const { market } = params
+    manageOrderBooks: true // tell the ws client to maintain full sorted OBs
+  })
+  ws.on('error', e => debug('WSv2 error: %s', e.message | e))
+  await ws.open()
+  await ws.auth()
+
+  const market = 'tBTCUSD'
 
   if (_isEmpty(market)) {
     throw new Error('market required')
@@ -61,4 +60,6 @@ module.exports = runExample({
   })
 
   await ws.subscribeOrderBook(market, 'P0', '25')
-})
+}
+
+execute()
