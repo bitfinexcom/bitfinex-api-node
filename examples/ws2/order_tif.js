@@ -1,7 +1,8 @@
 'use strict'
 
 const { Order } = require('bfx-api-node-models')
-const runExample = require('../util/run_example')
+const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
+const WSv2 = require('../../lib/transports/ws2')
 
 const o = new Order({
   cid: Date.now(),
@@ -12,10 +13,16 @@ const o = new Order({
   tif: '2019-03-08 15:00:00'
 })
 
-module.exports = runExample({
-  name: 'ws2-order-tif',
-  ws: { env: true, connect: true, auth: true, transform: true }
-}, async ({ ws, debug }) => {
+async function execute () {
+  const ws = new WSv2({
+    apiKey,
+    apiSecret,
+    transform: true
+  })
+  ws.on('error', e => debug('WSv2 error: %s', e.message | e))
+  await ws.open()
+  await ws.auth()
+
   o.registerListeners(ws)
 
   o.on('update', () => debug('updated: %s', o.toString()))
@@ -28,4 +35,7 @@ module.exports = runExample({
     'got submit confirmation for order %d [%d] [tif: %d]',
     o.cid, o.id, o.mtsTIF
   )
-})
+  await ws.close()
+}
+
+execute()
