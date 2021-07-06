@@ -99,27 +99,33 @@ module.exports = (args = {}, example = () => { }) => {
             debug,
             debugTable,
 
-            ...(!readline ? {} : {
-              readline: Readline.createInterface({
-                input: process.stdin,
-                output: process.stdout,
-                terminal: false
-              })
-            }),
+            ...(!readline
+              ? {}
+              : {
+                  readline: Readline.createInterface({
+                    input: process.stdin,
+                    output: process.stdout,
+                    terminal: false
+                  })
+                }),
 
-            ...(!rest ? {} : {
-              rest: new RESTv2({
-                ...(restEnv ? argsFromEnv('REST_URL') : {}),
-                ...restArgs
-              })
-            }),
+            ...(!rest
+              ? {}
+              : {
+                  rest: new RESTv2({
+                    ...(restEnv ? argsFromEnv('REST_URL') : {}),
+                    ...restArgs
+                  })
+                }),
 
-            ...(!ws ? {} : {
-              ws: new WSv2({
-                ...(wsEnv ? argsFromEnv('WS_URL') : {}),
-                ...wsArgs
-              })
-            })
+            ...(!ws
+              ? {}
+              : {
+                  ws: new WSv2({
+                    ...(wsEnv ? argsFromEnv('WS_URL') : {}),
+                    ...wsArgs
+                  })
+                })
           }
         } catch (e) {
           debug('error loading config: %s', e.message)
