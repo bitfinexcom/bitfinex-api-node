@@ -1,19 +1,21 @@
 'use strict'
 
-const runExample = require('../util/run_example')
+const { RESTv2 } = require('bfx-api-node-rest')
+const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
 
-module.exports = runExample({
-  name: 'rest-transfer',
-  rest: { env: true, transform: true },
-  params: {
+async function execute () {
+  const rest = new RESTv2({
+    apiKey,
+    apiSecret,
+    transform: true
+  })
+  const { fromType, fromCCY, toType, toCCY, amount } = {
     fromType: 'deposit',
     fromCCY: 'USD',
     toType: 'trading',
     toCCY: 'USD',
     amount: 1
   }
-}, async ({ debug, rest, params }) => {
-  const { fromType, fromCCY, toType, toCCY, amount } = params
 
   debug(
     'transferring %f from %s %s to %s %s',
@@ -29,4 +31,6 @@ module.exports = runExample({
   })
 
   debug('done!')
-})
+}
+
+execute()
