@@ -1,12 +1,15 @@
 'use strict'
 
 const { PulseMessage } = require('bfx-api-node-models')
-const runExample = require('../util/run_example')
+const { RESTv2 } = require('bfx-api-node-rest')
+const { args: { apiKey, apiSecret }, debug, debugTable } = require('../util/setup')
 
-module.exports = runExample({
-  name: 'rest-pulse',
-  rest: { env: true, transform: true }
-}, async ({ debug, debugTable, rest }) => {
+async function execute () {
+  const rest = new RESTv2({
+    apiKey,
+    apiSecret,
+    transform: true
+  })
   debug('gettting pulse history..')
   const pulseHistRes = await rest.pulseHistory()
 
@@ -103,4 +106,6 @@ module.exports = runExample({
       content.substring(0, 15)
     ])
   })
-})
+}
+
+execute()
