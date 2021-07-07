@@ -1,11 +1,14 @@
 'use strict'
 
-const runExample = require('../util/run_example')
+const { RESTv2 } = require('bfx-api-node-rest')
+const { args: { apiKey, apiSecret }, debug, debugTable } = require('../util/setup')
 
-module.exports = runExample({
-  name: 'rest-get-symbol-details',
-  rest: { transform: true }
-}, async ({ rest, debug, debugTable }) => {
+async function execute () {
+  const rest = new RESTv2({
+    apiKey,
+    apiSecret,
+    transform: true
+  })
   debug('fetching symbol details...')
 
   const details = await rest.symbolDetails()
@@ -24,4 +27,6 @@ module.exports = runExample({
       maximumOrderSize, minimumOrderSize, margin ? 'Y' : 'N' // eslint-disable-line
     ])
   })
-})
+}
+
+execute()
