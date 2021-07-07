@@ -3,14 +3,19 @@
 process.env.DEBUG = 'bfx:examples:*'
 
 const _flatten = require('lodash/flatten')
-const debug = require('debug')('bfx:examples:ws2-manager')
-const runExample = require('./util/run_example')
+const { RESTv2 } = require('bfx-api-node-rest')
+const { args, debug } = require('./util/setup')
 const Manager = require('../lib/ws2_manager')
 
-module.exports = runExample({
-  name: 'ws2-manger',
-  rest: { transform: true }
-}, async ({ rest, env }) => {
+const { apiKey, apiSecret } = args
+
+async function execute () {
+  const rest = new RESTv2({
+    apiKey,
+    apiSecret,
+    transform: true
+  })
+
   debug('fetching symbol details...')
 
   const details = await rest.symbolDetails()
@@ -20,7 +25,7 @@ module.exports = runExample({
     return timeFrames.map(tf => `trade:${tf}:${s}`)
   }))
 
-  const m = new Manager({ ...env })
+  const m = new Manager({ ...args })
 
   m.on('error', (err) => {
     debug('error: %s', err)
@@ -65,4 +70,6 @@ module.exports = runExample({
   })
 
   m.openSocket()
-})
+}
+
+execute()
