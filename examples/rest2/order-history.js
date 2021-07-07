@@ -2,20 +2,20 @@
 
 const { prepareAmount, preparePrice } = require('bfx-api-node-util')
 const _isEmpty = require('lodash/isEmpty')
-const runExample = require('../util/run_example')
+const { RESTv2 } = require('bfx-api-node-rest')
+const { args: { apiKey, apiSecret }, debug, debugTable } = require('../util/setup')
 
 const START = Date.now() - (30 * 24 * 60 * 60 * 1000 * 1000)
 const END = Date.now()
 const LIMIT = 25
 
-module.exports = runExample({
-  name: 'rest-get-order-history',
-  rest: { env: true, transform: true },
-  params: {
-    market: 'tBTCUSD'
-  }
-}, async ({ debug, debugTable, rest, params }) => {
-  const { market } = params
+async function execute () {
+  const rest = new RESTv2({
+    apiKey,
+    apiSecret,
+    transform: true
+  })
+  const market = 'tBTCUSD'
 
   if (_isEmpty(market)) {
     return debug('market required')
@@ -46,4 +46,6 @@ module.exports = runExample({
       ]
     })
   })
-})
+}
+
+execute()
