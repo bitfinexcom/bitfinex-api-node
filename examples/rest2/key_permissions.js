@@ -1,14 +1,14 @@
 'use strict'
 
-const runExample = require('../util/run_example')
+const { RESTv2 } = require('bfx-api-node-rest')
+const { args: { apiKey, apiSecret }, debug, debugTable } = require('../util/setup')
 
-module.exports = runExample({
-  name: 'rest-key-permissions',
-  rest: {
-    env: true,
+async function execute () {
+  const rest = new RESTv2({
+    apiKey,
+    apiSecret,
     transform: true
-  }
-}, async ({ debug, debugTable, rest }) => {
+  })
   debug('fetching permissions')
 
   const perms = await rest.keyPermissions()
@@ -21,4 +21,6 @@ module.exports = runExample({
     rows,
     headers: ['Scope', 'Read', 'Write']
   })
-})
+}
+
+execute()
