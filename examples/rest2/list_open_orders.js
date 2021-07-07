@@ -3,16 +3,16 @@
 const _capitalize = require('lodash/capitalize')
 const _isEmpty = require('lodash/isEmpty')
 const { prepareAmount, preparePrice } = require('bfx-api-node-util')
-const runExample = require('../util/run_example')
+const { RESTv2 } = require('bfx-api-node-rest')
+const { args: { apiKey, apiSecret }, debug, debugTable } = require('../util/setup')
 
-module.exports = runExample({
-  name: 'rest-list-open-orders',
-  rest: { env: true, transform: true },
-  params: {
-    filterByMarket: null
-  }
-}, async ({ rest, debug, debugTable, params }) => {
-  const { filterByMarket } = params
+async function execute () {
+  const rest = new RESTv2({
+    apiKey,
+    apiSecret,
+    transform: true
+  })
+  const filterByMarket = null
 
   debug('fetching open orders...')
   const allOrders = await rest.activeOrders()
@@ -40,4 +40,6 @@ module.exports = runExample({
       new Date(o.mtsUpdate).toLocaleString()
     ])
   })
-})
+}
+
+execute()
