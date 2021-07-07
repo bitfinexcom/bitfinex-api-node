@@ -2,24 +2,30 @@
 
 const PI = require('p-iteration')
 const _isEmpty = require('lodash/isEmpty')
-const runExample = require('../util/run_example')
+const WSv2 = require('../../lib/transports/ws2')
+const { RESTv2 } = require('bfx-api-node-rest')
+const { args: { apiKey, apiSecret }, debug, debugTable, readline } = require('../util/setup')
 
-module.exports = runExample({
-  name: 'rest-close-positions',
-  rest: { env: true, transform: true },
-  ws: { env: true, transform: true, connect: true, auth: true },
-  readline: true,
-  params: {
-    filterByMarket: null
-  }
-}, async ({
-  debug, debugTable, rest, ws, params, readline
-}) => {
-  const { filterByMarket } = params
+async function execute () {
+  const ws = new WSv2({
+    apiKey,
+    apiSecret,
+    transform: true
+  })
+  const rest = new RESTv2({
+    apiKey,
+    apiSecret,
+    transform: true
+  })
+  const filterByMarket = null
   const allPositions = await rest.positions()
+  await ws.open()
+  await ws.auth()
 
   if (allPositions.length === 0) {
     debug('no open positions')
+    await ws.close()
+    readline.close()
     return
   }
 
@@ -34,6 +40,8 @@ module.exports = runExample({
 
   if (positions.length === 0) {
     debug('no positions match filter')
+    await ws.close()
+    readline.close()
     return
   }
 
@@ -57,6 +65,8 @@ module.exports = runExample({
   )
 
   if (confirm.toLowerCase()[0] !== 'y') {
+    await ws.close()
+    readline.close()
     return
   }
 
@@ -70,4 +80,9 @@ module.exports = runExample({
 
   debug('')
   debug('closed %d positions', positions.length)
-})
+
+  await ws.close()
+  readline.close()
+}
+
+execute()
