@@ -1,12 +1,14 @@
 'use strict'
 
 const _chunk = require('lodash/chunk')
-const runExample = require('../util/run_example')
+const { RESTv2 } = require('bfx-api-node-rest')
+const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
 
-module.exports = runExample({
-  name: 'rest-get-currencies',
-  rest: true
-}, async ({ debug, rest }) => {
+async function execute () {
+  const rest = new RESTv2({
+    apiKey,
+    apiSecret
+  })
   debug('fetching currency list...')
 
   const currencies = await rest.currencies()
@@ -18,4 +20,6 @@ module.exports = runExample({
     debug('%s', currencyChunk.join(', '))
   })
   debug('')
-})
+}
+
+execute()
