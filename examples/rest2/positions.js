@@ -3,12 +3,15 @@
 const _capitalize = require('lodash/capitalize')
 const _map = require('lodash/map')
 const { prepareAmount, preparePrice } = require('bfx-api-node-util')
-const runExample = require('../util/run_example')
+const { RESTv2 } = require('bfx-api-node-rest')
+const { args: { apiKey, apiSecret }, debug, debugTable } = require('../util/setup')
 
-module.exports = runExample({
-  name: 'positions',
-  rest: { env: true, transform: true }
-}, async ({ debug, debugTable, rest }) => {
+async function execute () {
+  const rest = new RESTv2({
+    apiKey,
+    apiSecret,
+    transform: true
+  })
   debug('fetching positions...')
 
   const positions = await rest.positions()
@@ -45,4 +48,6 @@ module.exports = runExample({
       ]
     })
   })
-})
+}
+
+execute()
