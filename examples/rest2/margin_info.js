@@ -1,12 +1,15 @@
 'use strict'
 
 const { prepareAmount } = require('bfx-api-node-util')
-const runExample = require('../util/run_example')
+const { RESTv2 } = require('bfx-api-node-rest')
+const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
 
-module.exports = runExample({
-  name: 'rest-get-margin-info',
-  rest: { env: true, transform: true }
-}, async ({ debug, rest }) => {
+async function execute () {
+  const rest = new RESTv2({
+    apiKey,
+    apiSecret,
+    transform: true
+  })
   debug('fetching margin info...')
 
   const info = await rest.marginInfo()
@@ -18,4 +21,6 @@ module.exports = runExample({
   debug('Balance: %s', prepareAmount(marginBalance))
   debug('Net Balance: %s', prepareAmount(marginNet))
   debug('')
-})
+}
+
+execute()
