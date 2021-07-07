@@ -1,6 +1,6 @@
 {
   "name": "bitfinex-api-node",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "description": "Node reference library for Bitfinex API",
   "engines": {
     "node": ">=8.3.0"
@@ -12,11 +12,10 @@
     }
   },
   "scripts": {
-    "lint": "eslint lib/ examples/ test/ index.js",
+    "lint": "standard",
     "test": "npm run lint && npm run unit",
     "unit": "NODE_ENV=test mocha -b --recursive",
-    "docs": "rm -rf docs && node_modules/.bin/jsdoc --configure .jsdoc.json --verbose",
-    "build": "babel -q ./index.js -d ./dist && babel -q ./lib -d ./dist/lib && copy package.json dist"
+    "docs": "rm -rf docs && node_modules/.bin/jsdoc --configure .jsdoc.json --verbose"
   },
   "repository": {
     "type": "git",
@@ -42,40 +41,28 @@
   },
   "homepage": "http://bitfinexcom.github.io/bitfinex-api-node/",
   "devDependencies": {
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-plugin-transform-regenerator": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
     "bfx-api-mock-srv": "^1.0.4",
     "chai": "^4.2.0",
     "docdash": "^1.2.0",
     "dotenv": "^8.2.0",
-    "eslint": "^6.8.0",
-    "eslint-config-standard": "^14.1.0",
-    "eslint-plugin-import": "^2.20.1",
-    "eslint-plugin-jsdoc": "^22.0.0",
-    "eslint-plugin-lodash": "^6.0.0",
-    "eslint-plugin-node": "^11.0.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.1",
     "husky": "^4.2.3",
     "jsdoc-to-markdown": "^5.0.1",
     "mocha": "^7.1.0",
     "socks-proxy-agent": "^5.0.0",
-    "standard": "^14.3.1"
+    "standard": "^16.0.3"
   },
   "dependencies": {
     "readline-promise": "^1.0.4",
     "blessed": "^0.1.81",
     "blessed-contrib": "^4.8.19",
     "cli-table3": "^0.6.0",
-    "bfx-api-node-models": "^1.3.1",
-    "bfx-api-node-rest": "^4.0.0",
-    "bfx-api-node-util": "^1.0.2",
+    "bfx-api-node-models": "^1.4.0",
+    "bfx-api-node-rest": "^4.1.2",
+    "bfx-api-node-util": "^1.0.10",
     "bfx-api-node-ws1": "^1.0.0",
     "bignumber.js": "^9.0.0",
     "bluebird": "^3.5.1",
     "cbq": "0.0.1",
-    "copy": "^0.3.2",
     "crc-32": "^1.2.0",
     "debug": "^4.1.1",
     "lodash": "^4.17.4",
@@ -86,5 +73,10 @@
     "request": "^2.67.0",
     "request-promise": "^4.2.0",
     "ws": "^7.2.1"
+  },
+  "standard": {
+    "ignore": [
+      "/docs/**/*.js"
+    ]
   }
 }
