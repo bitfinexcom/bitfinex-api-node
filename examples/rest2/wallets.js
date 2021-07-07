@@ -5,25 +5,23 @@ const _capitalize = require('lodash/capitalize')
 const _isFinite = require('lodash/isFinite')
 const _isEmpty = require('lodash/isEmpty')
 const { prepareAmount } = require('bfx-api-node-util')
-const runExample = require('../util/run_example')
+const { RESTv2 } = require('bfx-api-node-rest')
+const { args: { apiKey, apiSecret }, debug, debugTable } = require('../util/setup')
 
-module.exports = runExample({
-  name: 'rest-wallets',
-  rest: {
-    env: true,
+async function execute () {
+  const rest = new RESTv2({
+    apiKey,
+    apiSecret,
     transform: true
-  },
-
-  params: {
+  })
+  const {
+    valueCCY, hideZeroBalances, filterByType, filterByCurrency
+  } = {
     hideZeroBalances: true,
     filterByType: false,
     filterByCurrency: false,
     valueCCY: 'USD'
   }
-}, async ({ debug, debugTable, rest, params }) => {
-  const {
-    valueCCY, hideZeroBalances, filterByType, filterByCurrency
-  } = params
 
   const symbolForWallet = w => `t${w.currency}${valueCCY}`
 
@@ -93,4 +91,6 @@ module.exports = runExample({
   })
 
   debug('total value: %d %s', prepareAmount(totalValue), valueCCY)
-})
+}
+
+execute()
