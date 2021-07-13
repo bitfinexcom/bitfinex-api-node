@@ -5,19 +5,16 @@ const blessedContrib = require('blessed-contrib')
 const _isEmpty = require('lodash/isEmpty')
 const _reverse = require('lodash/reverse')
 const { preparePrice, prepareAmount } = require('bfx-api-node-util')
-const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
+const { debug } = require('../util/setup')
 const WSv2 = require('../../lib/transports/ws2')
 
 async function execute () {
   const ws = new WSv2({
-    apiKey,
-    apiSecret,
     transform: true,
     manageOrderBooks: true // tell the ws client to maintain full sorted OBs
   })
   ws.on('error', e => debug('WSv2 error: %s', e.message | e))
   await ws.open()
-  await ws.auth()
 
   const market = 'tBTCUSD'
 
