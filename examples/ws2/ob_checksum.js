@@ -1,6 +1,6 @@
 'use strict'
 
-const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
+const { debug } = require('../util/setup')
 const WSv2 = require('../../lib/transports/ws2')
 
 const SYMBOL = 'tXRPBTC'
@@ -9,8 +9,6 @@ const LENGTH = '25'
 
 async function execute () {
   const ws = new WSv2({
-    apiKey,
-    apiSecret,
     transform: true,
     manageOrderbooks: true // managed OBs are verified against incoming checksums
   })
