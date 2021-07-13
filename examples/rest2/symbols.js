@@ -1,12 +1,10 @@
 'use strict'
 
 const { RESTv2 } = require('bfx-api-node-rest')
-const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
+const { debug } = require('../util/setup')
 
 async function execute () {
   const rest = new RESTv2({
-    apiKey,
-    apiSecret,
     transform: true
   })
   debug('fetching symbol list...')
