@@ -2,13 +2,10 @@
 
 const _chunk = require('lodash/chunk')
 const { RESTv2 } = require('bfx-api-node-rest')
-const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
+const { debug } = require('../util/setup')
 
 async function execute () {
-  const rest = new RESTv2({
-    apiKey,
-    apiSecret
-  })
+  const rest = new RESTv2()
   debug('fetching currency list...')
 
   const currencies = await rest.currencies()
