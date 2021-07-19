@@ -5,7 +5,7 @@ const _capitalize = require('lodash/capitalize')
 const _isFinite = require('lodash/isFinite')
 const _isEmpty = require('lodash/isEmpty')
 const { prepareAmount } = require('bfx-api-node-util')
-const { RESTv2 } = require('bfx-api-node-rest')
+const { RESTv2 } = require('../../index')
 const { args: { apiKey, apiSecret }, debug, debugTable } = require('../util/setup')
 
 async function execute () {

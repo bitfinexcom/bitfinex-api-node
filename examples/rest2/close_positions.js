@@ -3,7 +3,7 @@
 const PI = require('p-iteration')
 const _isEmpty = require('lodash/isEmpty')
 const WSv2 = require('../../lib/transports/ws2')
-const { RESTv2 } = require('bfx-api-node-rest')
+const { RESTv2 } = require('../../index')
 const { args: { apiKey, apiSecret }, debug, debugTable, readline } = require('../util/setup')
 
 async function execute () {

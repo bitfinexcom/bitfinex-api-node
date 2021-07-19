@@ -1,7 +1,7 @@
 'use strict'
 
 const { prepareAmount, preparePrice } = require('bfx-api-node-util')
-const { RESTv2 } = require('bfx-api-node-rest')
+const { RESTv2 } = require('../../index')
 const { args: { apiKey, apiSecret }, debug, debugTable } = require('../util/setup')
 
 const argFromCLI = require('../util/arg_from_cli')

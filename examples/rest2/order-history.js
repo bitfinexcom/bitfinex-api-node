@@ -2,7 +2,7 @@
 
 const { prepareAmount, preparePrice } = require('bfx-api-node-util')
 const _isEmpty = require('lodash/isEmpty')
-const { RESTv2 } = require('bfx-api-node-rest')
+const { RESTv2 } = require('../../index')
 const { args: { apiKey, apiSecret }, debug, debugTable } = require('../util/setup')
 
 const START = Date.now() - (30 * 24 * 60 * 60 * 1000 * 1000)

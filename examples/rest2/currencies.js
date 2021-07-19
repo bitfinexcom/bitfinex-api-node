@@ -1,7 +1,7 @@
 'use strict'
 
 const _chunk = require('lodash/chunk')
-const { RESTv2 } = require('bfx-api-node-rest')
+const { RESTv2 } = require('../../index')
 const { debug } = require('../util/setup')
 
 async function execute () {

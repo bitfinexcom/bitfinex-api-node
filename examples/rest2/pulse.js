@@ -1,7 +1,7 @@
 'use strict'
 
 const { PulseMessage } = require('bfx-api-node-models')
-const { RESTv2 } = require('bfx-api-node-rest')
+const { RESTv2 } = require('../../index')
 const { args: { apiKey, apiSecret }, debug, debugTable } = require('../util/setup')
 
 async function execute () {

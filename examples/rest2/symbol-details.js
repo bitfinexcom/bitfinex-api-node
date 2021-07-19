@@ -1,6 +1,6 @@
 'use strict'
 
-const { RESTv2 } = require('bfx-api-node-rest')
+const { RESTv2 } = require('../../index')
 const { debug, debugTable } = require('../util/setup')
 
 async function execute () {

@@ -3,7 +3,7 @@
 process.env.DEBUG = 'bfx:examples:*'
 
 const _flatten = require('lodash/flatten')
-const { RESTv2 } = require('bfx-api-node-rest')
+const { RESTv2 } = require('../../index')
 const { args, debug } = require('./util/setup')
 const Manager = require('../lib/ws2_manager')
 

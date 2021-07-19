@@ -2,7 +2,7 @@
 
 const Promise = require('bluebird')
 const { Order } = require('bfx-api-node-models')
-const { RESTv2 } = require('bfx-api-node-rest')
+const { RESTv2 } = require('../../index')
 const { args: { apiKey, apiSecret }, debug, readline } = require('../util/setup')
 
 const UPDATE_DELAY_MS = 5 * 1000
