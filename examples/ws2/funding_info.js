@@ -1,15 +1,25 @@
 'use strict'
 
-const runExample = require('../util/run_example')
+const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
+const WSv2 = require('../../lib/transports/ws2')
 const symbol = 'fUSD'
 
-module.exports = runExample({
-  name: 'ws2-funding-info',
-  ws: { env: true, connect: true, auth: true, transform: true }
-}, async ({ ws, debug }) => {
-  ws.onFundingInfoUpdate({}, fiu => {
-    fiu.forEach(fl => debug('fl: %j', fl.toJS()))
+async function execute () {
+  const ws = new WSv2({
+    apiKey,
+    apiSecret,
+    transform: true
+  })
+  ws.on('error', e => debug('WSv2 error: %s', e.message | e))
+  await ws.open()
+  await ws.auth()
+
+  ws.onFundingInfoUpdate({}, fi => {
+    debug('fl: %j', fi.toJS())
+    ws.close()
   })
 
   ws.requestCalc([`funding_sym_${symbol}`])
-})
+}
+
+execute()

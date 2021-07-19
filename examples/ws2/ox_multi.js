@@ -1,7 +1,8 @@
 'use strict'
 
 const { Order } = require('bfx-api-node-models')
-const runExample = require('../util/run_example')
+const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
+const WSv2 = require('../../lib/transports/ws2')
 
 const oA = new Order({
   symbol: 'tBTCUSD',
@@ -24,16 +25,16 @@ const oC = new Order({
   type: 'EXCHANGE LIMIT'
 })
 
-module.exports = runExample({
-  name: 'ws2-ox-multi',
-  ws: {
-    env: true,
-    connect: true,
-    auth: true,
-    transform: true,
-    keepOpen: true
-  }
-}, async ({ ws, debug }) => {
+async function execute () {
+  const ws = new WSv2({
+    apiKey,
+    apiSecret,
+    transform: true
+  })
+  ws.on('error', e => debug('WSv2 error: %s', e.message | e))
+  await ws.open()
+  await ws.auth()
+
   oA.registerListeners(ws)
   oB.registerListeners(ws)
   oC.registerListeners(ws)
@@ -78,4 +79,6 @@ module.exports = runExample({
   ])
 
   debug('sent ox_multi to cancel order A and orders [B, C]')
-})
+}
+
+execute()

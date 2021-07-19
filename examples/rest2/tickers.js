@@ -1,16 +1,14 @@
 'use strict'
 
 const { preparePrice, prepareAmount } = require('bfx-api-node-util')
-const runExample = require('../util/run_example')
+const { RESTv2 } = require('../../index')
+const { debug, debugTable } = require('../util/setup')
 
-module.exports = runExample({
-  name: 'rest-get-tickers',
-  rest: { transform: true },
-  params: {
-    filterByMarket: null
-  }
-}, async ({ rest, debug, debugTable, params }) => {
-  const { filterByMarket } = params
+async function execute () {
+  const rest = new RESTv2({
+    transform: true
+  })
+  const filterByMarket = null
 
   debug('fetching symbol list...')
 
@@ -45,4 +43,6 @@ module.exports = runExample({
       preparePrice(t.ask), prepareAmount(t.bidSize), prepareAmount(t.askSize)
     ]))
   })
-})
+}
+
+execute()

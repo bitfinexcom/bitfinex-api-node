@@ -2,14 +2,17 @@
 
 const Promise = require('bluebird')
 const { FundingOffer } = require('bfx-api-node-models')
-const runExample = require('../util/run_example')
+const { RESTv2 } = require('../../index')
+const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
 
 const CLOSE_DELAY_MS = 5 * 1000
 
-module.exports = runExample({
-  name: 'rest-submit-funding-offer',
-  rest: { env: true, transform: true }
-}, async ({ debug, rest, params }) => {
+async function execute () {
+  const rest = new RESTv2({
+    apiKey,
+    apiSecret,
+    transform: true
+  })
   const fo = new FundingOffer({
     type: 'LIMIT',
     symbol: 'fUSD',
@@ -32,4 +35,6 @@ module.exports = runExample({
   await fo.close()
 
   debug('offer closed')
-})
+}
+
+execute()

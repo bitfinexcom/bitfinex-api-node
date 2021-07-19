@@ -1,11 +1,10 @@
 'use strict'
 
-const runExample = require('../util/run_example')
+const { RESTv2 } = require('../../index')
+const { debug } = require('../util/setup')
 
-module.exports = runExample({
-  name: 'rest-get-platform-status',
-  rest: true
-}, async ({ debug, rest }) => {
+async function execute () {
+  const rest = new RESTv2()
   debug('fetching platform status...')
 
   const status = await rest.status()
@@ -14,4 +13,6 @@ module.exports = runExample({
     ? 'Platform currently under maintenance'
     : 'Platform operating normally'
   )
-})
+}
+
+execute()

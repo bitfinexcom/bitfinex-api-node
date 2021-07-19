@@ -1,16 +1,16 @@
 'use strict'
 
-const runExample = require('../util/run_example')
+const { debug } = require('../util/setup')
+const WSv2 = require('../../lib/transports/ws2')
 
-module.exports = runExample({
-  name: 'ws2-order-books',
-  ws: {
-    env: true,
-    connect: true,
+async function execute () {
+  const ws = new WSv2({
     transform: true, // auto-transform array OBs to OrderBook objects
     manageOrderBooks: true // tell the ws client to maintain full sorted OBs
-  }
-}, async ({ ws, debug }) => {
+  })
+  ws.on('error', e => debug('WSv2 error: %s', e.message | e))
+  await ws.open()
+
   let lastMidPrice = -1
   let midPrice
 
@@ -29,4 +29,6 @@ module.exports = runExample({
   })
 
   await ws.subscribeOrderBook('tBTCUSD')
-})
+}
+
+execute()

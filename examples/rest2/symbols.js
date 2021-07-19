@@ -1,15 +1,18 @@
 'use strict'
 
-const runExample = require('../util/run_example')
+const { RESTv2 } = require('../../index')
+const { debug } = require('../util/setup')
 
-module.exports = runExample({
-  name: 'rest-get-symbols',
-  rest: { transform: true }
-}, async ({ rest, debug }) => {
+async function execute () {
+  const rest = new RESTv2({
+    transform: true
+  })
   debug('fetching symbol list...')
 
   const symbols = await rest.symbols()
 
   debug('read %d symbols', symbols.length)
   debug('%s', symbols.map(s => `t${s.toUpperCase()}`).join(', '))
-})
+}
+
+execute()

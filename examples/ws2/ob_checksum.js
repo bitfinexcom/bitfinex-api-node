@@ -1,21 +1,20 @@
 'use strict'
 
+const { debug } = require('../util/setup')
 const WSv2 = require('../../lib/transports/ws2')
-const runExample = require('../util/run_example')
 
 const SYMBOL = 'tXRPBTC'
 const PRECISION = 'P0'
 const LENGTH = '25'
 
-module.exports = runExample({
-  name: 'ws2-ob-checksum',
-  ws: {
-    env: true,
-    connect: true,
+async function execute () {
+  const ws = new WSv2({
     transform: true,
     manageOrderbooks: true // managed OBs are verified against incoming checksums
-  }
-}, async ({ ws, debug }) => {
+  })
+  ws.on('error', e => debug('WSv2 error: %s', e.message | e))
+  await ws.open()
+
   ws.onOrderBookChecksum({
     symbol: SYMBOL,
     prec: PRECISION,
@@ -26,4 +25,6 @@ module.exports = runExample({
 
   await ws.enableFlag(WSv2.flags.CHECKSUM)
   await ws.subscribeOrderBook(SYMBOL, PRECISION, LENGTH)
-})
+}
+
+execute()

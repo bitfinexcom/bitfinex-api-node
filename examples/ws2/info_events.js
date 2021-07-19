@@ -1,13 +1,18 @@
 'use strict'
 
-const runExample = require('../util/run_example')
+const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
+const WSv2 = require('../../lib/transports/ws2')
 
-module.exports = runExample({
-  name: 'ws2-info-events',
-  ws: {
-    env: true, connect: true, auth: true, autoReconnect: true
-  }
-}, async ({ ws, debug }) => {
+async function execute () {
+  const ws = new WSv2({
+    apiKey,
+    apiSecret,
+    autoReconnect: true
+  })
+  ws.on('error', e => debug('WSv2 error: %s', e.message | e))
+  await ws.open()
+  await ws.auth()
+
   ws.onMaintenanceStart(() => {
     debug('info: maintenance period started')
     // pause activity untill further notice
@@ -22,4 +27,7 @@ module.exports = runExample({
     debug('info: bitfinex ws server restarted')
     // await ws.reconnect() // if not using autoReconnect
   })
-})
+  await ws.close()
+}
+
+execute()

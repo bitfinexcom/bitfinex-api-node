@@ -1,26 +1,30 @@
 'use strict'
 
-const runExample = require('../util/run_example')
+const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
+const WSv2 = require('../../lib/transports/ws2')
 
-module.exports = runExample({
-  name: 'ws2-cancel-all-buffered',
-  ws: {
-    env: true,
-    connect: true,
-    auth: true,
+async function execute () {
+  const ws = new WSv2({
+    apiKey,
+    apiSecret,
     transform: true,
     orderOpBufferDelay: 250
-  }
-}, async ({ ws, debug }) => {
+  })
+  ws.on('error', e => debug('WSv2 error: %s', e.message | e))
+  await ws.open()
+  await ws.auth()
+
   ws.onOrderSnapshot({}, async (snapshot) => {
     if (snapshot.length === 0) {
       debug('no orders to cancel')
-      return
+    } else {
+      debug('canceling %d orders', snapshot.length)
+
+      await ws.cancelOrders(snapshot)
+      debug('cancelled all orders')
     }
-
-    debug('canceling %d orders', snapshot.length)
-
-    await ws.cancelOrders(snapshot)
-    debug('cancelled all orders')
+    await ws.close()
   })
-})
+}
+
+execute()

@@ -1,16 +1,20 @@
 'use strict'
 
 const { prepareAmount, preparePrice } = require('bfx-api-node-util')
-const runExample = require('../util/run_example')
+const { RESTv2 } = require('../../index')
+const { args: { apiKey, apiSecret }, debug, debugTable } = require('../util/setup')
+
 const argFromCLI = require('../util/arg_from_cli')
 
-module.exports = runExample({
-  name: 'rest-get-movements',
-  rest: { env: true, transform: true },
-  params: {
+async function execute () {
+  const rest = new RESTv2({
+    apiKey,
+    apiSecret,
+    transform: true
+  })
+  const params = {
     ccy: argFromCLI(0, 'all')
   }
-}, async ({ debug, debugTable, rest, params }) => {
   const ccy = params.ccy === 'all' ? null : params.ccy
 
   debug('fetching movements for %s...', ccy || 'all currencies')
@@ -37,4 +41,6 @@ module.exports = runExample({
       ]
     })
   })
-})
+}
+
+execute()

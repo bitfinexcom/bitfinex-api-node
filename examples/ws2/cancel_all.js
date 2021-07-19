@@ -2,19 +2,19 @@
 
 const Promise = require('bluebird')
 const _isEmpty = require('lodash/isEmpty')
-const runExample = require('../util/run_example')
+const { args: { apiKey, apiSecret }, debug, readline } = require('../util/setup')
+const WSv2 = require('../../lib/transports/ws2')
 
-module.exports = runExample({
-  name: 'cancel-all-orders',
-  ws: { env: true, transform: true }, // no auto-auth so we can grab snapshot
-  readline: true,
-  params: {
-    filterByMarket: null
-  }
-}, async ({ ws, debug, readline, params }) => {
+async function execute () {
+  const ws = new WSv2({
+    apiKey,
+    apiSecret,
+    transform: true
+  })
+  ws.on('error', e => debug('WSv2 error: %s', e.message | e))
   await ws.open()
 
-  const { filterByMarket } = params
+  const filterByMarket = null
 
   debug('awaiting order snapshot...')
 
@@ -24,7 +24,10 @@ module.exports = runExample({
   })
 
   if (allOrders.length === 0) {
-    return debug('no orders to cancel')
+    debug('no orders to cancel')
+    await ws.close()
+    readline.close()
+    return
   }
 
   const orders = _isEmpty(filterByMarket)
@@ -53,4 +56,8 @@ module.exports = runExample({
     'done! cancelled the following order IDs: %s',
     confirmations.map(o => o[0]).join(', ')
   )
-})
+  await ws.close()
+  readline.close()
+}
+
+execute()

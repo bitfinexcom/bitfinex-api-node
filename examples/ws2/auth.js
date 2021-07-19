@@ -1,11 +1,15 @@
 'use strict'
 
-const runExample = require('../util/run_example')
+const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
+const WSv2 = require('../../lib/transports/ws2')
 
-module.exports = runExample({
-  name: 'ws2-auth',
-  ws: { env: true } // manually open/auth to show usage
-}, async ({ ws, debug }) => {
+async function execute () {
+  const ws = new WSv2({
+    apiKey,
+    apiSecret
+  })
+  ws.on('error', e => debug('WSv2 error: %s', e.message | e))
+
   // register a callback for any order snapshot that comes in (account orders)
   ws.onOrderSnapshot({}, (orders) => {
     debug(`order snapshot: ${JSON.stringify(orders, null, 2)}`)
@@ -18,4 +22,7 @@ module.exports = runExample({
   debug('authenticated')
 
   // do something with authenticated ws stream
-})
+  await ws.close()
+}
+
+execute()

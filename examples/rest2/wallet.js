@@ -1,11 +1,14 @@
 'use strict'
 
-const runExample = require('../util/run_example')
+const { RESTv2 } = require('../../index')
+const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
 
-module.exports = runExample({
-  name: 'rest-wallet',
-  rest: { env: true, transform: true }
-}, async ({ rest, debug }) => {
+async function execute () {
+  const rest = new RESTv2({
+    apiKey,
+    apiSecret,
+    transform: true
+  })
   debug('Submitting new order...')
 
   // get new deposit address
@@ -37,4 +40,6 @@ module.exports = runExample({
   })
 
   debug('withdraw confirmed: %j', withdrawalConfirmation)
-})
+}
+
+execute()

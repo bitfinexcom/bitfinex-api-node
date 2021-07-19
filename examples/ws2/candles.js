@@ -1,27 +1,20 @@
 'use strict'
 
-const _isEmpty = require('lodash/isEmpty')
-const runExample = require('../util/run_example')
+const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
+const WSv2 = require('../../lib/transports/ws2')
 
-module.exports = runExample({
-  name: 'ws2-candles',
-  ws: {
-    env: true,
-    connect: true,
+async function execute () {
+  const ws = new WSv2({
+    apiKey,
+    apiSecret,
     manageCandles: true, // enable candle dataset persistence/management
-    transform: true, // converts ws data arrays to Candle models (and others)
-    keepOpen: true
-  },
-  params: {
-    market: 'tBTCUSD',
-    tf: '5m'
-  }
-}, async ({ ws, debug, params }) => {
-  const { market, tf } = params
+    transform: true // converts ws data arrays to Candle models (and others)
+  })
+  ws.on('error', e => debug('WSv2 error: %s', e.message | e))
+  await ws.open()
 
-  if (_isEmpty(market)) throw new Error('market required')
-  if (_isEmpty(tf)) throw new Error('time frame required')
-
+  const market = 'tBTCUSD'
+  const tf = '5m'
   const candleKey = `trade:${tf}:${market}`
   let prevTS = null
 
@@ -41,4 +34,6 @@ module.exports = runExample({
   })
 
   await ws.subscribeCandles(candleKey)
-})
+}
+
+execute()

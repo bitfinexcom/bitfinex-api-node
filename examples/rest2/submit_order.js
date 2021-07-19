@@ -2,16 +2,21 @@
 
 const Promise = require('bluebird')
 const { Order } = require('bfx-api-node-models')
-const runExample = require('../util/run_example')
+const { RESTv2 } = require('../../index')
+const { args: { apiKey, apiSecret }, debug, readline } = require('../util/setup')
 
 const UPDATE_DELAY_MS = 5 * 1000
 const CANCEL_DELAY_MS = 10 * 1000
 
-module.exports = runExample({
-  name: 'rest-submit-order',
-  rest: { env: true },
-  readline: true,
-  params: {
+async function execute () {
+  const rest = new RESTv2({
+    apiKey,
+    apiSecret
+  })
+  const {
+    symbol, price, amount, type, affiliateCode, onlySubmitOrder, skipConfirm,
+    priceStop, distance
+  } = {
     // needed in order to pipe data to the process, until we can figure out a
     // workaround
     skipConfirm: false,
@@ -22,11 +27,6 @@ module.exports = runExample({
     type: Order.type.LIMIT,
     affiliateCode: 'xZvWHMNR'
   }
-}, async ({ rest, debug, params, readline }) => {
-  const {
-    symbol, price, amount, type, affiliateCode, onlySubmitOrder, skipConfirm,
-    priceStop, distance
-  } = params
 
   const o = new Order({
     cid: Date.now(),
@@ -47,6 +47,7 @@ module.exports = runExample({
     ].join('\n'))
 
     if (confirm.toLowerCase()[0] !== 'y') {
+      readline.close()
       return
     }
   }
@@ -58,6 +59,7 @@ module.exports = runExample({
   debug('order successfully submitted! (id %j, cid %j, gid %j)', o.id, o.cid, o.gid)
 
   if (onlySubmitOrder) {
+    readline.close()
     return // for bfx-cli
   }
 
@@ -81,4 +83,7 @@ module.exports = runExample({
 
   const cancelNotification = await o.cancel()
   debug('successfully canceled! (%s: %s)', cancelNotification.status, cancelNotification.text)
-})
+  readline.close()
+}
+
+execute()

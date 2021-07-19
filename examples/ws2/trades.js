@@ -1,25 +1,16 @@
 'use strict'
 
-const _isEmpty = require('lodash/isEmpty')
-const runExample = require('../util/run_example')
+const { debug } = require('../util/setup')
+const WSv2 = require('../../lib/transports/ws2')
 
-module.exports = runExample({
-  name: 'ws2-trades',
-  ws: {
-    env: true,
-    connect: true,
-    keepOpen: true,
+async function execute () {
+  const ws = new WSv2({
     transform: true
-  },
-  params: {
-    market: 'tBTCUSD'
-  }
-}, async ({ ws, debug, params }) => {
-  const { market } = params
+  })
+  ws.on('error', e => debug('WSv2 error: %s', e.message | e))
+  await ws.open()
 
-  if (_isEmpty(market)) {
-    throw new Error('market required')
-  }
+  const market = 'tBTCUSD'
 
   if (market[0] === 't') {
     ws.onTradeEntry({ symbol: market }, (trade) => {
@@ -36,4 +27,6 @@ module.exports = runExample({
   })
 
   await ws.subscribeTrades(market)
-})
+}
+
+execute()

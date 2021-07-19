@@ -2,16 +2,16 @@
 
 const { prepareAmount } = require('bfx-api-node-util')
 const argFromCLI = require('../util/arg_from_cli')
-const runExample = require('../util/run_example')
+const { RESTv2 } = require('../../index')
+const { args: { apiKey, apiSecret }, debug, debugTable } = require('../util/setup')
 
-module.exports = runExample({
-  name: 'rest-get-funding-offers',
-  rest: { env: true },
-  params: {
-    symbol: argFromCLI(0, 'fUSD')
-  }
-}, async ({ rest, debug, debugTable, params }) => {
-  const { symbol } = params
+async function execute () {
+  const rest = new RESTv2({
+    apiKey,
+    apiSecret,
+    transform: true
+  })
+  const symbol = argFromCLI(0, 'fUSD')
 
   debug('fetching funding offers for %s', symbol)
 
@@ -28,4 +28,6 @@ module.exports = runExample({
       ])
     })
   }
-})
+}
+
+execute()
