@@ -72,15 +72,15 @@ async function execute () {
 
       ...(_isFinite(value)
         ? [
-          prepareAmount(value),
-          currency !== valueCCY
-            ? prepareAmount(lastPrices[symbolForWallet({ currency })])
-            : 1
-        ]
+            prepareAmount(value),
+            currency !== valueCCY
+              ? prepareAmount(lastPrices[symbolForWallet({ currency })])
+              : 1
+          ]
         : [
-          '-',
-          '-'
-        ])
+            '-',
+            '-'
+          ])
     ]
   })
 
