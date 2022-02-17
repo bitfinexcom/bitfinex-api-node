@@ -1,5 +1,9 @@
+5.0.4
+- fix: public funding trade parsing
+- styling: fix code formatting
+
 5.0.0
-- upgrade: upgraded bfx-api-node-rest to 4.0.0, breaks previous versions compatibility 
+- upgrade: upgraded bfx-api-node-rest to 4.0.0, breaks previous versions compatibility
 - fix: jsdocs
 
 4.0.17
