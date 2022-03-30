@@ -70,8 +70,6 @@
     "lossless-json": "1.0.3",
     "p-iteration": "1.1.8",
     "promise-throttle": "1.0.1",
-    "request": "2.67.0",
-    "request-promise": "4.2.0",
     "ws": "7.2.1"
   },
   "standard": {
