@@ -30,7 +30,7 @@ async function execute () {
     return
   }
 
-  const orders = _isEmpty(filterByMarket)
+  const orders = (!filterByMarket)
     ? allOrders
     : allOrders.filter(o => o.symbol === filterByMarket)
 
