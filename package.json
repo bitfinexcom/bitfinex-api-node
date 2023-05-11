@@ -56,7 +56,7 @@
     "blessed-contrib": "4.8.19",
     "cli-table3": "0.6.0",
     "bfx-api-node-models": "^1.4.0",
-    "bfx-api-node-rest": "^4.1.2",
+    "bfx-api-node-rest": "^5.1.0",
     "bfx-api-node-util": "^1.0.10",
     "bfx-api-node-ws1": "^1.0.0",
     "bignumber.js": "9.0.0",
