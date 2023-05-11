@@ -2,7 +2,6 @@
 'use strict'
 
 const assert = require('assert')
-const Promise = require('bluebird')
 const _isObject = require('lodash/isObject')
 const _isArray = require('lodash/isArray')
 const WS2Manager = require('../../lib/ws2_manager')
@@ -59,7 +58,7 @@ describe('WS2Manager', () => {
       m._sockets.push({
         ws: {
           reconnect: async () => {
-            await Promise.delay(10)
+            await new Promise(resolve => setTimeout(resolve, 10))
             called = true
           }
         }
@@ -90,7 +89,7 @@ describe('WS2Manager', () => {
       m._sockets.push({
         ws: {
           close: async () => {
-            await Promise.delay(10)
+            await new Promise(resolve => setTimeout(resolve, 10))
             called = true
           }
         }

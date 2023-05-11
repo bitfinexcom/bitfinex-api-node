@@ -1,6 +1,5 @@
 'use strict'
 
-const Promise = require('bluebird')
 const _isEmpty = require('lodash/isEmpty')
 const { args: { apiKey, apiSecret }, debug, readline } = require('../util/setup')
 const WSv2 = require('../../lib/transports/ws2')

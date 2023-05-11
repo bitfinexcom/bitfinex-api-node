@@ -1,6 +1,5 @@
 'use strict'
 
-const Promise = require('bluebird')
 const { FundingOffer } = require('bfx-api-node-models')
 const { RESTv2 } = require('../../index')
 const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
@@ -31,7 +30,7 @@ async function execute () {
 
   debug('done. closing in %ds...', CLOSE_DELAY_MS / 1000)
 
-  await Promise.delay(CLOSE_DELAY_MS)
+  await new Promise(resolve => setTimeout(resolve, CLOSE_DELAY_MS))
   await fo.close()
 
   debug('offer closed')

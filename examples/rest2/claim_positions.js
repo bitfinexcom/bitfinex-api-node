@@ -1,6 +1,5 @@
 'use strict'
 
-const Promise = require('bluebird')
 const { RESTv2 } = require('../../index')
 const _isEmpty = require('lodash/isEmpty')
 const { args: { apiKey, apiSecret }, debug, debugTable, readline } = require('../util/setup')

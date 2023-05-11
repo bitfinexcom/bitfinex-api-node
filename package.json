@@ -60,7 +60,6 @@
     "bfx-api-node-util": "^1.0.10",
     "bfx-api-node-ws1": "^1.0.0",
     "bignumber.js": "9.0.0",
-    "bluebird": "3.5.1",
     "cbq": "0.0.1",
     "debug": "4.1.1",
     "lodash": "^4.17.4",
