@@ -1,6 +1,5 @@
 'use strict'
 
-const Promise = require('bluebird')
 const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
 const WSv2 = require('../../lib/transports/ws2')
 
@@ -13,7 +12,7 @@ async function execute () {
   await ws.open()
   await ws.auth()
 
-  await Promise.delay(5 * 1000)
+  await new Promise(resolve => setTimeout(resolve, 5 * 1000))
 
   ws.requestCalc([
     'margin_sym_tBTCUSD',
@@ -25,7 +24,7 @@ async function execute () {
   // Watch log output for balance update packets (wu, miu, etc)
   debug('sent calc, closing in 3s...')
 
-  await Promise.delay(3 * 1000)
+  await new Promise(resolve => setTimeout(resolve, 3 * 1000))
   await ws.close()
 }
 

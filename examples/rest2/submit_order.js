@@ -1,6 +1,5 @@
 'use strict'
 
-const Promise = require('bluebird')
 const { Order } = require('bfx-api-node-models')
 const { RESTv2 } = require('../../index')
 const { args: { apiKey, apiSecret }, debug, readline } = require('../util/setup')
@@ -66,7 +65,7 @@ async function execute () {
   debug('')
   debug('will update price to $3.00 in %fs...', UPDATE_DELAY_MS / 1000)
 
-  await Promise.delay(UPDATE_DELAY_MS)
+  await new Promise(resolve => setTimeout(resolve, UPDATE_DELAY_MS))
 
   debug('')
   debug('updating order price...')
@@ -76,7 +75,7 @@ async function execute () {
   debug('')
   debug('will cancel the order in %fs', CANCEL_DELAY_MS / 1000)
 
-  await Promise.delay(CANCEL_DELAY_MS)
+  await new Promise(resolve => setTimeout(resolve, CANCEL_DELAY_MS))
 
   debug('')
   debug('cancelling order...')

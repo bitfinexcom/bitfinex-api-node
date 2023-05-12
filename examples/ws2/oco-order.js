@@ -1,6 +1,5 @@
 'use strict'
 
-const Promise = require('bluebird')
 const { Order } = require('bfx-api-node-models')
 const { args: { apiKey, apiSecret }, debug } = require('../util/setup')
 const WSv2 = require('../../lib/transports/ws2')
@@ -45,7 +44,7 @@ async function execute () {
   debug('got submit confirmation for order %d [%d]', o.cid, o.id)
 
   // wait a bit...
-  await Promise.delay(2 * 1000)
+  await new Promise(resolve => setTimeout(resolve, 2 * 1000))
 
   if (orderClosed) {
     return debug('order closed prematurely; did it auto-fill?')

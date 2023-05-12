@@ -2,7 +2,6 @@
 'use strict'
 
 const assert = require('assert')
-const Promise = require('bluebird')
 const SocksProxyAgent = require('socks-proxy-agent')
 const { MockWSv2Server } = require('bfx-api-mock-srv')
 const _isFunction = require('lodash/isFunction')
@@ -522,7 +521,7 @@ describe('WSv2 unit', () => {
       await ws.auth()
 
       return new Promise((resolve) => {
-        ws.reconnectAfterClose = new Promise(() => resolve())
+        ws.reconnectAfterClose = Promise.resolve(resolve())
         wss.close() // trigger reconnect
       })
     })
@@ -542,7 +541,9 @@ describe('WSv2 unit', () => {
 
         ws.reconnectAfterClose = () => {
           assert((Date.now() - now) >= 70)
-          return new Promise(() => resolve())
+          resolve()
+
+          return Promise.resolve()
         }
 
         wss.close() // trigger reconnect
@@ -561,7 +562,7 @@ describe('WSv2 unit', () => {
       ws.reconnect = async () => assert(false)
       await ws.close()
 
-      await Promise.delay(50)
+      await new Promise(resolve => setTimeout(resolve, 50))
     })
   })
 
@@ -575,12 +576,12 @@ describe('WSv2 unit', () => {
 
     ws.updateAuthArgs({ apiKey: 'wrong', apiSecret: 'wrong' })
     ws.reconnect()
-    await Promise.delay(50)
+    await new Promise(resolve => setTimeout(resolve, 50))
     assert(!ws.isAuthenticated())
 
     ws.updateAuthArgs({ apiKey: API_KEY, apiSecret: API_SECRET })
     ws.reconnect()
-    await Promise.delay(50)
+    await new Promise(resolve => setTimeout(resolve, 50))
     assert(ws.isAuthenticated())
   })
 
@@ -1685,7 +1686,7 @@ describe('WSv2 unit', () => {
       ws._triggerPacketWD = ws._triggerPacketWD.bind(ws)
       ws._onWSMessage('asdf') // send first packet, init wd
 
-      await Promise.delay(150)
+      await new Promise(resolve => setTimeout(resolve, 150))
 
       assert(wdTriggered)
     })
@@ -1703,7 +1704,7 @@ describe('WSv2 unit', () => {
       ws._triggerPacketWD = async () => { assert(false) }
       ws._onWSMessage('asdf')
 
-      await Promise.delay(200)
+      await new Promise(resolve => setTimeout(resolve, 200))
 
       clearInterval(sendInterval)
       clearTimeout(ws._packetWDTimeout)
@@ -2222,7 +2223,7 @@ describe('WSv2 unit', () => {
       ws = createTestWSv2Instance()
       ws._isAuthenticated = true
       ws.cancelOrder = async () => {
-        return Promise.delay(10)
+        return new Promise(resolve => setTimeout(resolve, 10))
       }
 
       await ws.cancelOrders([1, 2])

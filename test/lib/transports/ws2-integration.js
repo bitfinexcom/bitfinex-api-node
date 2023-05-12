@@ -2,7 +2,6 @@
 'use strict'
 
 const assert = require('assert')
-const Promise = require('bluebird')
 const WSv2 = require('../../../lib/transports/ws2')
 const { Order } = require('bfx-api-node-models')
 const { MockWSv2Server } = require('bfx-api-mock-srv')
@@ -86,14 +85,14 @@ describe('WSv2 integration', () => {
 
       wss.send([0, 'ou', arr])
 
-      await Promise.delay(100)
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       assert.strictEqual(o.price, 256)
       arr[16] = 150
 
       wss.send([0, 'oc', arr])
 
-      await Promise.delay(100)
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       assert.strictEqual(o.price, 150)
       o.removeListeners()
