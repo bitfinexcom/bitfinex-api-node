@@ -2,7 +2,7 @@
 - removed unused deps: chai, request-promise, request, crc-32
 - removed bluebird Promise
 - update params of submitOrder and cancelOrders methods of WS transport to support new rest api signature
-- bumped bfx-api-node-rest version up to 5.1.0, breaks previous versions compatibility
+- bumped bfx-api-node-rest version up to 5.1.1, breaks previous versions compatibility
 - bumped mocha, jsdoc-to-markdown, docdash, blessed-contrib, ws versions to fix vulnerabilities
 - moved dev deps readline-promise, blessed, blessed-contrib, cli-table3, p-iteration into corresponding section
 
