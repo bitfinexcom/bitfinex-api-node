@@ -56,7 +56,7 @@
     "standard": "^16.0.3"
   },
   "dependencies": {
-    "bfx-api-node-models": "^1.4.0",
+    "bfx-api-node-models": "^1.7.1",
     "bfx-api-node-rest": "^5.1.0",
     "bfx-api-node-util": "^1.0.10",
     "bfx-api-node-ws1": "^1.0.0",
