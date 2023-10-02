@@ -62,7 +62,7 @@
     "bfx-api-node-ws1": "^1.0.0",
     "bignumber.js": "9.0.0",
     "cbq": "0.0.1",
-    "debug": "4.1.1",
+    "debug": "4.3.1",
     "lodash": "^4.17.4",
     "lodash.throttle": "4.1.1",
     "lossless-json": "1.0.3",
