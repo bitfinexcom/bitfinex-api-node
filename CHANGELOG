@@ -1,3 +1,6 @@
+7.0.0
+- chore: remove pulse deps
+
 6.0.0
 - removed unused deps: chai, request-promise, request, crc-32
 - removed bluebird Promise

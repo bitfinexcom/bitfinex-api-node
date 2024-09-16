@@ -1,8 +1,8 @@
 'use strict'
 
-const SocksProxyAgent = require('socks-proxy-agent')
 const _isString = require('lodash/isString')
 const _isEmpty = require('lodash/isEmpty')
+const { SocksProxyAgent } = require('socks-proxy-agent')
 
 const validArg = v => _isString(v) && !_isEmpty(v)
 

@@ -1,9 +1,9 @@
 {
   "name": "bitfinex-api-node",
-  "version": "6.0.0",
+  "version": "7.0.0",
   "description": "Node reference library for Bitfinex API",
   "engines": {
-    "node": ">=16.20.0"
+    "node": ">=18.0"
   },
   "main": "index.js",
   "husky": {
@@ -13,9 +13,11 @@
   },
   "scripts": {
     "lint": "standard",
+    "lint:fix": "standard --fix",
     "test": "npm run lint && npm run unit",
     "unit": "NODE_ENV=test mocha -b --recursive",
-    "docs": "rm -rf docs && node_modules/.bin/jsdoc --configure .jsdoc.json --verbose"
+    "docs": "rm -rf docs && node_modules/.bin/jsdoc --configure .jsdoc.json --verbose",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
@@ -43,31 +45,31 @@
   "devDependencies": {
     "bfx-api-mock-srv": "^1.0.4",
     "blessed": "0.1.81",
-    "blessed-contrib": "4.11.0",
-    "cli-table3": "0.6.0",
-    "docdash": "^2.0.1",
-    "dotenv": "^8.2.0",
-    "husky": "^4.2.3",
-    "jsdoc-to-markdown": "^8.0.0",
-    "mocha": "^10.2.0",
+    "blessed-contrib": "^1.0.11",
+    "cli-table3": "^0.6.5",
+    "docdash": "^2.0.2",
+    "dotenv": "^16.4.5",
+    "husky": "^9.1.6",
+    "jsdoc-to-markdown": "^9.0.1",
+    "mocha": "^10.7.3",
     "p-iteration": "1.1.8",
     "readline-promise": "1.0.4",
-    "socks-proxy-agent": "^5.0.0",
-    "standard": "^16.0.3"
+    "socks-proxy-agent": "^8.0.4",
+    "standard": "^17.1.2"
   },
   "dependencies": {
-    "bfx-api-node-models": "^1.7.1",
-    "bfx-api-node-rest": "^5.1.1",
+    "bfx-api-node-models": "^2.0.0",
+    "bfx-api-node-rest": "^6.0.0",
     "bfx-api-node-util": "^1.0.10",
     "bfx-api-node-ws1": "^1.0.0",
     "bignumber.js": "9.0.0",
     "cbq": "0.0.1",
-    "debug": "4.1.1",
+    "debug": "4.3.3",
     "lodash": "^4.17.4",
     "lodash.throttle": "4.1.1",
     "lossless-json": "1.0.3",
     "promise-throttle": "1.0.1",
-    "ws": "7.5.9"
+    "ws": "7.5.10"
   },
   "standard": {
     "ignore": [

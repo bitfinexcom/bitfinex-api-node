@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+# only run on added/modified files
+git diff --name-only --cached --diff-filter=AM -- "*.js" | \
+while read -r file 
+do
+  if [ -f "$file" ]; then # don't run on deleted files
+    npx standard "$file"
+  fi
+done

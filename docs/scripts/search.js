@@ -33,6 +33,9 @@ document.getElementById("nav-search").addEventListener("keyup", function(event) 
         document.querySelectorAll("nav > ul > li").forEach(function(elem) {
             elem.style.display = "block";
         });
+        document.querySelectorAll("nav > ul").forEach(function(elem) {
+            elem.style.display = "block";
+        });
         //hide all results
         document.querySelectorAll("nav > ul > li > ul li").forEach(function(elem) {
             elem.style.display = "none";
@@ -76,6 +79,19 @@ document.getElementById("nav-search").addEventListener("keyup", function(event) 
                 parent.style.display = "none";
             } else if(countSearchA == 0 && countUlVisible == 0){
                 //has no visible child and does not contain text
+                parent.style.display = "none";
+            }
+        });
+        document.querySelectorAll("nav > ul.collapse_top").forEach(function(parent) {
+            var countVisible = 0;
+            parent.querySelectorAll("li").forEach(function(elem) {
+                if (elem.style.display !== "none") {
+                    countVisible++;
+                }
+            });
+          
+            if (countVisible == 0) {
+                //has no child at all and does not contain text
                 parent.style.display = "none";
             }
         });
