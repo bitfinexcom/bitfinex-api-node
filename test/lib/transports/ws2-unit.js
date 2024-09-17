@@ -2,7 +2,7 @@
 'use strict'
 
 const assert = require('assert')
-const SocksProxyAgent = require('socks-proxy-agent')
+const { SocksProxyAgent } = require('socks-proxy-agent')
 const { MockWSv2Server } = require('bfx-api-mock-srv')
 const _isFunction = require('lodash/isFunction')
 const _isObject = require('lodash/isObject')
@@ -166,7 +166,7 @@ describe('WSv2 unit', () => {
 
     it('_registerListener: correctly adds listener to internal map with cbGID', () => {
       ws = createTestWSv2Instance()
-      ws._registerListener('trade', { 2: 'tBTCUSD' }, Map, 42, () => {})
+      ws._registerListener('trade', { 2: 'tBTCUSD' }, Map, 42, () => { })
 
       const { _listeners } = ws
 
@@ -248,7 +248,7 @@ describe('WSv2 unit', () => {
       ws._isOpen = true
       assert.throws(() => ws.notifyUI(n))
       ws._isAuthenticated = true
-      ws.send = () => {}
+      ws.send = () => { }
       assert.doesNotThrow(() => ws.notifyUI(n))
     })
 
@@ -356,7 +356,7 @@ describe('WSv2 unit', () => {
     it('close: clears connection state', async () => {
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance()
-      ws._onWSClose = () => {} // disable fallback reset
+      ws._onWSClose = () => { } // disable fallback reset
 
       await ws.open()
 
@@ -1621,7 +1621,7 @@ describe('WSv2 unit', () => {
       ws = new WSv2({ packetWDDelay: 1000 })
       assert.strictEqual(ws._packetWDTimeout, null)
 
-      ws.on('error', () => {}) // ignore json errors
+      ws.on('error', () => { }) // ignore json errors
 
       let wdResets = 0
       ws._resetPacketWD = () => {
@@ -1675,7 +1675,7 @@ describe('WSv2 unit', () => {
       ws = new WSv2({ packetWDDelay: 100 })
       ws._isOpen = true
 
-      ws.on('error', () => {}) // invalid json to prevent message routing
+      ws.on('error', () => { }) // invalid json to prevent message routing
       ws._triggerPacketWD = () => {
         assert((Date.now() - now) >= 95)
         wdTriggered = true
@@ -1695,7 +1695,7 @@ describe('WSv2 unit', () => {
       ws = new WSv2({ packetWDDelay: 100 })
       ws._isOpen = true
 
-      ws.on('error', () => {}) // invalid json to prevent message routing
+      ws.on('error', () => { }) // invalid json to prevent message routing
 
       const sendInterval = setInterval(() => {
         ws._onWSMessage('asdf')
@@ -2191,7 +2191,7 @@ describe('WSv2 unit', () => {
     it('resolves on confirmation', (done) => {
       ws = createTestWSv2Instance()
       ws._isAuthenticated = true
-      ws._sendOrderPacket = () => {}
+      ws._sendOrderPacket = () => { }
 
       ws.cancelOrder(42)
         .then(() => done())

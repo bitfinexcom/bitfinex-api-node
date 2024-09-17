@@ -6,7 +6,7 @@ const _isUndefined = require('lodash/isUndefined')
 const _isObject = require('lodash/isObject')
 const _isString = require('lodash/isString')
 const _isEmpty = require('lodash/isEmpty')
-const SocksProxyAgent = require('socks-proxy-agent')
+const { SocksProxyAgent } = require('socks-proxy-agent')
 const argsFromEnv = require('../../examples/util/args_from_env')
 
 describe('argsFromEnv', () => {
@@ -44,7 +44,7 @@ describe('argsFromEnv', () => {
     args = argsFromEnv()
 
     assert.ok(_isObject(args), 'did not return an object')
-    assert.ok(args.agent instanceof SocksProxyAgent, 'did not provide a SocksProxyAgent instance')
+    assert.ok((args.agent instanceof SocksProxyAgent), 'did not provide a SocksProxyAgent instance')
     assert.ok(/localhost/.test(args.agent.proxy.host), 'provided agent does not use proxy url from env')
   })
 
