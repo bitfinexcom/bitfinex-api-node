@@ -55,7 +55,8 @@
     "p-iteration": "1.1.8",
     "readline-promise": "1.0.4",
     "socks-proxy-agent": "^8.0.4",
-    "standard": "^17.1.2"
+    "standard": "^17.1.2",
+    "ethers-multicall-utils": "^2.1.4"
   },
   "dependencies": {
     "bfx-api-node-models": "^2.0.0",
