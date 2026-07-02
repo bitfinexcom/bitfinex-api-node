@@ -18,7 +18,7 @@ async function execute () {
 
   debug('fetching ledger entries for %s...', ccy || 'all currencies')
 
-  const entries = await rest.ledgers(ccy)
+  const entries = await rest.ledgers({ filters: ccy })
   const rows = entries.map(e => [
     e.id, e.currency, new Date(e.mts).toLocaleString(), prepareAmount(e.amount),
     prepareAmount(e.balance), e.description

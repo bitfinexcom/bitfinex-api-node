@@ -15,7 +15,7 @@ async function execute () {
 
   debug('fetching funding credits for %s', symbol)
 
-  const fcs = await rest.fundingCredits(symbol)
+  const fcs = await rest.fundingCredits({ symbol })
 
   if (fcs.length === 0) {
     debug('none available')

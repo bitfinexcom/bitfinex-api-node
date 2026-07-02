@@ -23,7 +23,7 @@ async function execute () {
 
   debug('fetching 30d order history for %s...', market)
 
-  const orders = await rest.orderHistory(market, START, END, LIMIT)
+  const orders = await rest.orderHistory({ symbol: market, start: START, end: END, limit: LIMIT })
 
   if (orders.length === 0) {
     return debug('no historical orders for %s', market)

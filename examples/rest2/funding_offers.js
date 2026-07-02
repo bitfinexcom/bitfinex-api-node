@@ -15,7 +15,7 @@ async function execute () {
 
   debug('fetching funding offers for %s', symbol)
 
-  const fos = await rest.fundingOffers(symbol)
+  const fos = await rest.fundingOffers({ symbol })
 
   if (fos.length === 0) {
     debug('none available')

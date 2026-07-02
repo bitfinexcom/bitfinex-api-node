@@ -23,7 +23,7 @@ async function execute () {
 
   debug('fetching 30d trade history for %s...', symbol)
 
-  const trades = await rest.accountTrades(symbol, START, END, LIMIT)
+  const trades = await rest.accountTrades({ symbol, start: START, end: END, limit: LIMIT })
 
   if (trades.length === 0) {
     return debug('no historical trades for %s', symbol)

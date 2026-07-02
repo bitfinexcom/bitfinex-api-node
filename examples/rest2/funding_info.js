@@ -15,7 +15,7 @@ async function execute () {
 
   debug('fetching funding info for %s', symbol)
 
-  const flu = await rest.fundingInfo(symbol)
+  const flu = await rest.fundingInfo({ key: symbol })
   const [,, [yieldLoan, yieldLend, durationLoan, durationLend]] = flu
 
   debugTable({

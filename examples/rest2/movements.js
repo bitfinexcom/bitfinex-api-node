@@ -19,7 +19,7 @@ async function execute () {
 
   debug('fetching movements for %s...', ccy || 'all currencies')
 
-  const movements = await rest.movements(ccy)
+  const movements = await rest.movements({ ccy })
 
   if (movements.length === 0) {
     return debug('no movements found')
