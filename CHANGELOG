@@ -1,3 +1,6 @@
+9.1.0
+- upgrade: upgraded bfx-api-node-rest to 8.1.0, RESTv2: added `wallet` filter to `ledgers`
+
 8.0.0
 - upgrade: upgraded bfx-api-node-rest to 7.0.0, breaks previous versions compatibility
 - upgrade: upgraded bfx-api-mock-srv to 2.0.0, breaks previous versions compatibility

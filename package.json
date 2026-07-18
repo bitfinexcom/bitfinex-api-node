@@ -1,6 +1,6 @@
 {
   "name": "bitfinex-api-node",
-  "version": "9.0.0",
+  "version": "9.1.0",
   "description": "Node reference library for Bitfinex API",
   "engines": {
     "node": ">=18.0"
@@ -59,7 +59,7 @@
   },
   "dependencies": {
     "bfx-api-node-models": "^2.0.0",
-    "bfx-api-node-rest": "^8.0.0",
+    "bfx-api-node-rest": "^8.1.0",
     "bfx-api-node-util": "^1.0.12",
     "bfx-api-node-ws1": "^1.0.0",
     "bignumber.js": "9.0.0",
