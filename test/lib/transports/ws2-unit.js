@@ -44,8 +44,8 @@ test('WSv2 unit', async (t) => {
       await wss.close()
     }
 
-    ws = null // eslint-disable-line
-    wss = null // eslint-disable-line
+    ws = null
+    wss = null
   }
 
   await t.test('event subscribers', async (t) => {
@@ -115,7 +115,7 @@ test('WSv2 unit', async (t) => {
 
       await ws.open()
 
-      ws._enabledFlags = WSv2.flags.CHECKSUM // eslint-disable-line
+      ws._enabledFlags = WSv2.flags.CHECKSUM
 
       return new Promise((resolve) => {
         ws.send = (packet) => {
@@ -636,7 +636,7 @@ test('WSv2 unit', async (t) => {
         return null
       })
 
-      ws._channelMap[42] = { channel: 'trades', chanId: 42 } // eslint-disable-line
+      ws._channelMap[42] = { channel: 'trades', chanId: 42 }
 
       ws._onWSMessage(JSON.stringify([0, 'tu', [], 0, 0]))
       ws._onWSMessage(JSON.stringify([0, 'te', [], 1, 0]))
@@ -1574,7 +1574,7 @@ test('WSv2 unit', async (t) => {
 
       let n = 0
 
-      ws._infoListeners[42] = [ // eslint-disable-line
+      ws._infoListeners[42] = [
         () => { n += 1 },
         () => { n += 2 }
       ]

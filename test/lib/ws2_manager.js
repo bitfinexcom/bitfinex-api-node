@@ -17,7 +17,7 @@ test('WS2Manager', async (t) => {
       } catch (e) {
         // may fail due to being modified internally
       } finally {
-        m = null // eslint-disable-line
+        m = null
       }
     }
   }

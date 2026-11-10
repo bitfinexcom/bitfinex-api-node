@@ -18,11 +18,11 @@ async function execute () {
     ],
 
     rows: details.map(({
-      pair, initialMargin, minimumMargin, // eslint-disable-line
-      maximumOrderSize, minimumOrderSize, margin // eslint-disable-line
+      pair, initialMargin, minimumMargin,
+      maximumOrderSize, minimumOrderSize, margin
     }) => [
-      pair.toUpperCase(), initialMargin, minimumMargin, // eslint-disable-line
-      maximumOrderSize, minimumOrderSize, margin ? 'Y' : 'N' // eslint-disable-line
+      pair.toUpperCase(), initialMargin, minimumMargin,
+      maximumOrderSize, minimumOrderSize, margin ? 'Y' : 'N'
     ])
   })
 }
