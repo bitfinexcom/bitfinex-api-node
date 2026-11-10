@@ -1,7 +1,5 @@
 'use strict'
 
-process.env.DEBUG = 'bfx:examples:*'
-
 const _flatten = require('lodash/flatten')
 const { RESTv2 } = require('../../index')
 const { args, debug } = require('./util/setup')

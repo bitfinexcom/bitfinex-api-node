@@ -1,8 +1,6 @@
-/* eslint-env mocha */
-
 'use strict'
 
-const assert = require('assert')
+const test = require('brittle')
 
 const WSv2 = require('../../../lib/transports/ws2')
 
@@ -18,8 +16,8 @@ const createTestWSv2Instance = (params = {}) => {
   })
 }
 
-describe('WSv2 channels', () => {
-  it('numeric and string channel ids work', () => {
+test('WSv2 channels', async (t) => {
+  await t.test('numeric and string channel ids work', (t) => {
     const ws = createTestWSv2Instance()
 
     ws._channelMap = {
@@ -35,9 +33,9 @@ describe('WSv2 channels', () => {
       }
     }
 
-    assert.strictEqual(ws.hasChannel(83297), true)
-    assert.strictEqual(ws.hasChannel('83297'), true)
-    assert.strictEqual(ws.hasChannel('1337'), false)
-    assert.strictEqual(ws.hasChannel(1337), false)
+    t.is(ws.hasChannel(83297), true)
+    t.is(ws.hasChannel('83297'), true)
+    t.is(ws.hasChannel('1337'), false)
+    t.is(ws.hasChannel(1337), false)
   })
 })

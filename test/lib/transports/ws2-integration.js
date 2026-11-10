@@ -1,7 +1,6 @@
-/* eslint-env mocha */
 'use strict'
 
-const assert = require('assert')
+const test = require('brittle')
 const WSv2 = require('../../../lib/transports/ws2')
 const { Order } = require('bfx-api-node-models')
 const { MockWSv2Server } = require('bfx-api-mock-srv')
@@ -19,17 +18,17 @@ const createTestWSv2Instance = (params = {}) => {
   })
 }
 
-describe('WSv2 integration', () => {
+test('WSv2 integration', async (t) => {
   let ws = null
   let wss = null
 
-  afterEach(async () => {
+  const teardown = async () => {
     try { // may fail due to being modified by a test, it's not a problem
       if (ws && ws.isOpen()) {
         await ws.close()
       }
     } catch (e) {
-      assert.ok(true)
+      t.ok(true)
     }
 
     if (wss && wss.isOpen()) {
@@ -38,10 +37,11 @@ describe('WSv2 integration', () => {
 
     ws = null
     wss = null
-  })
+  }
 
-  describe('orders', () => {
-    it('creates & confirms orders', async () => {
+  await t.test('orders', async (t) => {
+    await t.test('creates & confirms orders', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server({ listen: true })
       ws = createTestWSv2Instance()
 
@@ -60,7 +60,8 @@ describe('WSv2 integration', () => {
       return ws.submitOrder(o)
     })
 
-    it('keeps orders up to date', async () => {
+    await t.test('keeps orders up to date', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server({ listen: true })
       ws = createTestWSv2Instance()
 
@@ -87,18 +88,19 @@ describe('WSv2 integration', () => {
 
       await new Promise(resolve => setTimeout(resolve, 100))
 
-      assert.strictEqual(o.price, 256)
+      t.is(o.price, 256)
       arr[16] = 150
 
       wss.send([0, 'oc', arr])
 
       await new Promise(resolve => setTimeout(resolve, 100))
 
-      assert.strictEqual(o.price, 150)
+      t.is(o.price, 150)
       o.removeListeners()
     })
 
-    it('updateOrder: sends order changeset packet through', async () => {
+    await t.test('updateOrder: sends order changeset packet through', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance()
 
@@ -117,21 +119,22 @@ describe('WSv2 integration', () => {
       ws._ws.send = (msgJSON) => {
         const msg = JSON.parse(msgJSON)
 
-        assert.strictEqual(msg[0], 0)
-        assert.strictEqual(msg[1], 'ou')
-        assert(msg[3])
-        assert.strictEqual(msg[3].id, o.id)
-        assert.strictEqual(+msg[3].delta, 1)
-        assert.strictEqual(+msg[3].price, 200)
+        t.is(msg[0], 0)
+        t.is(msg[1], 'ou')
+        t.ok(msg[3])
+        t.is(msg[3].id, o.id)
+        t.is(+msg[3].delta, 1)
+        t.is(+msg[3].price, 200)
 
         sawMessage = true
       }
 
       o.update({ price: 200, delta: 1 }) // note promise ignored
-      assert(sawMessage)
+      t.ok(sawMessage)
     })
 
-    it('sends individual order packets when not buffering', async () => {
+    await t.test('sends individual order packets when not buffering', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance()
 
@@ -161,7 +164,7 @@ describe('WSv2 integration', () => {
 
       ws._ws.send = (msgJSON) => {
         const msg = JSON.parse(msgJSON)
-        assert.strictEqual(msg[1], 'on')
+        t.is(msg[1], 'on')
         sendN++
 
         if (sendN === 2) {
@@ -173,10 +176,11 @@ describe('WSv2 integration', () => {
       ws.submitOrder(oA)
       ws.submitOrder(oB)
 
-      assert(sawBothOrders)
+      t.ok(sawBothOrders)
     })
 
-    it('buffers order packets', async () => {
+    await t.test('buffers order packets', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance({
         orderOpBufferDelay: 100
@@ -206,10 +210,10 @@ describe('WSv2 integration', () => {
       return new Promise((resolve) => {
         ws._ws.send = (msgJSON) => {
           const msg = JSON.parse(msgJSON)
-          assert.strictEqual(msg[1], 'ox_multi')
+          t.is(msg[1], 'ox_multi')
 
           msg[3].forEach((payload) => {
-            assert.strictEqual(payload[0], 'on')
+            t.is(payload[0], 'on')
           })
 
           wss.close()
@@ -223,8 +227,9 @@ describe('WSv2 integration', () => {
     })
   })
 
-  describe('listeners', () => {
-    it('manages listeners by cbGID', () => {
+  await t.test('listeners', async (t) => {
+    await t.test('manages listeners by cbGID', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       ws._channelMap = { 0: { channel: 'auth' } }
 
@@ -238,10 +243,11 @@ describe('WSv2 integration', () => {
       ws._handleChannelMessage([0, 'tu', [123, 'tBTCUSD']])
       ws._handleChannelMessage([0, 'ou', [0, 0, 0, 'tBTCUSD']])
 
-      assert.strictEqual(updatesSeen, 2)
+      t.is(updatesSeen, 2)
     })
 
-    it('tracks channel refs to auto sub/unsub', async () => {
+    await t.test('tracks channel refs to auto sub/unsub', async (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       wss = new MockWSv2Server()
       let subs = 0
@@ -281,16 +287,17 @@ describe('WSv2 integration', () => {
 
       return new Promise((resolve) => {
         ws.on('unsubscribed', () => {
-          assert.strictEqual(subs, 1)
-          assert.strictEqual(unsubs, 1)
+          t.is(subs, 1)
+          t.is(unsubs, 1)
           resolve()
         })
       })
     })
   })
 
-  describe('info message handling', () => {
-    it('notifies listeners on matching code', () => {
+  await t.test('info message handling', async (t) => {
+    await t.test('notifies listeners on matching code', (t) => {
+      t.teardown(teardown)
       let sawMaintenanceEnd = false
       ws = new WSv2()
 
@@ -310,7 +317,7 @@ describe('WSv2 integration', () => {
         msg: ''
       }))
 
-      assert(sawMaintenanceEnd)
+      t.ok(sawMaintenanceEnd)
     })
   })
 })

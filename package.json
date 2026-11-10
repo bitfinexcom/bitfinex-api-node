@@ -1,23 +1,16 @@
 {
   "name": "bitfinex-api-node",
-  "version": "9.1.0",
+  "version": "10.0.0",
   "description": "Node reference library for Bitfinex API",
   "engines": {
-    "node": ">=18.0"
+    "node": ">=22.0.0"
   },
   "main": "index.js",
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm test"
-    }
-  },
   "scripts": {
-    "lint": "standard",
-    "lint:fix": "standard --fix",
+    "lint": "bfx-lint-js .",
+    "lint:fix": "bfx-lint-js . --fix",
     "test": "npm run lint && npm run unit",
-    "unit": "NODE_ENV=test mocha -b --recursive",
-    "docs": "rm -rf docs && node_modules/.bin/jsdoc --configure .jsdoc.json --verbose",
-    "prepare": "husky install"
+    "unit": "NODE_ENV=test brittle-node --bail 'test/**/*.js'"
   },
   "repository": {
     "type": "git",
@@ -43,37 +36,26 @@
   },
   "homepage": "http://bitfinexcom.github.io/bitfinex-api-node/",
   "devDependencies": {
-    "bfx-api-mock-srv": "^2.0.0",
+    "@bitfinex/lint-js": "^1.1.0",
+    "bfx-api-mock-srv": "^3.0.0",
     "blessed": "0.1.81",
-    "blessed-contrib": "^1.0.11",
-    "cli-table3": "^0.6.5",
-    "docdash": "^2.0.2",
-    "dotenv": "^16.4.5",
-    "husky": "^9.1.6",
-    "jsdoc-to-markdown": "^9.0.1",
-    "mocha": "^10.7.3",
+    "brittle": "^4.5.0",
+    "cli-table3": "0.6.5",
+    "dotenv": "16.6.1",
     "p-iteration": "1.1.8",
-    "readline-promise": "1.0.4",
-    "socks-proxy-agent": "^8.0.4",
-    "standard": "^17.1.2"
+    "readline-promise": "1.0.5",
+    "socks-proxy-agent": "8.0.5"
   },
   "dependencies": {
-    "bfx-api-node-models": "^2.0.0",
-    "bfx-api-node-rest": "^8.1.0",
-    "bfx-api-node-util": "^1.0.12",
-    "bfx-api-node-ws1": "^1.0.0",
-    "bignumber.js": "9.0.0",
-    "cbq": "0.0.1",
-    "debug": "4.3.3",
-    "lodash": "^4.17.4",
-    "lodash.throttle": "4.1.1",
-    "lossless-json": "1.0.3",
-    "promise-throttle": "1.0.1",
-    "ws": "7.5.10"
-  },
-  "standard": {
-    "ignore": [
-      "/docs/**/*.js"
-    ]
+    "bfx-api-node-models": "^3.0.0",
+    "bfx-api-node-rest": "^9.0.0",
+    "bfx-api-node-util": "^2.0.0",
+    "bfx-api-node-ws1": "^2.0.0",
+    "bignumber.js": "9.3.1",
+    "cbq": "^1.0.0",
+    "lodash": "^4.18.1",
+    "lossless-json": "1.0.5",
+    "promise-throttle": "1.1.2",
+    "ws": "7.5.13"
   }
 }

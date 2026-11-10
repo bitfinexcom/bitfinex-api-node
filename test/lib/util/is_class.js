@@ -1,28 +1,27 @@
-/* eslint-env mocha */
 'use strict'
 
-const assert = require('assert')
+const test = require('brittle')
 const { TradingTicker } = require('bfx-api-node-models')
 const { isClass } = require('../../../lib/util')
 
-describe('isClass', () => {
-  it('returns true for classes', () => {
-    assert(isClass(TradingTicker))
+test('isClass', async (t) => {
+  await t.test('returns true for classes', (t) => {
+    t.ok(isClass(TradingTicker))
   })
 
-  it('returns false for functions', () => {
-    assert(!isClass(() => {}))
+  await t.test('returns false for functions', (t) => {
+    t.ok(!isClass(() => {}))
   })
 
-  it('returns false for class instances', () => {
-    const t = new TradingTicker()
-    assert(!isClass(t))
+  await t.test('returns false for class instances', (t) => {
+    const ticker = new TradingTicker()
+    t.ok(!isClass(ticker))
   })
 
-  it('returns false for primitives', () => {
-    assert(!isClass(42))
-    assert(!isClass('42'))
-    assert(!isClass({}))
-    assert(!isClass([]))
+  await t.test('returns false for primitives', (t) => {
+    t.ok(!isClass(42))
+    t.ok(!isClass('42'))
+    t.ok(!isClass({}))
+    t.ok(!isClass([]))
   })
 })
