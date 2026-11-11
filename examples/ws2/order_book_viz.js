@@ -1,7 +1,6 @@
 'use strict'
 
 const blessed = require('blessed')
-const blessedContrib = require('blessed-contrib')
 const _isEmpty = require('lodash/isEmpty')
 const _reverse = require('lodash/reverse')
 const { preparePrice, prepareAmount } = require('bfx-api-node-util')
@@ -23,35 +22,28 @@ async function execute () {
   }
 
   const screen = blessed.screen()
-  const bookTable = blessedContrib.table({
-    fg: 'white',
+  const bookTable = blessed.table({
+    parent: screen,
     label: `Order Book ${market}`,
-    border: {
-      type: 'line',
-      fg: 'green'
-    },
-
-    columnSpacing: 5,
-    columnWidth: [10, 20, 10]
+    border: 'line',
+    style: {
+      fg: 'white',
+      border: { fg: 'green' }
+    }
   })
-
-  screen.append(bookTable)
 
   ws.onOrderBook({ symbol: market }, (ob) => {
     const data = []
 
     _reverse(ob.asks).forEach(row => data.push([
-      preparePrice(row[0]), prepareAmount(row[2]), row[1]
+      preparePrice(row[0]), prepareAmount(row[2]), String(row[1])
     ]))
 
     ob.bids.forEach(row => data.push([
-      preparePrice(row[0]), prepareAmount(row[2]), row[1]
+      preparePrice(row[0]), prepareAmount(row[2]), String(row[1])
     ]))
 
-    bookTable.setData({
-      headers: ['Price', 'Amount', 'Count'],
-      data
-    })
+    bookTable.setData([['Price', 'Amount', 'Count'], ...data])
 
     screen.render()
   })

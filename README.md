@@ -1,7 +1,5 @@
 # Bitfinex WSv2 Trading API for Node.JS - Bitcoin, Ethereum, Ripple and more
 
-[![Build Status](https://travis-ci.org/bitfinexcom/bitfinex-api-node.svg?branch=master)](https://travis-ci.org/bitfinexcom/bitfinex-api-node)
-
 A Node.JS reference implementation of the Bitfinex API
 
 ## Features
@@ -28,9 +26,8 @@ const ws = new WSv2({ transform: true })
 
 ### Docs
 
-Refer to the [`docs/`](https://cdn.statically.io/gh/bitfinexcom/bitfinex-api-node/master/docs/index.html)
-folder for JSDoc-generated HTML documentation, and the [`examples/`](/examples)
-folder for executable examples covering common use cases.
+Refer to the [`examples/`](/examples) folder for executable examples covering
+common use cases.
 
 Official API documentation at [https://docs.bitfinex.com/v2/reference](https://docs.bitfinex.com/v2/reference)
 

@@ -4,9 +4,7 @@ const dotenv = require('dotenv')
 const Readline = require('readline-promise').default
 const argsFromEnv = require('./args_from_env')
 const debugTableUtil = require('./debug_table')
-const D = require('./debug').get()
-const debug = D('>')
-debug.enabled = true
+const debug = (...args) => console.log(...args)
 
 dotenv.config()
 

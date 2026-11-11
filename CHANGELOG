@@ -1,3 +1,10 @@
+10.0.0
+- Require Node.js >= 22
+- upgrade: bfx-api-node-models 3.0.0, bfx-api-node-rest 9.0.0, bfx-api-node-util 2.0.0, bfx-api-node-ws1 2.0.0, cbq 1.0.0; pin the remaining deps
+- meta: drop debug, lodash.throttle (use lodash/throttle) and blessed-contrib
+- meta: remove docs/, jsdoc, husky, Travis and istanbul config
+- Tests: migrate from mocha to brittle, lint with @bitfinex/lint-js
+
 9.1.0
 - upgrade: upgraded bfx-api-node-rest to 8.1.0, RESTv2: added `wallet` filter to `ledgers`
 

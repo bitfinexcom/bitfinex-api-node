@@ -1,7 +1,6 @@
-/* eslint-env mocha */
 'use strict'
 
-const assert = require('assert')
+const test = require('brittle')
 const { SocksProxyAgent } = require('socks-proxy-agent')
 const { MockWSv2Server } = require('bfx-api-mock-srv')
 const _isFunction = require('lodash/isFunction')
@@ -30,44 +29,42 @@ const createTestWSv2Instance = (params = {}) => {
   })
 }
 
-describe('WSv2 unit', () => {
+test('WSv2 unit', async (t) => {
   let ws = null
   let wss = null
 
-  afterEach(async () => {
+  const teardown = async () => {
     try { // may fail due to being modified by a test, it's not a problem
       if (ws && ws.isOpen()) {
         await ws.close()
       }
-    } catch (e) {
-      assert(true)
-    }
+    } catch (e) {}
 
     if (wss && wss.isOpen()) {
       await wss.close()
     }
 
-    ws = null // eslint-disable-line
-    wss = null // eslint-disable-line
-  })
+    ws = null
+    wss = null
+  }
 
-  describe('event subscribers', () => {
-    const testSub = (name, eventName, filterIndex, filterKey, filterValue, model) => {
-      describe(name, () => {
-        it(`listens for ${eventName} event, passes valid filter, and uses correct model`, (done) => {
+  await t.test('event subscribers', async (t) => {
+    const testSub = async (name, eventName, filterIndex, filterKey, filterValue, model) => {
+      await t.test(name, async (t) => {
+        await t.test(`listens for ${eventName} event, passes valid filter, and uses correct model`, (t) => {
+          t.teardown(teardown)
+          t.plan(1 + (filterIndex === null ? 0 : 1) + (model === null ? 0 : 1))
           ws = createTestWSv2Instance()
           ws._registerListener = (passedEventName, filter, passedModel) => {
-            assert.strictEqual(passedEventName, eventName, 'incorrect event name')
+            t.is(passedEventName, eventName, 'incorrect event name')
 
             if (filterIndex !== null) {
-              assert.deepStrictEqual(filter, { [filterIndex]: filterValue }, 'incorrect filter')
+              t.alike(filter, { [filterIndex]: filterValue }, 'incorrect filter')
             }
 
             if (model !== null) {
-              assert.strictEqual(model, passedModel)
+              t.is(model, passedModel)
             }
-
-            done()
           }
 
           ws[name]({ [filterKey]: filterValue })
@@ -75,54 +72,55 @@ describe('WSv2 unit', () => {
       })
     }
 
-    testSub('onCandle', 'candle', 0, 'key', 'test-key', Candle)
-    testSub('onTrades', 'trades', 0, 'symbol', 'tBTCUSD', PublicTrade)
-    testSub('onTrades', 'trades', 0, 'symbol', 'fUSD', FundingTrade)
-    testSub('onTradeEntry', 'trade-entry', 0, 'symbol', 'tBTCUSD', PublicTrade)
-    testSub('onAccountTradeEntry', 'auth-te', 1, 'symbol', 'tBTCUSD', Trade)
-    testSub('onAccountTradeUpdate', 'auth-tu', 1, 'symbol', 'tBTCUSD', Trade)
-    testSub('onTicker', 'ticker', 0, 'symbol', 'tBTCUSD', TradingTicker)
-    testSub('onTicker', 'ticker', 0, 'symbol', 'fUSD', FundingTicker)
-    testSub('onStatus', 'status', 0, 'key', 'test-key', null)
-    testSub('onPositionSnapshot', 'ps', 0, 'symbol', 'tBTCUSD', Position)
-    testSub('onPositionNew', 'pn', 0, 'symbol', 'tBTCUSD', Position)
-    testSub('onPositionUpdate', 'pu', 0, 'symbol', 'tBTCUSD', Position)
-    testSub('onPositionClose', 'pc', 0, 'symbol', 'tBTCUSD', Position)
-    testSub('onFundingOfferSnapshot', 'fos', 1, 'symbol', 'tBTCUSD', FundingOffer)
-    testSub('onFundingOfferNew', 'fon', 1, 'symbol', 'tBTCUSD', FundingOffer)
-    testSub('onFundingOfferUpdate', 'fou', 1, 'symbol', 'tBTCUSD', FundingOffer)
-    testSub('onFundingOfferClose', 'foc', 1, 'symbol', 'tBTCUSD', FundingOffer)
-    testSub('onFundingCreditSnapshot', 'fcs', 1, 'symbol', 'tBTCUSD', FundingCredit)
-    testSub('onFundingCreditNew', 'fcn', 1, 'symbol', 'tBTCUSD', FundingCredit)
-    testSub('onFundingCreditUpdate', 'fcu', 1, 'symbol', 'tBTCUSD', FundingCredit)
-    testSub('onFundingCreditClose', 'fcc', 1, 'symbol', 'tBTCUSD', FundingCredit)
-    testSub('onFundingLoanSnapshot', 'fls', 1, 'symbol', 'tBTCUSD', FundingLoan)
-    testSub('onFundingLoanNew', 'fln', 1, 'symbol', 'tBTCUSD', FundingLoan)
-    testSub('onFundingLoanUpdate', 'flu', 1, 'symbol', 'tBTCUSD', FundingLoan)
-    testSub('onFundingLoanClose', 'flc', null, null, null, FundingLoan)
-    testSub('onWalletSnapshot', 'ws', null, null, null, Wallet)
-    testSub('onWalletUpdate', 'wu', null, null, null, Wallet)
-    testSub('onBalanceInfoUpdate', 'bu', null, null, null, BalanceInfo)
-    testSub('onMarginInfoUpdate', 'miu', null, null, null, MarginInfo)
-    testSub('onFundingInfoUpdate', 'fiu', null, null, null, FundingInfo)
-    testSub('onFundingTradeEntry', 'fte', 0, 'symbol', 'tBTCUSD', FundingTrade)
-    testSub('onFundingTradeUpdate', 'ftu', 0, 'symbol', 'tBTCUSD', FundingTrade)
-    testSub('onNotification', 'n', 1, 'type', 'oc-req', Notification)
+    await testSub('onCandle', 'candle', 0, 'key', 'test-key', Candle)
+    await testSub('onTrades', 'trades', 0, 'symbol', 'tBTCUSD', PublicTrade)
+    await testSub('onTrades', 'trades', 0, 'symbol', 'fUSD', FundingTrade)
+    await testSub('onTradeEntry', 'trade-entry', 0, 'symbol', 'tBTCUSD', PublicTrade)
+    await testSub('onAccountTradeEntry', 'auth-te', 1, 'symbol', 'tBTCUSD', Trade)
+    await testSub('onAccountTradeUpdate', 'auth-tu', 1, 'symbol', 'tBTCUSD', Trade)
+    await testSub('onTicker', 'ticker', 0, 'symbol', 'tBTCUSD', TradingTicker)
+    await testSub('onTicker', 'ticker', 0, 'symbol', 'fUSD', FundingTicker)
+    await testSub('onStatus', 'status', 0, 'key', 'test-key', null)
+    await testSub('onPositionSnapshot', 'ps', 0, 'symbol', 'tBTCUSD', Position)
+    await testSub('onPositionNew', 'pn', 0, 'symbol', 'tBTCUSD', Position)
+    await testSub('onPositionUpdate', 'pu', 0, 'symbol', 'tBTCUSD', Position)
+    await testSub('onPositionClose', 'pc', 0, 'symbol', 'tBTCUSD', Position)
+    await testSub('onFundingOfferSnapshot', 'fos', 1, 'symbol', 'tBTCUSD', FundingOffer)
+    await testSub('onFundingOfferNew', 'fon', 1, 'symbol', 'tBTCUSD', FundingOffer)
+    await testSub('onFundingOfferUpdate', 'fou', 1, 'symbol', 'tBTCUSD', FundingOffer)
+    await testSub('onFundingOfferClose', 'foc', 1, 'symbol', 'tBTCUSD', FundingOffer)
+    await testSub('onFundingCreditSnapshot', 'fcs', 1, 'symbol', 'tBTCUSD', FundingCredit)
+    await testSub('onFundingCreditNew', 'fcn', 1, 'symbol', 'tBTCUSD', FundingCredit)
+    await testSub('onFundingCreditUpdate', 'fcu', 1, 'symbol', 'tBTCUSD', FundingCredit)
+    await testSub('onFundingCreditClose', 'fcc', 1, 'symbol', 'tBTCUSD', FundingCredit)
+    await testSub('onFundingLoanSnapshot', 'fls', 1, 'symbol', 'tBTCUSD', FundingLoan)
+    await testSub('onFundingLoanNew', 'fln', 1, 'symbol', 'tBTCUSD', FundingLoan)
+    await testSub('onFundingLoanUpdate', 'flu', 1, 'symbol', 'tBTCUSD', FundingLoan)
+    await testSub('onFundingLoanClose', 'flc', null, null, null, FundingLoan)
+    await testSub('onWalletSnapshot', 'ws', null, null, null, Wallet)
+    await testSub('onWalletUpdate', 'wu', null, null, null, Wallet)
+    await testSub('onBalanceInfoUpdate', 'bu', null, null, null, BalanceInfo)
+    await testSub('onMarginInfoUpdate', 'miu', null, null, null, MarginInfo)
+    await testSub('onFundingInfoUpdate', 'fiu', null, null, null, FundingInfo)
+    await testSub('onFundingTradeEntry', 'fte', 0, 'symbol', 'tBTCUSD', FundingTrade)
+    await testSub('onFundingTradeUpdate', 'ftu', 0, 'symbol', 'tBTCUSD', FundingTrade)
+    await testSub('onNotification', 'n', 1, 'type', 'oc-req', Notification)
   })
 
-  describe('utilities', () => {
-    it('sendEnabledFlags: sends the current flags value to the server', async () => {
+  await t.test('utilities', async (t) => {
+    await t.test('sendEnabledFlags: sends the current flags value to the server', async (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       wss = new MockWSv2Server()
 
       await ws.open()
 
-      ws._enabledFlags = WSv2.flags.CHECKSUM // eslint-disable-line
+      ws._enabledFlags = WSv2.flags.CHECKSUM
 
       return new Promise((resolve) => {
         ws.send = (packet) => {
-          assert.strictEqual(packet.event, 'conf')
-          assert.strictEqual(packet.flags, WSv2.flags.CHECKSUM)
+          t.is(packet.event, 'conf')
+          t.is(packet.flags, WSv2.flags.CHECKSUM)
           resolve()
         }
 
@@ -130,24 +128,26 @@ describe('WSv2 unit', () => {
       })
     })
 
-    it('enableFlag: saves enabled flag status', () => {
+    await t.test('enableFlag: saves enabled flag status', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
 
-      assert(!ws.isFlagEnabled(WSv2.flags.SEQ_ALL))
-      assert(!ws.isFlagEnabled(WSv2.flags.CHECKSUM))
+      t.ok(!ws.isFlagEnabled(WSv2.flags.SEQ_ALL))
+      t.ok(!ws.isFlagEnabled(WSv2.flags.CHECKSUM))
 
       ws.enableFlag(WSv2.flags.SEQ_ALL)
 
-      assert(ws.isFlagEnabled(WSv2.flags.SEQ_ALL))
-      assert(!ws.isFlagEnabled(WSv2.flags.CHECKSUM))
+      t.ok(ws.isFlagEnabled(WSv2.flags.SEQ_ALL))
+      t.ok(!ws.isFlagEnabled(WSv2.flags.CHECKSUM))
 
       ws.enableFlag(WSv2.flags.CHECKSUM)
 
-      assert(ws.isFlagEnabled(WSv2.flags.SEQ_ALL))
-      assert(ws.isFlagEnabled(WSv2.flags.CHECKSUM))
+      t.ok(ws.isFlagEnabled(WSv2.flags.SEQ_ALL))
+      t.ok(ws.isFlagEnabled(WSv2.flags.CHECKSUM))
     })
 
-    it('enableFlag: sends conf packet if open', async () => {
+    await t.test('enableFlag: sends conf packet if open', async (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       wss = new MockWSv2Server()
 
@@ -155,8 +155,8 @@ describe('WSv2 unit', () => {
 
       return new Promise((resolve) => {
         ws.send = (packet) => {
-          assert(_isObject(packet))
-          assert.strictEqual(packet.event, 'conf')
+          t.ok(_isObject(packet))
+          t.is(packet.event, 'conf')
           resolve()
         }
 
@@ -164,40 +164,43 @@ describe('WSv2 unit', () => {
       })
     })
 
-    it('_registerListener: correctly adds listener to internal map with cbGID', () => {
+    await t.test('_registerListener: correctly adds listener to internal map with cbGID', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       ws._registerListener('trade', { 2: 'tBTCUSD' }, Map, 42, () => { })
 
       const { _listeners } = ws
 
-      assert.strictEqual(Object.keys(_listeners).length, 1)
-      assert.strictEqual(+Object.keys(_listeners)[0], 42)
-      assert.strictEqual(typeof _listeners[42], 'object')
+      t.is(Object.keys(_listeners).length, 1)
+      t.is(+Object.keys(_listeners)[0], 42)
+      t.is(typeof _listeners[42], 'object')
 
       const listenerSet = _listeners[42]
 
-      assert.strictEqual(Object.keys(listenerSet).length, 1)
-      assert.strictEqual(Object.keys(listenerSet)[0], 'trade')
-      assert.strictEqual(listenerSet.trade.constructor.name, 'Array')
-      assert.strictEqual(listenerSet.trade.length, 1)
+      t.is(Object.keys(listenerSet).length, 1)
+      t.is(Object.keys(listenerSet)[0], 'trade')
+      t.is(listenerSet.trade.constructor.name, 'Array')
+      t.is(listenerSet.trade.length, 1)
 
       const listener = listenerSet.trade[0]
 
-      assert.strictEqual(listener.modelClass, Map)
-      assert.deepStrictEqual(listener.filter, { 2: 'tBTCUSD' })
-      assert.strictEqual(typeof listener.cb, 'function')
+      t.is(listener.modelClass, Map)
+      t.alike(listener.filter, { 2: 'tBTCUSD' })
+      t.is(typeof listener.cb, 'function')
     })
 
-    it('sequencingEnabled: returns sequencing status', () => {
+    await t.test('sequencingEnabled: returns sequencing status', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance({ seqAudit: false })
 
-      assert.ok(_isFunction(ws.sequencingEnabled), 'WSv2 does not provide sequencingEnabled()')
-      assert.ok(!ws.sequencingEnabled(), 'sequencing enabled even though disabled in constructor')
+      t.ok(_isFunction(ws.sequencingEnabled), 'WSv2 does not provide sequencingEnabled()')
+      t.ok(!ws.sequencingEnabled(), 'sequencing enabled even though disabled in constructor')
       ws.enableSequencing()
-      assert.ok(ws.sequencingEnabled(), 'sequencing status not reported by getter')
+      t.ok(ws.sequencingEnabled(), 'sequencing status not reported by getter')
     })
 
-    it('enableSequencing: sends the correct conf flag', async () => {
+    await t.test('enableSequencing: sends the correct conf flag', async (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       wss = new MockWSv2Server()
       let packetSent = false
@@ -205,85 +208,92 @@ describe('WSv2 unit', () => {
       await ws.open()
 
       ws.send = (packet) => {
-        assert.strictEqual(packet.event, 'conf')
-        assert.strictEqual(packet.flags, 65536)
+        t.is(packet.event, 'conf')
+        t.is(packet.flags, 65536)
         packetSent = true
       }
 
       ws.enableSequencing()
 
-      assert(packetSent)
+      t.ok(packetSent)
     })
 
-    it('getCandles: returns empty array if no candle set is available', () => {
+    await t.test('getCandles: returns empty array if no candle set is available', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
-      assert.deepStrictEqual(ws.getCandles('i.dont.exist'), [])
+      t.alike(ws.getCandles('i.dont.exist'), [])
     })
 
-    it('_sendCalc: stringifes payload & passes it to the ws client', (done) => {
+    await t.test('_sendCalc: stringifes payload & passes it to the ws client', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = createTestWSv2Instance()
 
       ws._ws = {}
       ws._ws.send = (data) => {
-        assert.strictEqual(data, '[]')
-        done()
+        t.is(data, '[]')
       }
 
       ws._sendCalc([])
     })
 
-    it('notifyUI: throws error if supplied invalid arguments', () => {
+    await t.test('notifyUI: throws error if supplied invalid arguments', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
 
-      assert.throws(() => ws.notifyUI())
-      assert.throws(() => ws.notifyUI(null))
-      assert.throws(() => ws.notifyUI(null, null))
+      t.exception.all(() => ws.notifyUI())
+      t.exception.all(() => ws.notifyUI(null))
+      t.exception.all(() => ws.notifyUI(null, null))
     })
 
-    it('notifyUI: throws error if socket closed or not authenticated', () => {
+    await t.test('notifyUI: throws error if socket closed or not authenticated', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       const n = { type: 'info', message: 'test' }
 
-      assert.throws(() => ws.notifyUI(n))
+      t.exception.all(() => ws.notifyUI(n))
       ws._isOpen = true
-      assert.throws(() => ws.notifyUI(n))
+      t.exception.all(() => ws.notifyUI(n))
       ws._isAuthenticated = true
       ws.send = () => { }
-      assert.doesNotThrow(() => ws.notifyUI(n))
+      t.execution(() => ws.notifyUI(n))
     })
 
-    it('notifyUI: sends the correct UCM broadcast notification', (done) => {
+    await t.test('notifyUI: sends the correct UCM broadcast notification', (t) => {
+      t.teardown(teardown)
+      t.plan(8)
       ws = createTestWSv2Instance()
       ws._isOpen = true
       ws._isAuthenticated = true
       ws.send = (msg = []) => {
-        assert.deepStrictEqual(msg[0], 0)
-        assert.deepStrictEqual(msg[1], 'n')
-        assert.deepStrictEqual(msg[2], null)
+        t.alike(msg[0], 0)
+        t.alike(msg[1], 'n')
+        t.alike(msg[2], null)
 
         const data = msg[3]
 
-        assert(_isObject(data))
-        assert.deepStrictEqual(data.type, 'ucm-notify-ui')
-        assert(_isObject(data.info))
-        assert.deepStrictEqual(data.info.type, 'success')
-        assert.deepStrictEqual(data.info.message, '42')
-        done()
+        t.ok(_isObject(data))
+        t.alike(data.type, 'ucm-notify-ui')
+        t.ok(_isObject(data.info))
+        t.alike(data.info.type, 'success')
+        t.alike(data.info.message, '42')
       }
 
       ws.notifyUI({ type: 'success', message: '42' })
     })
   })
 
-  describe('lifetime', () => {
-    it('starts unopened & unauthenticated', () => {
+  await t.test('lifetime', async (t) => {
+    await t.test('starts unopened & unauthenticated', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
 
-      assert.strictEqual(ws.isOpen(), false)
-      assert.strictEqual(ws.isAuthenticated(), false)
+      t.is(ws.isOpen(), false)
+      t.is(ws.isAuthenticated(), false)
     })
 
-    it('open: fails to open twice', async () => {
+    await t.test('open: fails to open twice', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance()
 
@@ -291,49 +301,53 @@ describe('WSv2 unit', () => {
 
       try {
         await ws.open()
-        assert(false)
+        t.ok(false)
       } catch (e) {
-        assert.ok(true, 'failed to open twice')
+        t.ok(true, 'failed to open twice')
       }
     })
 
-    it('open: updates open flag', async () => {
+    await t.test('open: updates open flag', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance()
 
       await ws.open()
 
-      assert.strictEqual(ws.isOpen(), true)
+      t.is(ws.isOpen(), true)
     })
 
-    it('open: sends flags value', async () => {
+    await t.test('open: sends flags value', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance()
       let flagsSent = false
 
       ws.enableSequencing()
       ws.sendEnabledFlags = () => {
-        assert.strictEqual(ws._enabledFlags, WSv2.flags.SEQ_ALL)
+        t.is(ws._enabledFlags, WSv2.flags.SEQ_ALL)
         flagsSent = true
       }
 
       await ws.open()
 
-      assert(flagsSent)
+      t.ok(flagsSent)
     })
 
-    it('close: doesn\'t close if not open', async () => {
+    await t.test('close: doesn\'t close if not open', async (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
 
       try {
         await ws.close()
-        assert(false)
+        t.ok(false)
       } catch (e) {
-        assert.ok(true, 'did not close due to being open')
+        t.ok(true, 'did not close due to being open')
       }
     })
 
-    it('close: fails to close twice', async () => {
+    await t.test('close: fails to close twice', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance()
 
@@ -343,7 +357,7 @@ describe('WSv2 unit', () => {
         ws.on('close', async () => {
           try {
             await ws.close()
-            assert(false)
+            t.ok(false)
           } catch (e) {
             resolve()
           }
@@ -353,23 +367,25 @@ describe('WSv2 unit', () => {
       })
     })
 
-    it('close: clears connection state', async () => {
+    await t.test('close: clears connection state', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance()
       ws._onWSClose = () => { } // disable fallback reset
 
       await ws.open()
 
-      assert(ws._ws !== null)
-      assert(ws._isOpen)
+      t.ok(ws._ws !== null)
+      t.ok(ws._isOpen)
 
       await ws.close()
 
-      assert(ws._ws == null)
-      assert(!ws._isOpen)
+      t.ok(ws._ws == null)
+      t.ok(!ws._isOpen)
     })
 
-    it('auth: fails to auth twice', async () => {
+    await t.test('auth: fails to auth twice', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance()
 
@@ -378,23 +394,25 @@ describe('WSv2 unit', () => {
 
       try {
         await ws.auth()
-        assert(false)
+        t.ok(false)
       } catch (e) {
-        assert.ok(true, 'failed to auth twice')
+        t.ok(true, 'failed to auth twice')
       }
     })
 
-    it('auth: updates auth flag', async () => {
+    await t.test('auth: updates auth flag', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance()
 
       await ws.open()
       await ws.auth()
 
-      assert(ws.isAuthenticated())
+      t.ok(ws.isAuthenticated())
     })
 
-    it('auth: forwards calc param', async () => {
+    await t.test('auth: forwards calc param', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance()
       let sentCalc = false
@@ -403,7 +421,7 @@ describe('WSv2 unit', () => {
 
       const send = ws.send
       ws.send = (data) => {
-        assert.strictEqual(data.calc, 42)
+        t.is(data.calc, 42)
         sentCalc = true
 
         ws.send = send
@@ -412,10 +430,11 @@ describe('WSv2 unit', () => {
 
       await ws.auth(42)
 
-      assert(sentCalc)
+      t.ok(sentCalc)
     })
 
-    it('auth: forwards dms param', async () => {
+    await t.test('auth: forwards dms param', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance()
       let sentDMS = false
@@ -424,7 +443,7 @@ describe('WSv2 unit', () => {
 
       const send = ws.send
       ws.send = (data) => {
-        assert.strictEqual(data.dms, 42)
+        t.is(data.dms, 42)
         sentDMS = true
 
         ws.send = send
@@ -433,10 +452,11 @@ describe('WSv2 unit', () => {
 
       await ws.auth(0, 42)
 
-      assert(sentDMS)
+      t.ok(sentDMS)
     })
 
-    it('reconnect: connects if not already connected', async () => {
+    await t.test('reconnect: connects if not already connected', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance()
 
@@ -448,11 +468,12 @@ describe('WSv2 unit', () => {
 
       await ws.reconnect()
 
-      assert(!sawClose)
-      assert(sawOpen)
+      t.ok(!sawClose)
+      t.ok(sawOpen)
     })
 
-    it('reconnect: disconnects & connects back if currently connected', async () => {
+    await t.test('reconnect: disconnects & connects back if currently connected', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance()
 
@@ -466,12 +487,13 @@ describe('WSv2 unit', () => {
 
       await ws.reconnect()
 
-      assert(sawClose)
-      assert(sawOpen)
-      assert(ws.isOpen())
+      t.ok(sawClose)
+      t.ok(sawOpen)
+      t.ok(ws.isOpen())
     })
 
-    it('reconnect: automatically auths on open if previously authenticated', async () => {
+    await t.test('reconnect: automatically auths on open if previously authenticated', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance()
 
@@ -492,28 +514,31 @@ describe('WSv2 unit', () => {
 
       await ws.reconnect()
 
-      assert(closed)
-      assert(opened)
-      assert(authenticated)
+      t.ok(closed)
+      t.ok(opened)
+      t.ok(authenticated)
     })
   })
 
-  describe('constructor', () => {
-    it('defaults to production WS url', () => {
+  await t.test('constructor', async (t) => {
+    await t.test('defaults to production WS url', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance({ url: undefined })
-      assert.notStrictEqual(ws._url.indexOf('api.bitfinex.com'), -1)
+      t.not(ws._url.indexOf('api.bitfinex.com'), -1)
     })
 
-    it('defaults to no transform', () => {
+    await t.test('defaults to no transform', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       const transWS = createTestWSv2Instance({ transform: true })
-      assert.strictEqual(ws._transform, false)
-      assert.strictEqual(transWS._transform, true)
+      t.is(ws._transform, false)
+      t.is(transWS._transform, true)
     })
   })
 
-  describe('auto reconnect', () => {
-    it('reconnects on close if autoReconnect is enabled', async () => {
+  await t.test('auto reconnect', async (t) => {
+    await t.test('reconnects on close if autoReconnect is enabled', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance({ autoReconnect: true })
 
@@ -526,7 +551,8 @@ describe('WSv2 unit', () => {
       })
     })
 
-    it('respects reconnectDelay', async () => {
+    await t.test('respects reconnectDelay', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance({
         autoReconnect: true,
@@ -540,7 +566,7 @@ describe('WSv2 unit', () => {
         const now = Date.now()
 
         ws.reconnectAfterClose = () => {
-          assert((Date.now() - now) >= 70)
+          t.ok((Date.now() - now) >= 70)
           resolve()
 
           return Promise.resolve()
@@ -550,7 +576,8 @@ describe('WSv2 unit', () => {
       })
     })
 
-    it('does not auto-reconnect if explicity closed', async () => {
+    await t.test('does not auto-reconnect if explicity closed', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance({
         autoReconnect: true
@@ -559,39 +586,42 @@ describe('WSv2 unit', () => {
       await ws.open()
       await ws.auth()
 
-      ws.reconnect = async () => assert(false)
+      ws.reconnect = async () => t.ok(false)
       await ws.close()
 
       await new Promise(resolve => setTimeout(resolve, 50))
     })
   })
 
-  it('reconnect with new credentials', async () => {
-    wss = new MockWSv2Server({ authMiddleware: ({ apiKey, apiSecret }) => apiKey === API_KEY && apiSecret === API_SECRET })
+  await t.test('reconnect with new credentials', async (t) => {
+    t.teardown(teardown)
+    wss = new MockWSv2Server({ authMiddleware: ({ apiKey }) => apiKey === API_KEY })
     ws = createTestWSv2Instance({ reconnectDelay: 10 })
 
     await ws.open()
     await ws.auth()
-    assert(ws.isAuthenticated())
+    t.ok(ws.isAuthenticated())
 
     ws.updateAuthArgs({ apiKey: 'wrong', apiSecret: 'wrong' })
     ws.reconnect()
     await new Promise(resolve => setTimeout(resolve, 50))
-    assert(!ws.isAuthenticated())
+    t.ok(!ws.isAuthenticated())
 
     ws.updateAuthArgs({ apiKey: API_KEY, apiSecret: API_SECRET })
     ws.reconnect()
     await new Promise(resolve => setTimeout(resolve, 50))
-    assert(ws.isAuthenticated())
+    t.ok(ws.isAuthenticated())
   })
 
-  describe('seq audit', () => {
-    it('automatically enables sequencing if seqAudit is true in constructor', () => {
+  await t.test('seq audit', async (t) => {
+    await t.test('automatically enables sequencing if seqAudit is true in constructor', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance({ seqAudit: true })
-      assert(ws.isFlagEnabled(WSv2.flags.SEQ_ALL))
+      t.ok(ws.isFlagEnabled(WSv2.flags.SEQ_ALL))
     })
 
-    it('emits error on invalid seq number', async () => {
+    await t.test('emits error on invalid seq number', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance({ seqAudit: true })
 
@@ -606,7 +636,7 @@ describe('WSv2 unit', () => {
         return null
       })
 
-      ws._channelMap[42] = { channel: 'trades', chanId: 42 } // eslint-disable-line
+      ws._channelMap[42] = { channel: 'trades', chanId: 42 }
 
       ws._onWSMessage(JSON.stringify([0, 'tu', [], 0, 0]))
       ws._onWSMessage(JSON.stringify([0, 'te', [], 1, 0]))
@@ -622,67 +652,75 @@ describe('WSv2 unit', () => {
       ws._onWSMessage(JSON.stringify([42, [], 14]))
       ws._onWSMessage(JSON.stringify([42, [], 15]))
 
-      assert.strictEqual(errorsSeen, 6)
+      t.is(errorsSeen, 6)
     })
   })
 
-  describe('ws event handlers', () => {
-    it('_onWSOpen: updates open flag', () => {
+  await t.test('ws event handlers', async (t) => {
+    await t.test('_onWSOpen: updates open flag', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
-      assert(!ws.isOpen())
+      t.ok(!ws.isOpen())
       ws._onWSOpen()
-      assert(ws.isOpen())
+      t.ok(ws.isOpen())
     })
 
-    it('_onWSClose: updates open flag', () => {
+    await t.test('_onWSClose: updates open flag', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       ws._onWSOpen()
-      assert(ws.isOpen())
+      t.ok(ws.isOpen())
       ws._onWSClose()
-      assert(!ws.isOpen())
+      t.ok(!ws.isOpen())
     })
 
-    it('_onWSError: emits error', (done) => {
+    await t.test('_onWSError: emits error', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = createTestWSv2Instance()
-      ws.on('error', () => done())
+      ws.on('error', () => t.pass())
       ws._onWSError(new Error())
     })
 
-    it('_onWSMessage: emits error on invalid packet', (done) => {
+    await t.test('_onWSMessage: emits error on invalid packet', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = createTestWSv2Instance()
-      ws.on('error', () => done())
+      ws.on('error', () => t.pass())
       ws._onWSMessage('I can\'t believe it\'s not JSON!')
     })
 
-    it('_onWSMessage: emits message', () => {
+    await t.test('_onWSMessage: emits message', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       const msg = [1]
       const flags = 'flags'
       let messageSeen = false
 
       ws.on('message', (m) => {
-        assert.deepStrictEqual(m, msg)
-        assert.strictEqual(flags, 'flags')
+        t.alike(m, msg)
+        t.is(flags, 'flags')
         messageSeen = true
       })
 
       ws._onWSMessage(JSON.stringify(msg), flags)
-      assert(messageSeen)
+      t.ok(messageSeen)
     })
 
-    it('_onWSNotification: triggers event callbacks for new orders', (done) => {
+    await t.test('_onWSNotification: triggers event callbacks for new orders', (t) => {
+      t.teardown(teardown)
+      t.plan(5)
       ws = createTestWSv2Instance()
       const kNew = 'order-new-42'
 
       ws._eventCallbacks.push(kNew, (err, order) => {
-        assert(!err)
-        assert(order)
-        assert.deepStrictEqual(order, [0, 0, 42])
+        t.ok(!err)
+        t.ok(order)
+        t.alike(order, [0, 0, 42])
 
         ws._eventCallbacks.push(kNew, (err, order) => {
-          assert(err)
-          assert.deepStrictEqual(order, [0, 0, 42])
-          done()
+          t.ok(err)
+          t.alike(order, [0, 0, 42])
         })
 
         ws._onWSNotification([0, 'on-req', null, null, [0, 0, 42], 0, 'ERROR'])
@@ -691,19 +729,20 @@ describe('WSv2 unit', () => {
       ws._onWSNotification([0, 'on-req', null, null, [0, 0, 42], 0, 'SUCCESS'])
     })
 
-    it('_onWSNotification: triggers event callbacks for cancelled orders', (done) => {
+    await t.test('_onWSNotification: triggers event callbacks for cancelled orders', (t) => {
+      t.teardown(teardown)
+      t.plan(5)
       ws = createTestWSv2Instance()
       const kCancel = 'order-cancel-42'
 
       ws._eventCallbacks.push(kCancel, (err, order) => {
-        assert(!err)
-        assert(order)
-        assert.deepStrictEqual(order, [42])
+        t.ok(!err)
+        t.ok(order)
+        t.alike(order, [42])
 
         ws._eventCallbacks.push(kCancel, (err, order) => {
-          assert(err)
-          assert.deepStrictEqual(order, [42])
-          done()
+          t.ok(err)
+          t.alike(order, [42])
         })
 
         ws._onWSNotification([0, 'oc-req', null, null, [42], 0, 'ERROR'])
@@ -713,8 +752,9 @@ describe('WSv2 unit', () => {
     })
   })
 
-  describe('WSv2 channel msg handling', () => {
-    it('_handleChannelMessage: emits message', () => {
+  await t.test('WSv2 channel msg handling', async (t) => {
+    await t.test('_handleChannelMessage: emits message', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
 
       const packet = [42, 'tu', []]
@@ -725,48 +765,50 @@ describe('WSv2 unit', () => {
       }
 
       ws.on('meaning', (msg) => {
-        assert.deepStrictEqual(msg, packet)
+        t.alike(msg, packet)
         packetSeen = true
       })
 
       ws._handleChannelMessage(packet)
-      assert(packetSeen)
+      t.ok(packetSeen)
     })
 
-    it('_handleChannelMessage: calls all registered listeners (nofilter)', (done) => {
+    await t.test('_handleChannelMessage: calls all registered listeners (nofilter)', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = createTestWSv2Instance()
       ws._channelMap = { 0: { channel: 'auth' } }
       let called = 0
       ws.onWalletUpdate({}, () => {
-        if (++called === 2) done()
+        if (++called === 2) t.pass()
       })
 
       ws.onWalletUpdate({}, () => {
-        if (++called === 2) done()
+        if (++called === 2) t.pass()
       })
 
       ws._handleChannelMessage([0, 'wu', []])
     })
 
-    const doFilterTest = (transform, done) => {
+    const doFilterTest = (transform, t) => {
       ws = new WSv2({ transform })
       ws._channelMap = { 0: { channel: 'auth' } }
       let calls = 0
       let btcListenerCalled = false
 
       ws.onAccountTradeEntry({ symbol: 'tBTCUSD' }, () => {
-        assert(!btcListenerCalled)
+        t.ok(!btcListenerCalled)
         btcListenerCalled = true
 
-        if (++calls === 7) done()
+        if (++calls === 7) t.pass()
       })
 
       ws.onAccountTradeEntry({}, () => {
-        if (++calls === 7) done()
+        if (++calls === 7) t.pass()
       })
 
       ws.onAccountTradeEntry({}, () => {
-        if (++calls === 7) done()
+        if (++calls === 7) t.pass()
       })
 
       ws._handleChannelMessage([0, 'te', [123, 'tETHUSD']])
@@ -774,16 +816,21 @@ describe('WSv2 unit', () => {
       ws._handleChannelMessage([0, 'te', [123, 'tBTCUSD']])
     }
 
-    it('_handleChannelMessage: filters messages if listeners require it (transform)', (done) => {
-      doFilterTest(true, done)
+    await t.test('_handleChannelMessage: filters messages if listeners require it (transform)', (t) => {
+      t.teardown(teardown)
+      t.plan(2)
+      doFilterTest(true, t)
     })
 
-    it('_handleChannelMessage: filters messages if listeners require it (no transform)', (done) => {
-      doFilterTest(false, done)
+    await t.test('_handleChannelMessage: filters messages if listeners require it (no transform)', (t) => {
+      t.teardown(teardown)
+      t.plan(2)
+      doFilterTest(false, t)
     })
 
-    it('_handleChannelMessage: transforms payloads if enabled', (done) => {
-      let calls = 0
+    await t.test('_handleChannelMessage: transforms payloads if enabled', (t) => {
+      t.teardown(teardown)
+      t.plan(14)
 
       const wsTransform = new WSv2({ transform: true })
       const wsNoTransform = new WSv2({ transform: false })
@@ -795,48 +842,47 @@ describe('WSv2 unit', () => {
       ]
 
       wsNoTransform.onAccountTradeUpdate({}, (trade) => {
-        assert.strictEqual(trade.constructor.name, 'Array')
-        assert.deepStrictEqual(trade, tradeData)
-
-        if (calls++ === 1) done()
+        t.is(trade.constructor.name, 'Array')
+        t.alike(trade, tradeData)
       })
 
       wsTransform.onAccountTradeUpdate({}, (trade) => {
-        assert.strictEqual(trade.constructor.name, 'Trade')
-        assert.strictEqual(trade.id, tradeData[0])
-        assert.strictEqual(trade.symbol, tradeData[1])
-        assert.strictEqual(trade.mtsCreate, tradeData[2])
-        assert.strictEqual(trade.orderID, tradeData[3])
-        assert.strictEqual(trade.execAmount, tradeData[4])
-        assert.strictEqual(trade.execPrice, tradeData[5])
-        assert.strictEqual(trade.orderType, tradeData[6])
-        assert.strictEqual(trade.orderPrice, tradeData[7])
-        assert.strictEqual(trade.maker, tradeData[8])
-        assert.strictEqual(trade.fee, tradeData[9])
-        assert.strictEqual(trade.feeCurrency, tradeData[10])
-
-        if (calls++ === 1) done()
+        t.is(trade.constructor.name, 'Trade')
+        t.is(trade.id, tradeData[0])
+        t.is(trade.symbol, tradeData[1])
+        t.is(trade.mtsCreate, tradeData[2])
+        t.is(trade.orderID, tradeData[3])
+        t.is(trade.execAmount, tradeData[4])
+        t.is(trade.execPrice, tradeData[5])
+        t.is(trade.orderType, tradeData[6])
+        t.is(trade.orderPrice, tradeData[7])
+        t.is(trade.maker, tradeData[8])
+        t.is(trade.fee, tradeData[9])
+        t.is(trade.feeCurrency, tradeData[10])
       })
 
       wsTransform._handleChannelMessage([0, 'tu', tradeData])
       wsNoTransform._handleChannelMessage([0, 'tu', tradeData])
     })
 
-    it('onMessage: calls the listener with all messages (no filter)', (done) => {
+    await t.test('onMessage: calls the listener with all messages (no filter)', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = createTestWSv2Instance()
       ws._channelMap = { 0: { channel: 'auth' } }
 
       let calls = 0
 
       ws.onMessage({}, () => {
-        if (++calls === 2) done()
+        if (++calls === 2) t.pass()
       })
 
       ws._handleChannelMessage([0, 'wu', []])
       ws._handleChannelMessage([0, 'tu', []])
     })
 
-    it('_payloadPassesFilter: correctly detects matching payloads', () => {
+    await t.test('_payloadPassesFilter: correctly detects matching payloads', (t) => {
+      t.teardown(teardown)
       const filter = {
         1: 'tBTCUSD'
       }
@@ -851,33 +897,37 @@ describe('WSv2 unit', () => {
         [0, 'tETHUSD', 3.14, '']
       ]
 
-      goodPayloads.forEach(p => assert(WSv2._payloadPassesFilter(p, filter)))
-      badPayloads.forEach(p => assert(!WSv2._payloadPassesFilter(p, filter)))
+      goodPayloads.forEach(p => t.ok(WSv2._payloadPassesFilter(p, filter)))
+      badPayloads.forEach(p => t.ok(!WSv2._payloadPassesFilter(p, filter)))
     })
 
-    it('_payloadPassesFilter: ignores filter if empty', () => {
+    await t.test('_payloadPassesFilter: ignores filter if empty', (t) => {
+      t.teardown(teardown)
       const filterUndefined = { 1: undefined }
       const filterNull = { 1: null }
       const filterEmpty = { 1: '' }
       const payload = [0, 'tBTCUSD', 42, '']
 
-      assert(WSv2._payloadPassesFilter(payload, filterUndefined))
-      assert(WSv2._payloadPassesFilter(payload, filterNull))
-      assert(WSv2._payloadPassesFilter(payload, filterEmpty))
+      t.ok(WSv2._payloadPassesFilter(payload, filterUndefined))
+      t.ok(WSv2._payloadPassesFilter(payload, filterNull))
+      t.ok(WSv2._payloadPassesFilter(payload, filterEmpty))
     })
 
-    it('_payloadPassesFilter: ignores filter if *', () => {
+    await t.test('_payloadPassesFilter: ignores filter if *', (t) => {
+      t.teardown(teardown)
       const filter = { 1: '*' }
       const payload = [0, 'tBTCUSD', 42, '']
 
-      assert(WSv2._payloadPassesFilter(payload, filter))
+      t.ok(WSv2._payloadPassesFilter(payload, filter))
     })
 
-    it('_notifyListenerGroup: notifies all matching listeners in the group', (done) => {
+    await t.test('_notifyListenerGroup: notifies all matching listeners in the group', (t) => {
+      t.teardown(teardown)
+      t.plan(2)
       let calls = 0
       const func = () => {
-        assert(calls < 3)
-        if (++calls === 2) done()
+        t.ok(calls < 3)
+        calls++
       }
 
       const lg = {
@@ -889,21 +939,24 @@ describe('WSv2 unit', () => {
       WSv2._notifyListenerGroup(lg, [0, 'test', [0, 'tu']], false)
     })
 
-    it('_notifyListenerGroup: doesn\'t fail on missing data if filtering', (done) => {
+    await t.test('_notifyListenerGroup: doesn\'t fail on missing data if filtering', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       const lg = {
         test: [{
           filter: { 1: 'on' },
           cb: () => {
-            done(new Error('filter should not have matched'))
+            t.fail('filter should not have matched')
           }
         }]
       }
 
       WSv2._notifyListenerGroup(lg, [0, 'test'], false)
-      done()
+      t.pass()
     })
 
-    it('_propagateMessageToListeners: notifies all matching listeners', () => {
+    await t.test('_propagateMessageToListeners: notifies all matching listeners', (t) => {
+      t.teardown(teardown)
       const ws = createTestWSv2Instance()
       let seenMessage = false
       ws._channelMap = { 0: { channel: 'auth' } }
@@ -913,10 +966,11 @@ describe('WSv2 unit', () => {
       })
 
       ws._propagateMessageToListeners([0, 'auth-te', [123, 'tBTCUSD']])
-      assert(seenMessage)
+      t.ok(seenMessage)
     })
 
-    it('_notifyCatchAllListeners: passes data to all listeners on the empty \'\' event', () => {
+    await t.test('_notifyCatchAllListeners: passes data to all listeners on the empty \'\' event', (t) => {
+      t.teardown(teardown)
       let s = 0
 
       const lg = {
@@ -927,10 +981,11 @@ describe('WSv2 unit', () => {
       }
 
       WSv2._notifyCatchAllListeners(lg, 5)
-      assert.strictEqual(s, 15)
+      t.is(s, 15)
     })
 
-    it('_handleOBMessage: maintains internal OB if management is enabled', () => {
+    await t.test('_handleOBMessage: maintains internal OB if management is enabled', (t) => {
+      t.teardown(teardown)
       ws = new WSv2({
         manageOrderBooks: true,
         transform: true
@@ -968,31 +1023,33 @@ describe('WSv2 unit', () => {
       let obA = ws.getOB('tBTCUSD')
       let obB = ws.getOB('fUSD')
 
-      assert(obA !== null)
-      assert(obB !== null)
+      t.ok(obA !== null)
+      t.ok(obB !== null)
 
-      assert.strictEqual(obA.bids.length, 1)
-      assert.strictEqual(obB.bids.length, 2)
-      assert.deepStrictEqual(obA.bids, [[300, 1, 3]])
-      assert.deepStrictEqual(obB.bids, [[0.00045, 30, 4, -300], [0.0004, 15, 3, -600]])
-      assert.strictEqual(obA.asks.length, 2)
-      assert.strictEqual(obB.asks.length, 1)
-      assert.deepStrictEqual(obA.getEntry(100), { price: 100, count: 2, amount: -4 })
-      assert.deepStrictEqual(obA.getEntry(200), { price: 200, count: 4, amount: -8 })
-      assert.deepStrictEqual(obB.getEntry(0.00045), { rate: 0.00045, count: 4, amount: -300, period: 30 })
-      assert.deepStrictEqual(obB.getEntry(0.0008), { rate: 0.0008, count: 5, amount: 200, period: 2 })
+      t.is(obA.bids.length, 1)
+      t.is(obB.bids.length, 2)
+      t.alike(obA.bids, [[300, 1, 3]])
+      t.alike(obB.bids, [[0.00045, 30, 4, -300], [0.0004, 15, 3, -600]])
+      t.is(obA.asks.length, 2)
+      t.is(obB.asks.length, 1)
+      t.alike(obA.getEntry(100), { price: 100, count: 2, amount: -4 })
+      t.alike(obA.getEntry(200), { price: 200, count: 4, amount: -8 })
+      t.alike(obB.getEntry(0.00045), { rate: 0.00045, count: 4, amount: -300, period: 30 })
+      t.alike(obB.getEntry(0.0008), { rate: 0.0008, count: 5, amount: 200, period: 2 })
 
       obMsg = [42, [300, 0, 1]]
       ws._handleOBMessage(obMsg, ws._channelMapA[42], JSON.stringify(obMsg))
       obA = ws.getOB('tBTCUSD')
-      assert.strictEqual(obA.bids.length, 0)
+      t.is(obA.bids.length, 0)
       obMsg = [43, [0.0008, 2, 0, 1]]
       ws._handleOBMessage(obMsg, ws._channelMapB[43], JSON.stringify(obMsg))
       obB = ws.getOB('fUSD')
-      assert.strictEqual(obB.asks.length, 0)
+      t.is(obB.asks.length, 0)
     })
 
-    it('_handleOBMessage: emits error on internal OB update failure', (done) => {
+    await t.test('_handleOBMessage: emits error on internal OB update failure', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       const wsNoTransform = new WSv2({ manageOrderBooks: true })
       const wsTransform = new WSv2({
         manageOrderBooks: true,
@@ -1011,11 +1068,11 @@ describe('WSv2 unit', () => {
       let errorsSeen = 0
 
       wsNoTransform.on('error', () => {
-        if (++errorsSeen === 2) done()
+        if (++errorsSeen === 2) t.pass()
       })
 
       wsTransform.on('error', () => {
-        if (++errorsSeen === 2) done()
+        if (++errorsSeen === 2) t.pass()
       })
 
       const obMsg = [42, [100, 0, 1]]
@@ -1023,7 +1080,9 @@ describe('WSv2 unit', () => {
       wsNoTransform._handleOBMessage(obMsg, wsNoTransform._channelMap[42], JSON.stringify(obMsg))
     })
 
-    it('_handleOBMessage: forwards managed ob to listeners', (done) => {
+    await t.test('_handleOBMessage: forwards managed ob to listeners', (t) => {
+      t.teardown(teardown)
+      t.plan(2)
       ws = new WSv2({ manageOrderBooks: true })
       ws._channelMap = {
         42: {
@@ -1032,22 +1091,21 @@ describe('WSv2 unit', () => {
         }
       }
 
-      let seen = 0
       ws.onOrderBook({ symbol: 'tBTCUSD' }, (ob) => {
-        assert.deepStrictEqual(ob, [[100, 2, 3]])
-        if (++seen === 2) done()
+        t.alike(ob, [[100, 2, 3]])
       })
 
       ws.onOrderBook({}, (ob) => {
-        assert.deepStrictEqual(ob, [[100, 2, 3]])
-        if (++seen === 2) done()
+        t.alike(ob, [[100, 2, 3]])
       })
 
       const obMsg = [42, [[100, 2, 3]]]
       ws._handleOBMessage(obMsg, ws._channelMap[42], JSON.stringify(obMsg))
     })
 
-    it('_handleOBMessage: filters by prec and len', (done) => {
+    await t.test('_handleOBMessage: filters by prec and len', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = new WSv2({ manageOrderBooks: true })
       ws._channelMap = {
         40: {
@@ -1071,15 +1129,15 @@ describe('WSv2 unit', () => {
 
       let seen = 0
       ws.onOrderBook({ symbol: 'tBTCUSD', prec: 'P0' }, () => {
-        assert(false)
+        t.ok(false)
       })
 
       ws.onOrderBook({ symbol: 'tBTCUSD', prec: 'P1' }, () => {
-        assert(false)
+        t.ok(false)
       })
 
       ws.onOrderBook({ symbol: 'tBTCUSD', prec: 'P2' }, () => {
-        if (++seen === 2) done()
+        if (++seen === 2) t.pass()
       })
 
       const obMsg = [42, [[100, 2, 3]]]
@@ -1087,7 +1145,9 @@ describe('WSv2 unit', () => {
       ws._handleOBMessage(obMsg, ws._channelMap[42], JSON.stringify(obMsg))
     })
 
-    it('_handleOBMessage: emits managed ob', (done) => {
+    await t.test('_handleOBMessage: emits managed ob', (t) => {
+      t.teardown(teardown)
+      t.plan(2)
       ws = new WSv2({ manageOrderBooks: true })
       ws._channelMap = {
         42: {
@@ -1097,16 +1157,17 @@ describe('WSv2 unit', () => {
       }
 
       ws.on('orderbook', (symbol, data) => {
-        assert.strictEqual(symbol, 'tBTCUSD')
-        assert.deepStrictEqual(data, [[100, 2, 3]])
-        done()
+        t.is(symbol, 'tBTCUSD')
+        t.alike(data, [[100, 2, 3]])
       })
 
       const obMsg = [42, [[100, 2, 3]]]
       ws._handleOBMessage(obMsg, ws._channelMap[42], JSON.stringify(obMsg))
     })
 
-    it('_handleOBMessage: forwards transformed data if transform enabled', (done) => {
+    await t.test('_handleOBMessage: forwards transformed data if transform enabled', (t) => {
+      t.teardown(teardown)
+      t.plan(4)
       ws = new WSv2({ transform: true })
       ws._channelMap = {
         42: {
@@ -1117,18 +1178,18 @@ describe('WSv2 unit', () => {
       }
 
       ws.onOrderBook({ symbol: 'tBTCUSD' }, (ob) => {
-        assert(ob.asks)
-        assert(ob.bids)
-        assert.strictEqual(ob.asks.length, 0)
-        assert.deepStrictEqual(ob.bids, [[100, 2, 3]])
-        done()
+        t.ok(ob.asks)
+        t.ok(ob.bids)
+        t.is(ob.asks.length, 0)
+        t.alike(ob.bids, [[100, 2, 3]])
       })
 
       const obMsg = [42, [[100, 2, 3]]]
       ws._handleOBMessage(obMsg, ws._channelMap[42], obMsg)
     })
 
-    it('_updateManagedOB: does nothing on rm non-existent entry', () => {
+    await t.test('_updateManagedOB: does nothing on rm non-existent entry', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       ws._orderBooks.tBTCUSD = [
         [100, 1, 1],
@@ -1140,46 +1201,49 @@ describe('WSv2 unit', () => {
       ]
 
       const err = ws._updateManagedOB('tBTCUSD', [150, 0, -1], false, JSON.stringify([1, [150, 0, -1]]))
-      assert.strictEqual(err, null)
-      assert.deepStrictEqual(ws._orderBooks.tBTCUSD, [
+      t.is(err, null)
+      t.alike(ws._orderBooks.tBTCUSD, [
         [100, 1, 1],
         [200, 2, 1]
       ])
     })
 
-    it('_updateManagedOB: correctly maintains transformed OBs', () => {
+    await t.test('_updateManagedOB: correctly maintains transformed OBs', (t) => {
+      t.teardown(teardown)
       ws = new WSv2({ transform: true })
       ws._orderBooks.tBTCUSD = []
       ws._losslessOrderBooks.tBTCUSD = []
 
       // symbol, data, raw, rawMsg
-      assert(!ws._updateManagedOB('tBTCUSD', [100, 1, 1], false, JSON.stringify([1, [100, 1, 1]])))
-      assert(!ws._updateManagedOB('tBTCUSD', [200, 1, -1], false, JSON.stringify([1, [200, 1, -1]])))
-      assert(!ws._updateManagedOB('tBTCUSD', [200, 0, -1], false, JSON.stringify([1, [200, 0, -1]])))
+      t.ok(!ws._updateManagedOB('tBTCUSD', [100, 1, 1], false, JSON.stringify([1, [100, 1, 1]])))
+      t.ok(!ws._updateManagedOB('tBTCUSD', [200, 1, -1], false, JSON.stringify([1, [200, 1, -1]])))
+      t.ok(!ws._updateManagedOB('tBTCUSD', [200, 0, -1], false, JSON.stringify([1, [200, 0, -1]])))
 
       const ob = ws.getOB('tBTCUSD')
 
-      assert.strictEqual(ob.bids.length, 1)
-      assert.strictEqual(ob.asks.length, 0)
-      assert.deepStrictEqual(ob.bids, [[100, 1, 1]])
+      t.is(ob.bids.length, 1)
+      t.is(ob.asks.length, 0)
+      t.alike(ob.bids, [[100, 1, 1]])
     })
 
-    it('_updateManagedOB: correctly maintains non-transformed OBs', () => {
+    await t.test('_updateManagedOB: correctly maintains non-transformed OBs', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       ws._orderBooks.tBTCUSD = []
       ws._losslessOrderBooks.tBTCUSD = []
 
-      assert(!ws._updateManagedOB('tBTCUSD', [100, 1, 1], false, JSON.stringify([1, [100, 1, 1]])))
-      assert(!ws._updateManagedOB('tBTCUSD', [200, 1, -1], false, JSON.stringify([1, [200, 1, -1]])))
-      assert(!ws._updateManagedOB('tBTCUSD', [200, 0, -1], false, JSON.stringify([1, [200, 0, -1]])))
+      t.ok(!ws._updateManagedOB('tBTCUSD', [100, 1, 1], false, JSON.stringify([1, [100, 1, 1]])))
+      t.ok(!ws._updateManagedOB('tBTCUSD', [200, 1, -1], false, JSON.stringify([1, [200, 1, -1]])))
+      t.ok(!ws._updateManagedOB('tBTCUSD', [200, 0, -1], false, JSON.stringify([1, [200, 0, -1]])))
 
       const ob = ws._orderBooks.tBTCUSD
 
-      assert.strictEqual(ob.length, 1)
-      assert.deepStrictEqual(ob, [[100, 1, 1]])
+      t.is(ob.length, 1)
+      t.alike(ob, [[100, 1, 1]])
     })
 
-    it('_handleCandleMessage: maintains internal candles if management is enabled', () => {
+    await t.test('_handleCandleMessage: maintains internal candles if management is enabled', (t) => {
+      t.teardown(teardown)
       ws = new WSv2({ manageCandles: true })
       ws._channelMap = {
         64: {
@@ -1198,11 +1262,11 @@ describe('WSv2 unit', () => {
       const candles = ws._candles['trade:1m:tBTCUSD']
 
       // maintains sort
-      assert.strictEqual(candles.length, 4)
-      assert.strictEqual(candles[0][0], 5)
-      assert.strictEqual(candles[1][0], 4)
-      assert.strictEqual(candles[2][0], 2)
-      assert.strictEqual(candles[3][0], 1)
+      t.is(candles.length, 4)
+      t.is(candles[0][0], 5)
+      t.is(candles[1][0], 4)
+      t.is(candles[2][0], 2)
+      t.is(candles[3][0], 1)
 
       // updates existing candle
       ws._handleCandleMessage([
@@ -1210,7 +1274,7 @@ describe('WSv2 unit', () => {
         [5, 200, 20, 220, 20, 2000]
       ], ws._channelMap[64])
 
-      assert.deepStrictEqual(candles[0], [5, 200, 20, 220, 20, 2000])
+      t.alike(candles[0], [5, 200, 20, 220, 20, 2000])
 
       // inserts new candle
       ws._handleCandleMessage([
@@ -1218,10 +1282,12 @@ describe('WSv2 unit', () => {
         [10, 300, 20, 450, 10, 4000]
       ], ws._channelMap[64])
 
-      assert.deepStrictEqual(candles[0], [10, 300, 20, 450, 10, 4000])
+      t.alike(candles[0], [10, 300, 20, 450, 10, 4000])
     })
 
-    it('_handleCandleMessage: emits error on internal candle update failure', (done) => {
+    await t.test('_handleCandleMessage: emits error on internal candle update failure', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = new WSv2({ manageCandles: true })
       ws._channelMap = {
         42: {
@@ -1238,7 +1304,7 @@ describe('WSv2 unit', () => {
       let errorsSeen = 0
 
       ws.on('error', () => {
-        if (++errorsSeen === 1) done()
+        if (++errorsSeen === 1) t.pass()
       })
 
       ws._handleCandleMessage([64, [
@@ -1255,7 +1321,9 @@ describe('WSv2 unit', () => {
       ], ws._channelMap[42])
     })
 
-    it('_handleCandleMessage: forwards managed candles to listeners', (done) => {
+    await t.test('_handleCandleMessage: forwards managed candles to listeners', (t) => {
+      t.teardown(teardown)
+      t.plan(2)
       ws = new WSv2({ manageCandles: true })
       ws._channelMap = {
         42: {
@@ -1265,15 +1333,12 @@ describe('WSv2 unit', () => {
         }
       }
 
-      let seen = 0
       ws.onCandle({ key: 'trade:1m:tBTCUSD' }, (data) => {
-        assert.deepStrictEqual(data, [[5, 10, 70, 150, 30, 10]])
-        if (++seen === 2) done()
+        t.alike(data, [[5, 10, 70, 150, 30, 10]])
       })
 
       ws.onCandle({}, (data) => {
-        assert.deepStrictEqual(data, [[5, 10, 70, 150, 30, 10]])
-        if (++seen === 2) done()
+        t.alike(data, [[5, 10, 70, 150, 30, 10]])
       })
 
       ws._handleCandleMessage([
@@ -1282,7 +1347,8 @@ describe('WSv2 unit', () => {
       ], ws._channelMap[42])
     })
 
-    it('_handleCandleMessage: emits managed candles', () => {
+    await t.test('_handleCandleMessage: emits managed candles', (t) => {
+      t.teardown(teardown)
       let seenCandle = false
       ws = new WSv2({ manageCandles: true })
       ws._channelMap = {
@@ -1293,8 +1359,8 @@ describe('WSv2 unit', () => {
       }
 
       ws.on('candle', (data, key) => {
-        assert.strictEqual(key, 'trade:1m:tBTCUSD')
-        assert.deepStrictEqual(data, [[5, 10, 70, 150, 30, 10]])
+        t.is(key, 'trade:1m:tBTCUSD')
+        t.alike(data, [[5, 10, 70, 150, 30, 10]])
         seenCandle = true
       })
 
@@ -1303,10 +1369,11 @@ describe('WSv2 unit', () => {
         [[5, 10, 70, 150, 30, 10]]
       ], ws._channelMap[42])
 
-      assert(seenCandle)
+      t.ok(seenCandle)
     })
 
-    it('_handleCandleMessage: forwards transformed data if transform enabled', () => {
+    await t.test('_handleCandleMessage: forwards transformed data if transform enabled', (t) => {
+      t.teardown(teardown)
       let seenCandle = false
       ws = new WSv2({ transform: true })
       ws._channelMap = {
@@ -1318,8 +1385,8 @@ describe('WSv2 unit', () => {
       }
 
       ws.onCandle({ key: 'trade:1m:tBTCUSD' }, (candles) => {
-        assert.strictEqual(candles.length, 1)
-        assert.deepStrictEqual(candles[0], {
+        t.is(candles.length, 1)
+        t.alike(candles[0], {
           mts: 5,
           open: 10,
           close: 70,
@@ -1336,10 +1403,11 @@ describe('WSv2 unit', () => {
         [[5, 10, 70, 150, 30, 10]]
       ], ws._channelMap[42])
 
-      assert(seenCandle)
+      t.ok(seenCandle)
     })
 
-    it('_updateManagedCandles: returns an error on update for unknown key', () => {
+    await t.test('_updateManagedCandles: returns an error on update for unknown key', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       ws._candles['trade:1m:tBTCUSD'] = []
 
@@ -1347,144 +1415,158 @@ describe('WSv2 unit', () => {
         1, 10, 70, 150, 30, 10
       ])
 
-      assert(err)
-      assert(_isError(err))
+      t.ok(err)
+      t.ok(_isError(err))
     })
 
-    it('_updateManagedCandles: correctly maintains transformed OBs', () => {
+    await t.test('_updateManagedCandles: correctly maintains transformed OBs', (t) => {
+      t.teardown(teardown)
       ws = new WSv2({ transform: true })
 
-      assert(!ws._updateManagedCandles('trade:1m:tBTCUSD', [
+      t.ok(!ws._updateManagedCandles('trade:1m:tBTCUSD', [
         [1, 10, 70, 150, 30, 10],
         [2, 10, 70, 150, 30, 10]
       ]))
 
-      assert(!ws._updateManagedCandles('trade:1m:tBTCUSD', [
+      t.ok(!ws._updateManagedCandles('trade:1m:tBTCUSD', [
         2, 10, 70, 150, 30, 500
       ]))
 
-      assert(!ws._updateManagedCandles('trade:1m:tBTCUSD', [
+      t.ok(!ws._updateManagedCandles('trade:1m:tBTCUSD', [
         3, 100, 70, 150, 30, 10
       ]))
 
       const candles = ws._candles['trade:1m:tBTCUSD']
 
-      assert.strictEqual(candles.length, 3)
-      assert.deepStrictEqual(candles[0], [
+      t.is(candles.length, 3)
+      t.alike(candles[0], [
         3, 100, 70, 150, 30, 10
       ])
 
-      assert.deepStrictEqual(candles[1], [
+      t.alike(candles[1], [
         2, 10, 70, 150, 30, 500
       ])
 
-      assert.deepStrictEqual(candles[2], [
+      t.alike(candles[2], [
         1, 10, 70, 150, 30, 10
       ])
     })
 
-    it('_updateManagedCandles: correctly maintains non-transformed OBs', () => {
+    await t.test('_updateManagedCandles: correctly maintains non-transformed OBs', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
 
-      assert(!ws._updateManagedCandles('trade:1m:tBTCUSD', [
+      t.ok(!ws._updateManagedCandles('trade:1m:tBTCUSD', [
         [1, 10, 70, 150, 30, 10],
         [2, 10, 70, 150, 30, 10]
       ]))
 
-      assert(!ws._updateManagedCandles('trade:1m:tBTCUSD', [
+      t.ok(!ws._updateManagedCandles('trade:1m:tBTCUSD', [
         2, 10, 70, 150, 30, 500
       ]))
 
-      assert(!ws._updateManagedCandles('trade:1m:tBTCUSD', [
+      t.ok(!ws._updateManagedCandles('trade:1m:tBTCUSD', [
         3, 100, 70, 150, 30, 10
       ]))
 
       const candles = ws._candles['trade:1m:tBTCUSD']
 
-      assert.strictEqual(candles.length, 3)
-      assert.deepStrictEqual(candles[0], [
+      t.is(candles.length, 3)
+      t.alike(candles[0], [
         3, 100, 70, 150, 30, 10
       ])
 
-      assert.deepStrictEqual(candles[1], [
+      t.alike(candles[1], [
         2, 10, 70, 150, 30, 500
       ])
 
-      assert.deepStrictEqual(candles[2], [
+      t.alike(candles[2], [
         1, 10, 70, 150, 30, 10
       ])
     })
   })
 
-  describe('event msg handling', () => {
-    it('_handleErrorEvent: emits error', (done) => {
+  await t.test('event msg handling', async (t) => {
+    await t.test('_handleErrorEvent: emits error', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = createTestWSv2Instance()
       ws.on('error', (err) => {
-        if (err === 42) done()
+        if (err === 42) t.pass()
       })
       ws._handleErrorEvent(42)
     })
 
-    it('_handleConfigEvent: emits error if config failed', (done) => {
+    await t.test('_handleConfigEvent: emits error if config failed', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = createTestWSv2Instance()
       ws.on('error', (err) => {
-        if (_includes(err.message, '42')) done()
+        if (_includes(err.message, '42')) t.pass()
       })
       ws._handleConfigEvent({ status: 'bad', flags: 42 })
     })
 
-    it('_handleAuthEvent: emits an error on auth fail', (done) => {
+    await t.test('_handleAuthEvent: emits an error on auth fail', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = createTestWSv2Instance()
       ws.on('error', () => {
-        done()
+        t.pass()
       })
       ws._handleAuthEvent({ status: 'FAIL' })
     })
 
-    it('_handleAuthEvent: updates auth flag on auth success', () => {
+    await t.test('_handleAuthEvent: updates auth flag on auth success', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
-      assert(!ws.isAuthenticated())
+      t.ok(!ws.isAuthenticated())
       ws._handleAuthEvent({ status: 'OK' })
-      assert(ws.isAuthenticated())
+      t.ok(ws.isAuthenticated())
     })
 
-    it('_handleAuthEvent: adds auth channel to channel map', () => {
+    await t.test('_handleAuthEvent: adds auth channel to channel map', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
-      assert(Object.keys(ws._channelMap).length === 0)
+      t.ok(Object.keys(ws._channelMap).length === 0)
       ws._handleAuthEvent({ chanId: 42, status: 'OK' })
-      assert(ws._channelMap[42])
-      assert.strictEqual(ws._channelMap[42].channel, 'auth')
+      t.ok(ws._channelMap[42])
+      t.is(ws._channelMap[42].channel, 'auth')
     })
 
-    it('_handleAuthEvent: emits auth message', (done) => {
+    await t.test('_handleAuthEvent: emits auth message', (t) => {
+      t.teardown(teardown)
+      t.plan(2)
       ws = createTestWSv2Instance()
       ws.once('auth', (msg) => {
-        assert.strictEqual(msg.chanId, 0)
-        assert.strictEqual(msg.status, 'OK')
-        done()
+        t.is(msg.chanId, 0)
+        t.is(msg.status, 'OK')
       })
       ws._handleAuthEvent({ chanId: 0, status: 'OK' })
     })
 
-    it('_handleSubscribedEvent: adds channel to channel map', () => {
+    await t.test('_handleSubscribedEvent: adds channel to channel map', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
-      assert(Object.keys(ws._channelMap).length === 0)
+      t.ok(Object.keys(ws._channelMap).length === 0)
       ws._handleSubscribedEvent({ chanId: 42, channel: 'test', extra: 'stuff' })
-      assert(ws._channelMap[42])
-      assert.strictEqual(ws._channelMap[42].chanId, 42)
-      assert.strictEqual(ws._channelMap[42].channel, 'test')
-      assert.strictEqual(ws._channelMap[42].extra, 'stuff')
+      t.ok(ws._channelMap[42])
+      t.is(ws._channelMap[42].chanId, 42)
+      t.is(ws._channelMap[42].channel, 'test')
+      t.is(ws._channelMap[42].extra, 'stuff')
     })
 
-    it('_handleUnsubscribedEvent: removes channel from channel map', () => {
+    await t.test('_handleUnsubscribedEvent: removes channel from channel map', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
-      assert(Object.keys(ws._channelMap).length === 0)
+      t.ok(Object.keys(ws._channelMap).length === 0)
       ws._handleSubscribedEvent({ chanId: 42, channel: 'test', extra: 'stuff' })
       ws._handleUnsubscribedEvent({ chanId: 42, channel: 'test', extra: 'stuff' })
-      assert(Object.keys(ws._channelMap).length === 0)
+      t.ok(Object.keys(ws._channelMap).length === 0)
     })
 
-    it('_handleInfoEvent: passes message to relevant listeners (raw access)', async () => {
+    await t.test('_handleInfoEvent: passes message to relevant listeners (raw access)', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance()
 
@@ -1492,17 +1574,18 @@ describe('WSv2 unit', () => {
 
       let n = 0
 
-      ws._infoListeners[42] = [ // eslint-disable-line
+      ws._infoListeners[42] = [
         () => { n += 1 },
         () => { n += 2 }
       ]
 
       ws._handleInfoEvent({ code: 42 })
 
-      assert.strictEqual(n, 3)
+      t.is(n, 3)
     })
 
-    it('_handleInfoEvent: passes message to relevant listeners', async () => {
+    await t.test('_handleInfoEvent: passes message to relevant listeners', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance()
 
@@ -1514,11 +1597,12 @@ describe('WSv2 unit', () => {
       ws.onInfoMessage(42, () => { n += 2 })
       ws._handleInfoEvent({ code: 42 })
 
-      assert.strictEqual(n, 3)
+      t.is(n, 3)
       wss.close()
     })
 
-    it('_handleInfoEvent: passes message to relevant named listeners', async () => {
+    await t.test('_handleInfoEvent: passes message to relevant named listeners', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance()
 
@@ -1534,11 +1618,12 @@ describe('WSv2 unit', () => {
       ws._handleInfoEvent({ code: WSv2.info.MAINTENANCE_START })
       ws._handleInfoEvent({ code: WSv2.info.MAINTENANCE_END })
 
-      assert.strictEqual(n, 111)
+      t.is(n, 111)
       wss.close()
     })
 
-    it('_handleInfoEvent: closes & emits error if not on api v2', async () => {
+    await t.test('_handleInfoEvent: closes & emits error if not on api v2', async (t) => {
+      t.teardown(teardown)
       wss = new MockWSv2Server()
       ws = createTestWSv2Instance()
 
@@ -1554,19 +1639,22 @@ describe('WSv2 unit', () => {
       })
     })
 
-    it('_flushOrderOps: returned promise rejects if not authorised', async () => {
+    await t.test('_flushOrderOps: returned promise rejects if not authorised', async (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       ws._orderOpBuffer = [[0, 'oc', null, []]]
 
       try {
         await ws._flushOrderOps()
-        assert(false)
+        t.ok(false)
       } catch (e) {
-        assert.ok(true, 'rejected due to being unauthorized')
+        t.ok(true, 'rejected due to being unauthorized')
       }
     })
 
-    it('_flushOrderOps: merges the buffer into a multi-op packet & sends', (done) => {
+    await t.test('_flushOrderOps: merges the buffer into a multi-op packet & sends', (t) => {
+      t.teardown(teardown)
+      t.plan(2)
       ws = createTestWSv2Instance()
       ws._isAuthenticated = true
 
@@ -1578,15 +1666,15 @@ describe('WSv2 unit', () => {
       ]
 
       ws.send = (packet) => {
-        assert.strictEqual(packet[1], 'ox_multi')
-        assert.strictEqual(packet[3].length, 4)
-        done()
+        t.is(packet[1], 'ox_multi')
+        t.is(packet[3].length, 4)
       }
 
-      ws._flushOrderOps().catch(() => assert(false))
+      ws._flushOrderOps().catch(() => t.ok(false))
     })
 
-    it('_flushOrderOps: splits up buffers greater than 15 ops in size', async () => {
+    await t.test('_flushOrderOps: splits up buffers greater than 15 ops in size', async (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       ws._isAuthenticated = true
 
@@ -1598,8 +1686,8 @@ describe('WSv2 unit', () => {
       }
 
       ws.send = (packet) => {
-        assert.strictEqual(packet[1], 'ox_multi')
-        assert(packet[3].length <= 15)
+        t.is(packet[1], 'ox_multi')
+        t.ok(packet[3].length <= 15)
         seenCount += packet[3].length
 
         if (seenCount === 45) {
@@ -1607,25 +1695,23 @@ describe('WSv2 unit', () => {
         }
       }
 
-      try {
-        await ws._flushOrderOps()
-        assert(false)
-      } catch (e) {
-        assert(seenAll)
-      }
+      await ws._flushOrderOps()
+      t.ok(seenAll)
     })
   })
 
-  describe('WSv2 packet watch-dog', () => {
-    it('resets the WD timeout on every websocket message', (done) => {
+  await t.test('WSv2 packet watch-dog', async (t) => {
+    await t.test('resets the WD timeout on every websocket message', (t) => {
+      t.teardown(teardown)
+      t.plan(2)
       ws = new WSv2({ packetWDDelay: 1000 })
-      assert.strictEqual(ws._packetWDTimeout, null)
+      t.is(ws._packetWDTimeout, null)
 
       ws.on('error', () => { }) // ignore json errors
 
       let wdResets = 0
       ws._resetPacketWD = () => {
-        if (++wdResets === 4) done()
+        if (++wdResets === 4) t.pass()
       }
 
       ws._onWSMessage('asdf')
@@ -1634,41 +1720,50 @@ describe('WSv2 unit', () => {
       ws._onWSMessage('asdf')
     })
 
-    it('_resetPacketWD: clears existing wd timeout', (done) => {
+    await t.test('_resetPacketWD: clears existing wd timeout', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = new WSv2({ packetWDDelay: 1000 })
       ws._packetWDTimeout = setTimeout(() => {
-        assert(false)
+        t.ok(false)
       }, 100)
 
       ws._resetPacketWD()
-      setTimeout(done, 200)
+      setTimeout(() => t.pass(), 200)
     })
 
-    it('_resetPacketWD: schedules new wd timeout', (done) => {
+    await t.test('_resetPacketWD: schedules new wd timeout', (t) => {
+      t.teardown(teardown)
+      t.plan(2)
       ws = new WSv2({ packetWDDelay: 500 })
       ws._isOpen = true
-      ws._triggerPacketWD = async () => { done() }
+      ws._triggerPacketWD = async () => { t.pass() }
       ws._resetPacketWD()
-      assert(ws._packetWDTimeout !== null)
+      t.ok(ws._packetWDTimeout !== null)
     })
 
-    it('_triggerPacketWD: does nothing if wd is disabled', (done) => {
+    await t.test('_triggerPacketWD: does nothing if wd is disabled', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = createTestWSv2Instance()
       ws._isOpen = true
-      ws.reconnect = async () => { assert(false) }
+      ws.reconnect = async () => { t.ok(false) }
       ws._triggerPacketWD()
 
-      setTimeout(done, 50)
+      setTimeout(() => t.pass(), 50)
     })
 
-    it('_triggerPacketWD: calls reconnect()', (done) => {
+    await t.test('_triggerPacketWD: calls reconnect()', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = new WSv2({ packetWDDelay: 1000 })
       ws._isOpen = true
-      ws.reconnect = async () => { done() }
+      ws.reconnect = async () => { t.pass() }
       ws._triggerPacketWD()
     })
 
-    it('triggers wd when no packet arrives after delay elapses', async () => {
+    await t.test('triggers wd when no packet arrives after delay elapses', async (t) => {
+      t.teardown(teardown)
       const now = Date.now()
       let wdTriggered = false
 
@@ -1677,7 +1772,7 @@ describe('WSv2 unit', () => {
 
       ws.on('error', () => { }) // invalid json to prevent message routing
       ws._triggerPacketWD = () => {
-        assert((Date.now() - now) >= 95)
+        t.ok((Date.now() - now) >= 95)
         wdTriggered = true
 
         return Promise.resolve()
@@ -1688,10 +1783,11 @@ describe('WSv2 unit', () => {
 
       await new Promise(resolve => setTimeout(resolve, 150))
 
-      assert(wdTriggered)
+      t.ok(wdTriggered)
     })
 
-    it('doesn\'t trigger wd when packets arrive as expected', async () => {
+    await t.test('doesn\'t trigger wd when packets arrive as expected', async (t) => {
+      t.teardown(teardown)
       ws = new WSv2({ packetWDDelay: 100 })
       ws._isOpen = true
 
@@ -1701,7 +1797,7 @@ describe('WSv2 unit', () => {
         ws._onWSMessage('asdf')
       }, 50)
 
-      ws._triggerPacketWD = async () => { assert(false) }
+      ws._triggerPacketWD = async () => { t.ok(false) }
       ws._onWSMessage('asdf')
 
       await new Promise(resolve => setTimeout(resolve, 200))
@@ -1711,8 +1807,9 @@ describe('WSv2 unit', () => {
     })
   })
 
-  describe('message sending', () => {
-    it('emits error if no client available or open', async () => {
+  await t.test('message sending', async (t) => {
+    await t.test('emits error if no client available or open', async (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
 
       return new Promise((resolve) => {
@@ -1728,7 +1825,8 @@ describe('WSv2 unit', () => {
       })
     })
 
-    it('emits error if connection is closing', async () => {
+    await t.test('emits error if connection is closing', async (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
 
       ws._ws = true
@@ -1748,7 +1846,8 @@ describe('WSv2 unit', () => {
       })
     })
 
-    it('sends stringified payload', async () => {
+    await t.test('sends stringified payload', async (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
 
       ws._isOpen = true
@@ -1759,7 +1858,7 @@ describe('WSv2 unit', () => {
           send: (json) => {
             const msg = JSON.parse(json)
 
-            assert.strictEqual(msg.a, 42)
+            t.is(msg.a, 42)
             resolve()
           }
         }
@@ -1769,97 +1868,51 @@ describe('WSv2 unit', () => {
     })
   })
 
-  describe('WSv2 seq audit: _validateMessageSeq', () => {
-    it('returns an error on invalid pub seq', () => {
+  await t.test('WSv2 seq audit: _validateMessageSeq', async (t) => {
+    await t.test('returns an error on invalid pub seq', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
 
       ws._seqAudit = true
       ws._lastPubSeq = 0
 
-      assert.strictEqual(ws._validateMessageSeq([243, [252.12, 2, -1], 1]), null)
-      assert.strictEqual(ws._validateMessageSeq([243, [252.12, 2, -1], 2]), null)
-      assert(_isError(ws._validateMessageSeq([243, [252.12, 2, -1], 5])))
+      t.is(ws._validateMessageSeq([243, [252.12, 2, -1], 1]), null)
+      t.is(ws._validateMessageSeq([243, [252.12, 2, -1], 2]), null)
+      t.ok(_isError(ws._validateMessageSeq([243, [252.12, 2, -1], 5])))
     })
 
-    it('returns an error on invalid auth seq', () => {
+    await t.test('returns an error on invalid auth seq', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
 
       ws._seqAudit = true
       ws._lastPubSeq = 0
       ws._lastAuthSeq = 0
 
-      assert.strictEqual(ws._validateMessageSeq([0, [252.12, 2, -1], 1, 1]), null)
-      assert.strictEqual(ws._validateMessageSeq([0, [252.12, 2, -1], 2, 2]), null)
-      assert(_isError(ws._validateMessageSeq([0, [252.12, 2, -1], 3, 5])))
+      t.is(ws._validateMessageSeq([0, [252.12, 2, -1], 1, 1]), null)
+      t.is(ws._validateMessageSeq([0, [252.12, 2, -1], 2, 2]), null)
+      t.ok(_isError(ws._validateMessageSeq([0, [252.12, 2, -1], 3, 5])))
     })
 
-    it('ignores heartbeats', () => {
+    await t.test('ignores heartbeats', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
 
       ws._seqAudit = true
       ws._lastPubSeq = 0
 
-      assert.strictEqual(ws._validateMessageSeq([243, [252.12, 2, -1], 1]), null)
-      assert.strictEqual(ws._validateMessageSeq([243, [252.12, 2, -1], 2]), null)
-      assert.strictEqual(ws._validateMessageSeq([243, 'hb']), null)
-      assert.strictEqual(ws._validateMessageSeq([243, 'hb']), null)
-      assert.strictEqual(ws._validateMessageSeq([243, [252.12, 2, -1], 3]), null)
-      assert.strictEqual(ws._validateMessageSeq([243, [252.12, 2, -1], 4]), null)
-    })
-
-    it.skip('all chan 0 messages except for notifications include, but do not advance the pub seq num', () => {
-      const ws = new WSv2()
-
-      ws._seqAudit = true
-      ws._lastPubSeq = 1
-      ws._lastAuthSeq = 1
-
-      assert.strictEqual(ws._validateMessageSeq([0, 'bu', [], 1, 2]), null)
-      assert.strictEqual(ws._validateMessageSeq([0, 'bu', [], 1, 3]), null)
-      assert.strictEqual(ws._validateMessageSeq([0, 'bu', [], 1, 4]), null)
-      assert.strictEqual(ws._validateMessageSeq([0, 'n', [], 1, 5]), null)
-      assert.strictEqual(ws._lastPubSeq, 1)
-      assert.strictEqual(ws._lastAuthSeq, 5)
-    })
-
-    it.skip('non-*-req notifications advance the auth seq num and do not include a pub seq num', () => {
-      const ws = new WSv2()
-
-      ws._seqAudit = true
-      ws._lastPubSeq = 4
-      ws._lastAuthSeq = 4
-
-      const nonReqPayload = [null, null, null, null, null, null, null]
-
-      assert.strictEqual(ws._validateMessageSeq([0, 'n', nonReqPayload, 5]), null)
-      assert.strictEqual(ws._validateMessageSeq([0, 'n', nonReqPayload, 6]), null)
-      assert.strictEqual(ws._validateMessageSeq([0, 'n', nonReqPayload, 7]), null)
-      assert.strictEqual(ws._validateMessageSeq([0, 'n', nonReqPayload, 8]), null)
-      assert.strictEqual(ws._validateMessageSeq([0, 'n', nonReqPayload, 9]), null)
-      assert.strictEqual(ws._lastPubSeq, 9)
-      assert.strictEqual(ws._lastAuthSeq, 9)
-    })
-
-    it.skip('*-req notifications do not advance the auth sequence number', () => {
-      const ws = new WSv2()
-      const onReqPacket = [0, 'n', [0, 'on-req', null, null, [], null, '', ''], 1]
-      const ouReqPacket = [0, 'n', [0, 'ou-req', null, null, [], null, '', ''], 1]
-      const ocReqPacket = [0, 'n', [0, 'oc-req', null, null, [], null, '', ''], 1]
-
-      ws._seqAudit = true
-      ws._lastPubSeq = -1
-      ws._lastAuthSeq = -1
-
-      assert.strictEqual(ws._validateMessageSeq(onReqPacket), null)
-      assert.strictEqual(ws._validateMessageSeq(ouReqPacket), null)
-      assert.strictEqual(ws._validateMessageSeq(ocReqPacket), null)
-      assert.strictEqual(ws._lastPubSeq, -1)
-      assert.strictEqual(ws._lastAuthSeq, 3)
+      t.is(ws._validateMessageSeq([243, [252.12, 2, -1], 1]), null)
+      t.is(ws._validateMessageSeq([243, [252.12, 2, -1], 2]), null)
+      t.is(ws._validateMessageSeq([243, 'hb']), null)
+      t.is(ws._validateMessageSeq([243, 'hb']), null)
+      t.is(ws._validateMessageSeq([243, [252.12, 2, -1], 3]), null)
+      t.is(ws._validateMessageSeq([243, [252.12, 2, -1], 4]), null)
     })
   })
 
-  describe('_handleTradeMessage', () => {
-    it('correctly forwards payloads w/ seq numbers', () => {
+  await t.test('_handleTradeMessage', async (t) => {
+    await t.test('correctly forwards payloads w/ seq numbers', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
 
       const payload = [
@@ -1872,7 +1925,7 @@ describe('WSv2 unit', () => {
       let sawTrade = false
 
       ws.onTrades({ pair: 'tBTCUSD' }, (data) => {
-        assert.deepStrictEqual(data, payload)
+        t.alike(data, payload)
         sawTrade = true
       })
 
@@ -1881,10 +1934,11 @@ describe('WSv2 unit', () => {
         pair: 'tBTCUSD'
       })
 
-      assert(sawTrade)
+      t.ok(sawTrade)
     })
 
-    it('correctly forwards funding trades', () => {
+    await t.test('correctly forwards funding trades', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
 
       const payload = [
@@ -1897,7 +1951,7 @@ describe('WSv2 unit', () => {
       let sawTrade = false
 
       ws.onTrades({ pair: 'fUSD' }, (data) => {
-        assert.deepStrictEqual(data, payload)
+        t.alike(data, payload)
         sawTrade = true
       })
 
@@ -1906,10 +1960,11 @@ describe('WSv2 unit', () => {
         pair: 'fUSD'
       })
 
-      assert(sawTrade)
+      t.ok(sawTrade)
     })
 
-    it('correctly routes fte packets', () => {
+    await t.test('correctly routes fte packets', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
 
       const payload = [636854, 'fUSD', 1575282446000, 41238905, -1000, 0.002, 7, null]
@@ -1917,7 +1972,7 @@ describe('WSv2 unit', () => {
       let sawFTE = false
 
       ws.onFundingTradeEntry({ pair: 'tBTCUSD' }, (data) => {
-        assert.deepStrictEqual(data[0], payload)
+        t.alike(data[0], payload)
         sawFTE = true
       })
 
@@ -1926,10 +1981,11 @@ describe('WSv2 unit', () => {
         pair: 'tBTCUSD'
       })
 
-      assert(sawFTE)
+      t.ok(sawFTE)
     })
 
-    it('correctly routes ftu packets', () => {
+    await t.test('correctly routes ftu packets', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
 
       const payload = [636854, 'fUSD', 1575282446000, 41238905, -1000, 0.002, 7, null]
@@ -1937,7 +1993,7 @@ describe('WSv2 unit', () => {
       let sawFTU = false
 
       ws.onFundingTradeUpdate({ pair: 'tBTCUSD' }, (data) => {
-        assert.deepStrictEqual(data[0], payload)
+        t.alike(data[0], payload)
         sawFTU = true
       })
 
@@ -1946,18 +2002,19 @@ describe('WSv2 unit', () => {
         pair: 'tBTCUSD'
       })
 
-      assert(sawFTU)
+      t.ok(sawFTU)
     })
 
-    it('uses funding trade model for funding symbols', (done) => {
+    await t.test('uses funding trade model for funding symbols', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = createTestWSv2Instance({ transform: true })
 
       const payload = [636854, 'fUSD', 1575282446000, 41238905, -1000, 0.002, 7, null]
       const msg = [0, 'ftu', payload]
 
       ws.on('trades', (_, data) => {
-        assert(data instanceof FundingTrade)
-        done()
+        t.ok(data instanceof FundingTrade)
       })
 
       ws._handleTradeMessage(msg, {
@@ -1966,15 +2023,16 @@ describe('WSv2 unit', () => {
       })
     })
 
-    it('uses public trade model for trading symbols', (done) => {
+    await t.test('uses public trade model for trading symbols', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = createTestWSv2Instance({ transform: true })
 
       const payload = [636854, 'tBTCUSD', 1575282446000, 41238905, -1000, 0.002, 7, null]
       const msg = [0, 'tu', payload]
 
       ws.on('trades', (_, data) => {
-        assert(data instanceof PublicTrade)
-        done()
+        t.ok(data instanceof PublicTrade)
       })
 
       ws._handleTradeMessage(msg, {
@@ -1984,8 +2042,9 @@ describe('WSv2 unit', () => {
     })
   })
 
-  describe('resubscribePreviousChannels', () => {
-    it('resubscribes to channels in prev channel map', () => {
+  await t.test('resubscribePreviousChannels', async (t) => {
+    await t.test('resubscribes to channels in prev channel map', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       let subTicker = false
       let subTrades = false
@@ -2000,62 +2059,66 @@ describe('WSv2 unit', () => {
       }
 
       ws.subscribeTicker = (sym) => {
-        assert.strictEqual(sym, 'tBTCUSD')
+        t.is(sym, 'tBTCUSD')
         subTicker = true
       }
 
       ws.subscribeTrades = (sym) => {
-        assert.strictEqual(sym, 'tBTCUSD')
+        t.is(sym, 'tBTCUSD')
         subTrades = true
       }
 
       ws.subscribeCandles = (key) => {
-        assert.strictEqual(key, 'trade:1m:tBTCUSD')
+        t.is(key, 'trade:1m:tBTCUSD')
         subCandles = true
       }
 
       ws.subscribeOrderBook = (sym, prec, len) => {
-        assert.strictEqual(sym, 'tBTCUSD')
-        assert.strictEqual(prec, 'R0')
-        assert.strictEqual(len, '25')
+        t.is(sym, 'tBTCUSD')
+        t.is(prec, 'R0')
+        t.is(len, '25')
         subBook = true
       }
 
       ws.resubscribePreviousChannels()
 
-      assert(subTicker)
-      assert(subTrades)
-      assert(subCandles)
-      assert(subBook)
+      t.ok(subTicker)
+      t.ok(subTrades)
+      t.ok(subCandles)
+      t.ok(subBook)
     })
   })
 
-  describe('getURL', () => {
-    it('returns the URL the instance was constructed with', () => {
+  await t.test('getURL', async (t) => {
+    await t.test('returns the URL the instance was constructed with', (t) => {
+      t.teardown(teardown)
       const ws = new WSv2({ url: 'test' })
-      assert.strictEqual(ws.getURL(), 'test', 'instance does not use provided URL')
+      t.is(ws.getURL(), 'test', 'instance does not use provided URL')
     })
   })
 
-  describe('auth args', () => {
-    it('provides getAuthArgs to read args', () => {
+  await t.test('auth args', async (t) => {
+    await t.test('provides getAuthArgs to read args', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       ws.updateAuthArgs({ dms: 4 })
-      assert.strictEqual(ws.getAuthArgs().dms, 4)
+      t.is(ws.getAuthArgs().dms, 4)
     })
 
-    it('initializes auth args', () => {
+    await t.test('initializes auth args', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       const initAuthArgs = ws.getAuthArgs()
 
-      assert(_isObject(initAuthArgs))
-      assert.deepStrictEqual(initAuthArgs, {
+      t.ok(_isObject(initAuthArgs))
+      t.alike(initAuthArgs, {
         apiKey: API_KEY,
         apiSecret: API_SECRET
       })
     })
 
-    it('updates auth args with setAuthArgs', async () => {
+    await t.test('updates auth args with setAuthArgs', async (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       wss = new MockWSv2Server()
       let sendCalled = false
@@ -2063,43 +2126,47 @@ describe('WSv2 unit', () => {
       await ws.open()
 
       ws.updateAuthArgs({ dms: 4 })
-      assert.strictEqual(ws.getAuthArgs().dms, 4)
+      t.is(ws.getAuthArgs().dms, 4)
 
       ws.send = (payload) => {
-        assert.strictEqual(payload.dms, 4)
+        t.is(payload.dms, 4)
         sendCalled = true
         ws.emit('auth')
       }
 
       ws.auth() // note promise ignored
-      assert(sendCalled)
+      t.ok(sendCalled)
     })
   })
 
-  describe('usesAgent', () => {
-    it('returns true if an agent was passed to the constructor', () => {
+  await t.test('usesAgent', async (t) => {
+    await t.test('returns true if an agent was passed to the constructor', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance({
         agent: new SocksProxyAgent('socks4://127.0.0.1:9998')
       })
 
-      assert.ok(ws.usesAgent(), 'usesAgent() does not indicate agent presence when one was provided')
+      t.ok(ws.usesAgent(), 'usesAgent() does not indicate agent presence when one was provided')
     })
 
-    it('returns false if no agent was passed to the constructor', () => {
+    await t.test('returns false if no agent was passed to the constructor', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
 
-      assert.ok(!ws.usesAgent(), 'usesAgent() indicates agent presence when none provided')
+      t.ok(!ws.usesAgent(), 'usesAgent() indicates agent presence when none provided')
     })
   })
 
-  describe('default connection url', () => {
-    it('is a static member on the class', () => {
-      assert.ok(_isString(WSv2.url) && !_isEmpty(WSv2.url))
+  await t.test('default connection url', async (t) => {
+    await t.test('is a static member on the class', (t) => {
+      t.teardown(teardown)
+      t.ok(_isString(WSv2.url) && !_isEmpty(WSv2.url))
     })
   })
 
-  describe('onMaintenanceStart', () => {
-    it('is called when receiving a 20060 info code', async () => {
+  await t.test('onMaintenanceStart', async (t) => {
+    await t.test('is called when receiving a 20060 info code', async (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       wss = new MockWSv2Server()
 
@@ -2115,8 +2182,9 @@ describe('WSv2 unit', () => {
     })
   })
 
-  describe('onMaintenanceEnd', () => {
-    it('is called when receiving a 20061 info code', async () => {
+  await t.test('onMaintenanceEnd', async (t) => {
+    await t.test('is called when receiving a 20061 info code', async (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       wss = new MockWSv2Server()
 
@@ -2132,8 +2200,9 @@ describe('WSv2 unit', () => {
     })
   })
 
-  describe('onServerRestart', () => {
-    it('is called when receiving a 20051 info code', async () => {
+  await t.test('onServerRestart', async (t) => {
+    await t.test('is called when receiving a 20051 info code', async (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       wss = new MockWSv2Server()
 
@@ -2149,65 +2218,75 @@ describe('WSv2 unit', () => {
     })
   })
 
-  describe('cancelOrder', () => {
-    it('throws an error if not authenticated', (done) => {
+  await t.test('cancelOrder', async (t) => {
+    await t.test('throws an error if not authenticated', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = createTestWSv2Instance()
-      ws.cancelOrder().catch(() => { done() })
+      ws.cancelOrder().catch(() => { t.pass() })
     })
 
-    it('uses order as id if given number', (done) => {
+    await t.test('uses order as id if given number', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = createTestWSv2Instance()
       ws._isAuthenticated = true
       ws._sendOrderPacket = (packet) => {
-        assert.deepStrictEqual(packet[3], { id: 42 })
-        done()
+        t.alike(packet[3], { id: 42 })
       }
 
       ws.cancelOrder(42)
     })
 
-    it('parses id from order array', (done) => {
+    await t.test('parses id from order array', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = createTestWSv2Instance()
       ws._isAuthenticated = true
       ws._sendOrderPacket = (packet) => {
-        assert.deepStrictEqual(packet[3], { id: 42 })
-        done()
+        t.alike(packet[3], { id: 42 })
       }
 
       ws.cancelOrder([42])
     })
 
-    it('parses id from order object', (done) => {
+    await t.test('parses id from order object', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = createTestWSv2Instance()
       ws._isAuthenticated = true
       ws._sendOrderPacket = (packet) => {
-        assert.deepStrictEqual(packet[3], { id: 42 })
-        done()
+        t.alike(packet[3], { id: 42 })
       }
 
       ws.cancelOrder({ id: 42 })
     })
 
-    it('resolves on confirmation', (done) => {
+    await t.test('resolves on confirmation', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = createTestWSv2Instance()
       ws._isAuthenticated = true
       ws._sendOrderPacket = () => { }
 
       ws.cancelOrder(42)
-        .then(() => done())
-        .catch((e) => done(e))
+        .then(() => t.pass())
+        .catch((e) => t.fail(e))
 
       ws._eventCallbacks.q.get('order-cancel-42')[0]()
     })
   })
 
-  describe('cancelOrders', () => {
-    it('throws an error if not authenticated', (done) => {
+  await t.test('cancelOrders', async (t) => {
+    await t.test('throws an error if not authenticated', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = createTestWSv2Instance()
-      ws.cancelOrders([]).catch(() => done())
+      ws.cancelOrders([]).catch(() => t.pass())
     })
 
-    it('calls cancelOrder with each order', () => {
+    await t.test('calls cancelOrder with each order', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       ws._isAuthenticated = true
 
@@ -2215,10 +2294,11 @@ describe('WSv2 unit', () => {
 
       ws.cancelOrder = (i) => { seen += i }
       ws.cancelOrders([1, 2])
-      assert.strictEqual(seen, 3)
+      t.is(seen, 3)
     })
 
-    it('resolves when all orders are cancelled', async () => {
+    await t.test('resolves when all orders are cancelled', async (t) => {
+      t.teardown(teardown)
       const now = Date.now()
       ws = createTestWSv2Instance()
       ws._isAuthenticated = true
@@ -2228,12 +2308,14 @@ describe('WSv2 unit', () => {
 
       await ws.cancelOrders([1, 2])
 
-      assert.ok(Date.now() - now >= 10, 'did not wait') // note 10 - parallel
+      t.ok(Date.now() - now >= 10, 'did not wait') // note 10 - parallel
     })
   })
 
-  describe('_handleTickerMessage', () => {
-    it('forwards messages to relevant listeners', (done) => {
+  await t.test('_handleTickerMessage', async (t) => {
+    await t.test('forwards messages to relevant listeners', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = createTestWSv2Instance()
       ws._channelMap = {
         42: {
@@ -2243,11 +2325,13 @@ describe('WSv2 unit', () => {
         }
       }
 
-      ws.onTicker({ symbol: 'tBTCUSD' }, () => { done() })
+      ws.onTicker({ symbol: 'tBTCUSD' }, () => { t.pass() })
       ws._handleTickerMessage([42, ['test']], ws._channelMap[42])
     })
 
-    it('emits a ticker event with the symbol', (done) => {
+    await t.test('emits a ticker event with the symbol', (t) => {
+      t.teardown(teardown)
+      t.plan(2)
       ws = createTestWSv2Instance()
       ws._channelMap = {
         42: {
@@ -2258,15 +2342,16 @@ describe('WSv2 unit', () => {
       }
 
       ws.on('ticker', (symbol, data) => {
-        assert.strictEqual(symbol, 'tBTCUSD')
-        assert.strictEqual(data[0], 42)
-        done()
+        t.is(symbol, 'tBTCUSD')
+        t.is(data[0], 42)
       })
 
       ws._handleTickerMessage([42, [42]], ws._channelMap[42])
     })
 
-    it('uses the trading ticker model for trade symbols', (done) => {
+    await t.test('uses the trading ticker model for trade symbols', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = createTestWSv2Instance({ transform: true })
       ws._channelMap = {
         42: {
@@ -2277,14 +2362,15 @@ describe('WSv2 unit', () => {
       }
 
       ws.on('ticker', (symbol, data) => {
-        assert.ok(data instanceof TradingTicker)
-        done()
+        t.ok(data instanceof TradingTicker)
       })
 
       ws._handleTickerMessage([42, [42]], ws._channelMap[42])
     })
 
-    it('uses the funding ticker model for funding symbols', (done) => {
+    await t.test('uses the funding ticker model for funding symbols', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       ws = createTestWSv2Instance({ transform: true })
       ws._channelMap = {
         42: {
@@ -2295,16 +2381,16 @@ describe('WSv2 unit', () => {
       }
 
       ws.on('ticker', (symbol, data) => {
-        assert.ok(data instanceof FundingTicker)
-        done()
+        t.ok(data instanceof FundingTicker)
       })
 
       ws._handleTickerMessage([42, [42]], ws._channelMap[42])
     })
   })
 
-  describe('getChannelId', () => {
-    it('matches the specified type and filter', () => {
+  await t.test('getChannelId', async (t) => {
+    await t.test('matches the specified type and filter', (t) => {
+      t.teardown(teardown)
       ws = createTestWSv2Instance()
       ws._channelMap = {
         test: {
@@ -2314,7 +2400,61 @@ describe('WSv2 unit', () => {
         }
       }
 
-      assert.strictEqual(ws.getDataChannelId('ticker', { symbol: 'fUSD' }), 'test')
+      t.is(ws.getDataChannelId('ticker', { symbol: 'fUSD' }), 'test')
+    })
+  })
+})
+
+test.skip('WSv2 unit', async (t) => {
+  await t.test('WSv2 seq audit: _validateMessageSeq', async (t) => {
+    await t.test('all chan 0 messages except for notifications include, but do not advance the pub seq num', (t) => {
+      const ws = new WSv2()
+
+      ws._seqAudit = true
+      ws._lastPubSeq = 1
+      ws._lastAuthSeq = 1
+
+      t.is(ws._validateMessageSeq([0, 'bu', [], 1, 2]), null)
+      t.is(ws._validateMessageSeq([0, 'bu', [], 1, 3]), null)
+      t.is(ws._validateMessageSeq([0, 'bu', [], 1, 4]), null)
+      t.is(ws._validateMessageSeq([0, 'n', [], 1, 5]), null)
+      t.is(ws._lastPubSeq, 1)
+      t.is(ws._lastAuthSeq, 5)
+    })
+
+    await t.test('non-*-req notifications advance the auth seq num and do not include a pub seq num', (t) => {
+      const ws = new WSv2()
+
+      ws._seqAudit = true
+      ws._lastPubSeq = 4
+      ws._lastAuthSeq = 4
+
+      const nonReqPayload = [null, null, null, null, null, null, null]
+
+      t.is(ws._validateMessageSeq([0, 'n', nonReqPayload, 5]), null)
+      t.is(ws._validateMessageSeq([0, 'n', nonReqPayload, 6]), null)
+      t.is(ws._validateMessageSeq([0, 'n', nonReqPayload, 7]), null)
+      t.is(ws._validateMessageSeq([0, 'n', nonReqPayload, 8]), null)
+      t.is(ws._validateMessageSeq([0, 'n', nonReqPayload, 9]), null)
+      t.is(ws._lastPubSeq, 9)
+      t.is(ws._lastAuthSeq, 9)
+    })
+
+    await t.test('*-req notifications do not advance the auth sequence number', (t) => {
+      const ws = new WSv2()
+      const onReqPacket = [0, 'n', [0, 'on-req', null, null, [], null, '', ''], 1]
+      const ouReqPacket = [0, 'n', [0, 'ou-req', null, null, [], null, '', ''], 1]
+      const ocReqPacket = [0, 'n', [0, 'oc-req', null, null, [], null, '', ''], 1]
+
+      ws._seqAudit = true
+      ws._lastPubSeq = -1
+      ws._lastAuthSeq = -1
+
+      t.is(ws._validateMessageSeq(onReqPacket), null)
+      t.is(ws._validateMessageSeq(ouReqPacket), null)
+      t.is(ws._validateMessageSeq(ocReqPacket), null)
+      t.is(ws._lastPubSeq, -1)
+      t.is(ws._lastAuthSeq, 3)
     })
   })
 })

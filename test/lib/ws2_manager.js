@@ -1,45 +1,48 @@
-/* eslint-env mocha */
 'use strict'
 
-const assert = require('assert')
+const test = require('brittle')
 const _isObject = require('lodash/isObject')
 const _isArray = require('lodash/isArray')
+const { MockWSv2Server } = require('bfx-api-mock-srv')
 const WS2Manager = require('../../lib/ws2_manager')
 const WSv2 = require('../../lib/transports/ws2')
 
-describe('WS2Manager', () => {
+test('WS2Manager', async (t) => {
   let m
 
-  afterEach(async () => {
+  const teardown = async () => {
     if (m) {
       try {
         await m.close()
       } catch (e) {
-        assert.ok(true, 'may fail due to being modified internally')
+        // may fail due to being modified internally
       } finally {
-        m = null // eslint-disable-line
+        m = null
       }
     }
-  })
+  }
 
-  describe('setAuthArgs', () => {
-    it('updates the internal auth args', () => {
+  await t.test('setAuthArgs', async (t) => {
+    await t.test('updates the internal auth args', (t) => {
+      t.teardown(teardown)
       m = new WS2Manager()
       m.setAuthArgs({ apiKey: '42' })
-      assert.strictEqual(m.getAuthArgs().apiKey, '42')
+      t.is(m.getAuthArgs().apiKey, '42')
     })
   })
 
-  describe('getAuthArgs', () => {
-    it('returns internal auth args', () => {
+  await t.test('getAuthArgs', async (t) => {
+    await t.test('returns internal auth args', (t) => {
+      t.teardown(teardown)
       m = new WS2Manager()
       m.setAuthArgs({ apiKey: '42' })
-      assert.strictEqual(m.getAuthArgs().apiKey, '42')
+      t.is(m.getAuthArgs().apiKey, '42')
     })
   })
 
-  describe('reconnect', () => {
-    it('calls reconnect on all sockets', async () => {
+  await t.test('reconnect', async (t) => {
+    await t.test('calls reconnect on all sockets', async (t) => {
+      t.teardown(teardown)
       m = new WS2Manager()
       let called = false
 
@@ -48,10 +51,11 @@ describe('WS2Manager', () => {
       })
 
       await m.reconnect()
-      assert.ok(called, 'reconnect not called on socket')
+      t.ok(called, 'reconnect not called on socket')
     })
 
-    it('resolves when all sockets reconnect', async () => {
+    await t.test('resolves when all sockets reconnect', async (t) => {
+      t.teardown(teardown)
       m = new WS2Manager()
       let called = false
 
@@ -65,12 +69,13 @@ describe('WS2Manager', () => {
       })
 
       await m.reconnect()
-      assert.ok(called, 'reconnect not called on socket')
+      t.ok(called, 'reconnect not called on socket')
     })
   })
 
-  describe('close', () => {
-    it('calls close on all sockets', async () => {
+  await t.test('close', async (t) => {
+    await t.test('calls close on all sockets', async (t) => {
+      t.teardown(teardown)
       m = new WS2Manager()
       let called = false
 
@@ -79,10 +84,11 @@ describe('WS2Manager', () => {
       })
 
       await m.close()
-      assert.ok(called, 'close not called on socket')
+      t.ok(called, 'close not called on socket')
     })
 
-    it('resolves when all sockets close', async () => {
+    await t.test('resolves when all sockets close', async (t) => {
+      t.teardown(teardown)
       m = new WS2Manager()
       let called = false
 
@@ -96,30 +102,33 @@ describe('WS2Manager', () => {
       })
 
       await m.close()
-      assert.ok(called, 'close not called on socket')
+      t.ok(called, 'close not called on socket')
     })
   })
 
-  describe('getNumSockets', () => {
-    it('returns the number of sockets', () => {
+  await t.test('getNumSockets', async (t) => {
+    await t.test('returns the number of sockets', (t) => {
+      t.teardown(teardown)
       m = new WS2Manager()
       m._sockets.push({})
       m._sockets.push({})
-      assert.strictEqual(m.getNumSockets(), 2, 'did not report correct number of sockets')
+      t.is(m.getNumSockets(), 2, 'did not report correct number of sockets')
     })
   })
 
-  describe('getSocket', () => {
-    it('returns the socket at the requested index', () => {
+  await t.test('getSocket', async (t) => {
+    await t.test('returns the socket at the requested index', (t) => {
+      t.teardown(teardown)
       m = new WS2Manager()
       m._sockets.push(1)
       m._sockets.push(42)
-      assert.strictEqual(m.getSocket(1), 42)
+      t.is(m.getSocket(1), 42)
     })
   })
 
-  describe('getSocketInfo', () => {
-    it('returns an array of objects reporting number of data channels per socket', () => {
+  await t.test('getSocketInfo', async (t) => {
+    await t.test('returns an array of objects reporting number of data channels per socket', (t) => {
+      t.teardown(teardown)
       m = new WS2Manager()
 
       m._sockets.push({
@@ -136,15 +145,16 @@ describe('WS2Manager', () => {
 
       const info = m.getSocketInfo()
 
-      assert.ok(_isArray(info), 'did not return array')
-      info.forEach(i => assert.ok(_isObject(i), 'socket info not an object'))
-      assert.strictEqual(info[0].nChannels, 4, 'socket info does not report correct number of channels')
-      assert.strictEqual(info[1].nChannels, 5, 'socket info does not report correct number of channels')
+      t.ok(_isArray(info), 'did not return array')
+      info.forEach(i => t.ok(_isObject(i), 'socket info not an object'))
+      t.is(info[0].nChannels, 4, 'socket info does not report correct number of channels')
+      t.is(info[1].nChannels, 5, 'socket info does not report correct number of channels')
     })
   })
 
-  describe('getDataChannelCount', () => {
-    it('takes pending subs & unsubs into account', () => {
+  await t.test('getDataChannelCount', async (t) => {
+    await t.test('takes pending subs & unsubs into account', (t) => {
+      t.teardown(teardown)
       const s = {
         ws: new WSv2(),
         pendingSubscriptions: [['book', {}]],
@@ -159,29 +169,33 @@ describe('WS2Manager', () => {
 
       const count = WS2Manager.getDataChannelCount(s)
 
-      assert.strictEqual(s.ws.getDataChannelCount(), 2)
-      assert.strictEqual(count, 3)
+      t.is(s.ws.getDataChannelCount(), 2)
+      t.is(count, 3)
     })
   })
 
-  describe('auth', () => {
-    it('does nothing if api key/secret are already provided', () => {
+  await t.test('auth', async (t) => {
+    await t.test('does nothing if api key/secret are already provided', (t) => {
+      t.teardown(teardown)
       m = new WS2Manager({ apiKey: 'x', apiSecret: 'x' })
 
       m.auth({ apiKey: '42', apiSecret: '43' })
-      assert.strictEqual(m._socketArgs.apiKey, 'x')
-      assert.strictEqual(m._socketArgs.apiSecret, 'x')
+      t.is(m._socketArgs.apiKey, 'x')
+      t.is(m._socketArgs.apiSecret, 'x')
     })
 
-    it('saves auth args', () => {
+    await t.test('saves auth args', (t) => {
+      t.teardown(teardown)
       m = new WS2Manager()
 
       m.auth({ calc: 1, dms: 4 })
-      assert.strictEqual(m._authArgs.calc, 1)
-      assert.strictEqual(m._authArgs.dms, 4)
+      t.is(m._authArgs.calc, 1)
+      t.is(m._authArgs.dms, 4)
     })
 
-    it('calls auth on existing unauthenticated sockets', (done) => {
+    await t.test('calls auth on existing unauthenticated sockets', (t) => {
+      t.teardown(teardown)
+      t.plan(1)
       let cred = false
       m = new WS2Manager()
 
@@ -190,8 +204,7 @@ describe('WS2Manager', () => {
           isAuthenticated: () => false,
           updateAuthArgs: ({ apiKey: key, apiSecret: secret }) => { cred = `${key}:${secret}` },
           auth: () => {
-            assert.strictEqual(cred, '41:42')
-            done()
+            t.is(cred, '41:42')
           }
         }
       }]
@@ -200,15 +213,19 @@ describe('WS2Manager', () => {
     })
   })
 
-  describe('openSocket', () => {
-    it('binds listeners to forward events', async () => {
+  await t.test('openSocket', async (t) => {
+    const wss = new MockWSv2Server()
+    t.teardown(() => wss.close())
+
+    await t.test('binds listeners to forward events', { timeout: 4000 }, async (t) => {
+      t.teardown(teardown)
       const heardEvents = {}
       const events = [
         'open', 'message', 'auth', 'error', 'close', 'subscribed',
         'unsubscribed'
       ]
 
-      m = new WS2Manager()
+      m = new WS2Manager({ url: 'ws://localhost:9997' })
       const s = m.openSocket()
       const { ws } = s
 
@@ -218,43 +235,46 @@ describe('WS2Manager', () => {
 
       events.forEach(e => ws.emit(e))
       events.forEach(e => {
-        assert(heardEvents[e])
+        t.ok(heardEvents[e])
       })
 
       return new Promise((resolve, reject) => {
         ws.on('open', () => ws.close().then(resolve).catch(reject))
       })
-    }).timeout(4000)
+    })
 
-    it('saves socket state', async () => {
-      m = new WS2Manager()
+    await t.test('saves socket state', { timeout: 4000 }, async (t) => {
+      t.teardown(teardown)
+      m = new WS2Manager({ url: 'ws://localhost:9997' })
       const s = m.openSocket()
       const { ws } = s
 
-      assert.deepStrictEqual(m._sockets[0], s)
+      t.alike(m._sockets[0], s)
 
       return new Promise((resolve, reject) => {
         ws.on('open', () => ws.close().then(resolve).catch(reject))
       })
-    }).timeout(4000)
+    })
 
-    it('binds \'unsubscribed\' listener to remove channel from pending unsubs', async () => {
-      m = new WS2Manager()
+    await t.test('binds \'unsubscribed\' listener to remove channel from pending unsubs', { timeout: 4000 }, async (t) => {
+      t.teardown(teardown)
+      m = new WS2Manager({ url: 'ws://localhost:9997' })
       const s = m.openSocket()
       const { ws } = s
 
       s.pendingUnsubscriptions.push(`${42}`)
       s.ws.emit('unsubscribed', { chanId: 42 })
 
-      assert.strictEqual(s.pendingUnsubscriptions.length, 0)
+      t.is(s.pendingUnsubscriptions.length, 0)
 
       return new Promise((resolve, reject) => {
         ws.on('open', () => ws.close().then(resolve).catch(reject))
       })
-    }).timeout(4000)
+    })
 
-    it('binds \'subscribed\' listener to remove channel from pending subs', async () => {
-      m = new WS2Manager()
+    await t.test('binds \'subscribed\' listener to remove channel from pending subs', { timeout: 4000 }, async (t) => {
+      t.teardown(teardown)
+      m = new WS2Manager({ url: 'ws://localhost:9997' })
       const s = m.openSocket()
       const { ws } = s
 
@@ -266,15 +286,18 @@ describe('WS2Manager', () => {
         len: '25'
       })
 
-      assert.strictEqual(s.pendingSubscriptions.length, 0)
+      t.is(s.pendingSubscriptions.length, 0)
 
       return new Promise((resolve, reject) => {
         ws.on('open', () => ws.close().then(resolve).catch(reject))
       })
-    }).timeout(4000)
+    })
 
-    it('auto-auths if manager has credentials configured', (done) => {
+    await t.test('auto-auths if manager has credentials configured', { timeout: 4000 }, (t) => {
+      t.teardown(teardown)
+      t.plan(2)
       m = new WS2Manager({
+        url: 'ws://localhost:9997',
         apiKey: 'key',
         apiSecret: 'secret'
       })
@@ -283,17 +306,17 @@ describe('WS2Manager', () => {
       const { ws } = s
 
       ws.auth = async () => {
-        assert.strictEqual(ws._authArgs.apiKey, 'key', 'api key not set')
-        assert.strictEqual(ws._authArgs.apiSecret, 'secret', 'api secret not set')
+        t.is(ws._authArgs.apiKey, 'key', 'api key not set')
+        t.is(ws._authArgs.apiSecret, 'secret', 'api secret not set')
 
         await ws.close()
-        done()
       }
-    }).timeout(4000)
+    })
   })
 
-  describe('getAuthenticatedSocket', () => {
-    it('returns the first authenticated socket found', () => {
+  await t.test('getAuthenticatedSocket', async (t) => {
+    await t.test('returns the first authenticated socket found', (t) => {
+      t.teardown(teardown)
       m = new WS2Manager()
 
       for (let i = 0; i < 3; i += 1) {
@@ -303,12 +326,13 @@ describe('WS2Manager', () => {
         })
       }
 
-      assert.strictEqual(m.getAuthenticatedSocket().test, 1, 'did not return correct socket')
+      t.is(m.getAuthenticatedSocket().test, 1, 'did not return correct socket')
     })
   })
 
-  describe('getFreeDataSocket', () => {
-    it('returns the first socket below the data channel limit', () => {
+  await t.test('getFreeDataSocket', async (t) => {
+    await t.test('returns the first socket below the data channel limit', (t) => {
+      t.teardown(teardown)
       m = new WS2Manager()
 
       m._sockets[0] = {
@@ -324,12 +348,13 @@ describe('WS2Manager', () => {
       }
 
       const s = m.getFreeDataSocket()
-      assert.deepStrictEqual(s, m._sockets[1])
+      t.alike(s, m._sockets[1])
     })
   })
 
-  describe('getSocketWithDataChannel', () => {
-    it('returns socket subscribed to specified channel/filter pair', () => {
+  await t.test('getSocketWithDataChannel', async (t) => {
+    await t.test('returns socket subscribed to specified channel/filter pair', (t) => {
+      t.teardown(teardown)
       m = new WS2Manager()
       m._sockets[0] = {
         ws: {},
@@ -338,7 +363,7 @@ describe('WS2Manager', () => {
       }
 
       let s = m.getSocketWithDataChannel('candles', { key: 'test' })
-      assert.deepStrictEqual(s, m._sockets[0])
+      t.alike(s, m._sockets[0])
 
       /// /
       m._sockets[0] = {
@@ -348,14 +373,14 @@ describe('WS2Manager', () => {
       }
 
       s = m.getSocketWithDataChannel('candles', { key: 'test' })
-      assert(!s)
+      t.ok(!s)
 
       /// /
       m._sockets[0] = {
         ws: {
           getDataChannelId: (type, filter) => {
-            assert.strictEqual(type, 'candles')
-            assert.deepStrictEqual(filter, { key: 'test' })
+            t.is(type, 'candles')
+            t.alike(filter, { key: 'test' })
             return 1
           }
         },
@@ -364,14 +389,14 @@ describe('WS2Manager', () => {
       }
 
       s = m.getSocketWithDataChannel('candles', { key: 'test' })
-      assert.deepStrictEqual(s, m._sockets[0])
+      t.alike(s, m._sockets[0])
 
       /// /
       m._sockets[0] = {
         ws: {
           getDataChannelId: (type, filter) => {
-            assert.strictEqual(type, 'candles')
-            assert.deepStrictEqual(filter, { key: 'test' })
+            t.is(type, 'candles')
+            t.alike(filter, { key: 'test' })
             return 1
           }
         },
@@ -380,12 +405,13 @@ describe('WS2Manager', () => {
       }
 
       s = m.getSocketWithDataChannel('candles', { key: 'test' })
-      assert(!s)
+      t.ok(!s)
     })
   })
 
-  describe('getSocketWithChannel', () => {
-    it('returns correct socket', () => {
+  await t.test('getSocketWithChannel', async (t) => {
+    await t.test('returns correct socket', (t) => {
+      t.teardown(teardown)
       m = new WS2Manager()
       m._sockets[0] = {
         pendingUnsubscriptions: [],
@@ -397,7 +423,7 @@ describe('WS2Manager', () => {
       }
 
       let s = m.getSocketWithChannel(42)
-      assert.deepStrictEqual(s, m._sockets[0])
+      t.alike(s, m._sockets[0])
 
       /// /
       m._sockets[0] = {
@@ -410,12 +436,13 @@ describe('WS2Manager', () => {
       }
 
       s = m.getSocketWithChannel(42)
-      assert(!s)
+      t.ok(!s)
     })
   })
 
-  describe('getSocketWithSubRef', () => {
-    it('returns the first socket found that has the requested subscription ref', () => {
+  await t.test('getSocketWithSubRef', async (t) => {
+    await t.test('returns the first socket found that has the requested subscription ref', (t) => {
+      t.teardown(teardown)
       m = new WS2Manager()
 
       for (let i = 0; i < 3; i += 1) {
@@ -423,8 +450,8 @@ describe('WS2Manager', () => {
           test: i,
           ws: {
             hasSubscriptionRef: (channel, identifier) => {
-              assert.strictEqual(channel, 'a', 'did not pass channel through')
-              assert.strictEqual(identifier, 'b', 'did not pass identifier through')
+              t.is(channel, 'a', 'did not pass channel through')
+              t.is(identifier, 'b', 'did not pass identifier through')
               return i === 1
             }
           }
@@ -432,13 +459,14 @@ describe('WS2Manager', () => {
       }
 
       const s = m.getSocketWithSubRef('a', 'b')
-      assert.ok(_isObject(s), 'did not return a socket')
-      assert.strictEqual(s.test, 1, 'did not return correct socket')
+      t.ok(_isObject(s), 'did not return a socket')
+      t.is(s.test, 1, 'did not return correct socket')
     })
   })
 
-  describe('subscribe', () => {
-    it('delays sub for unopened sockets', () => {
+  await t.test('subscribe', async (t) => {
+    await t.test('delays sub for unopened sockets', (t) => {
+      t.teardown(teardown)
       m = new WS2Manager()
       let onceOpenCalled = false
 
@@ -447,20 +475,21 @@ describe('WS2Manager', () => {
         pendingUnsubscriptions: [],
         ws: {
           getDataChannelCount: () => 0,
-          managedSubscribe: () => assert(false),
+          managedSubscribe: () => t.ok(false),
           isOpen: () => false,
           once: (eName) => {
-            assert.strictEqual(eName, 'open')
+            t.is(eName, 'open')
             onceOpenCalled = true
           }
         }
       }
 
       m.subscribe('candles', 'test', { key: 'test' })
-      assert(onceOpenCalled)
+      t.ok(onceOpenCalled)
     })
 
-    it('saves pending sub', () => {
+    await t.test('saves pending sub', (t) => {
+      t.teardown(teardown)
       m = new WS2Manager()
       m._sockets[0] = {
         pendingSubscriptions: [],
@@ -473,12 +502,13 @@ describe('WS2Manager', () => {
       }
 
       m.subscribe('candles', 'test', { key: 'test' })
-      assert.deepStrictEqual(m._sockets[0].pendingSubscriptions, [
+      t.alike(m._sockets[0].pendingSubscriptions, [
         ['candles', { key: 'test' }]
       ])
     })
 
-    it('opens a new socket if no sockets are available', () => {
+    await t.test('opens a new socket if no sockets are available', (t) => {
+      t.teardown(teardown)
       m = new WS2Manager()
       let openCalled = false
 
@@ -495,10 +525,11 @@ describe('WS2Manager', () => {
       }
 
       m.subscribe('candles', 'test', { key: 'test' })
-      assert(openCalled)
+      t.ok(openCalled)
     })
 
-    it('opens a new socket if no sockets are below data limit', () => {
+    await t.test('opens a new socket if no sockets are below data limit', (t) => {
+      t.teardown(teardown)
       m = new WS2Manager()
       let openCalled = false
 
@@ -527,13 +558,14 @@ describe('WS2Manager', () => {
 
       m.subscribe('candles', 'test', { key: 'test' })
 
-      assert(openCalled)
-      assert.strictEqual(m._sockets.length, 2)
+      t.ok(openCalled)
+      t.is(m._sockets.length, 2)
     })
   })
 
-  describe('unsubscribe', () => {
-    it('saves pending unsub & calls unsub on socket', () => {
+  await t.test('unsubscribe', async (t) => {
+    await t.test('saves pending unsub & calls unsub on socket', (t) => {
+      t.teardown(teardown)
       m = new WS2Manager()
       let unsubCalled = false
 
@@ -541,7 +573,7 @@ describe('WS2Manager', () => {
         pendingUnsubscriptions: [],
         ws: {
           unsubscribe: (cid) => {
-            assert.strictEqual(cid, 42)
+            t.is(cid, 42)
             unsubCalled = true
           },
 
@@ -552,13 +584,14 @@ describe('WS2Manager', () => {
       }
 
       m.unsubscribe(42)
-      assert.deepStrictEqual(m._sockets[0].pendingUnsubscriptions, [42])
-      assert(unsubCalled)
+      t.alike(m._sockets[0].pendingUnsubscriptions, [42])
+      t.ok(unsubCalled)
     })
   })
 
-  describe('managedUnsubscribe', () => {
-    it('saves pending unsub and calls managed unsub on socket', () => {
+  await t.test('managedUnsubscribe', async (t) => {
+    await t.test('saves pending unsub and calls managed unsub on socket', (t) => {
+      t.teardown(teardown)
       m = new WS2Manager()
       let unsubCalled = false
 
@@ -566,7 +599,7 @@ describe('WS2Manager', () => {
         pendingUnsubscriptions: [],
         ws: {
           managedUnsubscribe: (cid) => {
-            assert.strictEqual(cid, 42)
+            t.is(cid, 42)
             unsubCalled = true
           },
 
@@ -576,13 +609,14 @@ describe('WS2Manager', () => {
       }
 
       m.managedUnsubscribe(42)
-      assert.deepStrictEqual(m._sockets[0].pendingUnsubscriptions, [42])
-      assert(unsubCalled)
+      t.alike(m._sockets[0].pendingUnsubscriptions, [42])
+      t.ok(unsubCalled)
     })
   })
 
-  describe('withAllSockets', () => {
-    it('calls the provided cb with all internal sockets', () => {
+  await t.test('withAllSockets', async (t) => {
+    await t.test('calls the provided cb with all internal sockets', (t) => {
+      t.teardown(teardown)
       m = new WS2Manager()
       const socketsSeen = {}
 
@@ -591,37 +625,40 @@ describe('WS2Manager', () => {
         socketsSeen[sock] = true
       })
 
-      assert(socketsSeen.a)
-      assert(socketsSeen.b)
-      assert(socketsSeen.c)
+      t.ok(socketsSeen.a)
+      t.ok(socketsSeen.b)
+      t.ok(socketsSeen.c)
     })
   })
 
-  describe('subscribeOrderBook', () => {
-    it('calls subscribe with a valid filter and the provided symbol', (done) => {
+  await t.test('subscribeOrderBook', async (t) => {
+    await t.test('calls subscribe with a valid filter and the provided symbol', (t) => {
+      t.teardown(teardown)
+      t.plan(6)
       m = new WS2Manager()
       m.subscribe = (type, symbol, filter) => {
-        assert.ok(_isObject(filter), 'filter not an object')
-        assert.strictEqual(filter.symbol, 'tBTCUSD', 'symbol did not match')
-        assert.strictEqual(filter.prec, 'P0', 'prec did not match')
-        assert.strictEqual(filter.len, '25', 'len did not match')
-        assert.strictEqual(filter.freq, 'F0', 'freq did not match')
-        assert.strictEqual(symbol, 'tBTCUSD')
-        done()
+        t.ok(_isObject(filter), 'filter not an object')
+        t.is(filter.symbol, 'tBTCUSD', 'symbol did not match')
+        t.is(filter.prec, 'P0', 'prec did not match')
+        t.is(filter.len, '25', 'len did not match')
+        t.is(filter.freq, 'F0', 'freq did not match')
+        t.is(symbol, 'tBTCUSD')
       }
 
       m.subscribeOrderBook('tBTCUSD', 'P0', '25', 'F0')
     })
   })
 
-  describe('onOrderBook', () => {
-    it('passes a valid OB filter to the first socket with a book channel', (done) => {
+  await t.test('onOrderBook', async (t) => {
+    await t.test('passes a valid OB filter to the first socket with a book channel', (t) => {
+      t.teardown(teardown)
+      t.plan(11)
       const assertFilter = (filter) => {
-        assert.ok(_isObject(filter), 'filter not an object')
-        assert.strictEqual(filter.symbol, 'tBTCUSD', 'symbol did not match')
-        assert.strictEqual(filter.prec, 'P0', 'prec did not match')
-        assert.strictEqual(filter.len, '25', 'len did not match')
-        assert.strictEqual(filter.freq, 'F0', 'freq did not match')
+        t.ok(_isObject(filter), 'filter not an object')
+        t.is(filter.symbol, 'tBTCUSD', 'symbol did not match')
+        t.is(filter.prec, 'P0', 'prec did not match')
+        t.is(filter.len, '25', 'len did not match')
+        t.is(filter.freq, 'F0', 'freq did not match')
       }
 
       m = new WS2Manager()
@@ -630,14 +667,13 @@ describe('WS2Manager', () => {
         pendingUnsubscriptions: [],
         ws: {
           getDataChannelId: (type, filter) => {
-            assert.strictEqual(type, 'book')
+            t.is(type, 'book')
             assertFilter(filter)
             return 42
           },
 
           onOrderBook: (filter) => {
             assertFilter(filter)
-            done()
           }
         }
       })

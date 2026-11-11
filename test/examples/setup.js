@@ -1,20 +1,20 @@
-/* eslint-env mocha */
 'use strict'
 
-const assert = require('assert')
+const test = require('brittle')
 const _isObject = require('lodash/isObject')
 const _isFunction = require('lodash/isFunction')
 
 const { args, debug, debugTable, readline } = require('../../examples/util/setup')
 
-describe('setup', () => {
-  it('provides a debugger', () => {
-    assert.ok(_isObject(args), 'setup doesnt provide a tooling object')
-    assert.ok(_isFunction(debug), 'setup doesnt provide a debug() instance')
-    assert.ok(_isFunction(debugTable), 'setup doesnt provide a debugTable() instance')
+test('setup', { timeout: 10 * 1000 }, async (t) => {
+  await t.test('provides a debugger', (t) => {
+    t.ok(_isObject(args), 'setup doesnt provide a tooling object')
+    t.ok(_isFunction(debug), 'setup doesnt provide a debug() instance')
+    t.ok(_isFunction(debugTable), 'setup doesnt provide a debugTable() instance')
   })
 
-  it('provides a readline instance', () => {
-    assert.ok(_isFunction(readline.questionAsync), 'no readline instance provided')
+  await t.test('provides a readline instance', (t) => {
+    t.ok(_isFunction(readline.questionAsync), 'no readline instance provided')
+    readline.close()
   })
-}).timeout(10 * 1000) // timeout for travis
+})
