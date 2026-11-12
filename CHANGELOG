@@ -1,3 +1,6 @@
+10.0.1
+- bump bfx-api-mock-srv to 4.0.0
+
 10.0.0
 - Require Node.js >= 22
 - upgrade: bfx-api-node-models 3.0.0, bfx-api-node-rest 9.0.0, bfx-api-node-util 2.0.0, bfx-api-node-ws1 2.0.0, cbq 1.0.0; pin the remaining deps
