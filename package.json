@@ -37,7 +37,7 @@
   "homepage": "http://bitfinexcom.github.io/bitfinex-api-node/",
   "devDependencies": {
     "@bitfinex/lint-js": "^1.1.0",
-    "bfx-api-mock-srv": "^4.0.0",
+    "bfx-api-mock-srv": "^4.0.1",
     "blessed": "0.1.81",
     "brittle": "^4.5.0",
     "cli-table3": "0.6.5",
