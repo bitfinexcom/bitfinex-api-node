@@ -1,3 +1,6 @@
+10.0.2
+- fix: prevent prototype pollution in WSv2 listener
+
 10.0.1
 - bump bfx-api-* deps
 
